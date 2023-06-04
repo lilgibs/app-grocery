@@ -7,6 +7,7 @@ module.exports = {
     try {
       const { email, password } = req.body;
       const isEmailExist = await query(`SELECT * FROM admins WHERE email=${db.escape(email)}`);
+
       if (isEmailExist.length == 0) {
         return res.status(400).send({ message: "You are not registered as an admin" });
       }

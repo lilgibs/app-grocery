@@ -1,15 +1,24 @@
-import React from "react";
+import React, { useEffect } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
+import { loginAdmin } from "../features/adminSlice";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 const AdminLogin = () => {
+  const dispatch = useDispatch();
   const nav = useNavigate();
+
+  const userGlobal = useSelector((state) => state.admin.admin);
 
   const LoginAdminSchema = Yup.object().shape({
     email: Yup.string().email("Invalid email format").required("Please input your email"),
     password: Yup.string().min(3, "Password must be 3 characters or longer").required("Please input your password"),
   });
+
+  useEffect(() => {
+    if (userGlobal.id > 0) nav("/admindashboard");
+  }, [userGlobal]);
 
   return (
     <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
@@ -23,8 +32,8 @@ const AdminLogin = () => {
           initialValues={{ email: "", password: "" }}
           validationSchema={LoginAdminSchema}
           onSubmit={(value) => {
-            alert("testing ");
-            console.log(value);
+            //alert("testing ");
+            dispatch(loginAdmin(value));
           }}
         >
           {(props) => {
@@ -50,7 +59,7 @@ const AdminLogin = () => {
                       Password
                     </label>
                     <div className="text-sm">
-                      <a href="#" className="font-semibold text-indigo-600 hover:text-indigo-500">
+                      <a href="/" className="font-semibold text-indigo-600 hover:text-indigo-500">
                         Forgot password?
                       </a>
                     </div>
@@ -80,7 +89,7 @@ const AdminLogin = () => {
 
         <p className="mt-10 text-center text-sm text-gray-500">
           Not an admin?{" "}
-          <a href="#" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+          <a href="/" className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
             Login as a user
           </a>
         </p>

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 
 import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -21,6 +22,7 @@ function App() {
       <Routes>
         <Route path="/" element={<AdminLogin />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
       </Routes>
     </div>
   );
