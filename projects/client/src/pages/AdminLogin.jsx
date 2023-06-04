@@ -28,6 +28,7 @@ const AdminLogin = () => {
           validationSchema={LoginAdminSchema}
           onSubmit={(value) => {
             alert("testing ");
+            console.log(value);
           }}
         >
           {(props) => {
