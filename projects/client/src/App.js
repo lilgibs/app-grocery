@@ -20,6 +20,7 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<AdminLogin />} />
+        <Route path="/adminlogin" element={<AdminLogin />} />
       </Routes>
     </div>
   );

@@ -7,8 +7,8 @@ const AdminLogin = () => {
   const nav = useNavigate();
 
   const LoginAdminSchema = Yup.object().shape({
-    email: Yup.string().email("Format email salah").required("Email tidak boleh kosong"),
-    password: Yup.string().min(3, "Password haris lebih dari 3 karakter").required("Password tidak boleh kosong"),
+    email: Yup.string().email("Invalid email format").required("Please input your email"),
+    password: Yup.string().min(3, "Password must be 3 characters or longer").required("Please input your password"),
   });
 
   return (

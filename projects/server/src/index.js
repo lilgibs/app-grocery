@@ -1,9 +1,10 @@
 const { join } = require("path");
-require('dotenv').config({ path: join(__dirname, '../.env') });
+require("dotenv").config({ path: join(__dirname, "../.env") });
 const express = require("express");
 const cors = require("cors");
+const { authRoutes } = require("./routes");
 
-require('./config/db.js'); 
+require("./config/db.js");
 
 const PORT = process.env.PORT || 8000;
 const app = express();
@@ -24,6 +25,8 @@ app.get("/api/greetings", (req, res, next) => {
 });
 // ===========================
 // NOTE : Add your routes here
+
+app.use("/auth", authRoutes);
 
 // ===========================
 
