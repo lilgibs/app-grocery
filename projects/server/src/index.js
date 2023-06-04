@@ -3,6 +3,8 @@ require('dotenv').config({ path: join(__dirname, '../.env') });
 const express = require("express");
 const cors = require("cors");
 
+require('./config/db.js'); 
+
 const PORT = process.env.PORT || 8000;
 const app = express();
 app.use(cors());
