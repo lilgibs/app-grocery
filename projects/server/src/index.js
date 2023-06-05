@@ -2,6 +2,7 @@ const { join } = require("path");
 require('dotenv').config({ path: join(__dirname, '../.env') });
 const express = require("express");
 const cors = require("cors");
+const { adminAuthRoutes } = require("./routes/index.js");
 
 require('./config/db.js'); 
 
@@ -24,6 +25,8 @@ app.get("/api/greetings", (req, res, next) => {
 });
 // ===========================
 // NOTE : Add your routes here
+
+app.use('/admin', adminAuthRoutes);
 
 // ===========================
 

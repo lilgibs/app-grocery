@@ -1,7 +1,7 @@
 import axios from "axios";
-import logo from "./logo.svg";
-import "./styles/App.css";
 import { useEffect, useState } from "react";
+import { Route, Routes } from "react-router-dom";
+import UserManagementSettings from "./pages/UserManagementSettings";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -15,10 +15,9 @@ function App() {
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        {message}
-      </header>
+      <Routes>
+        <Route path="/admin/settings/users" element={<UserManagementSettings/>}/>
+      </Routes>
     </div>
   );
 }
