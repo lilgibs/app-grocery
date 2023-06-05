@@ -3,13 +3,20 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 module.exports = {
-  adminLogin: async (req, res) => {
+  adminLogin: async (req, res, next) => {
     try {
       const { email, password } = req.body;
+
+      // // test error throw
+      // if (!email.includes(`@`)) {
+      //   throw "Error dari throw"; // return error
+      // }
+
       const isEmailExist = await query(`SELECT * FROM admins WHERE email=${db.escape(email)}`);
 
       if (isEmailExist.length == 0) {
-        return res.status(400).send({ message: "You are not registered as an admin" });
+        // return res.status(400).send({ message: "You are not registered as an admin" });
+        throw { status_code: 400, message: "You are not registered as an admin" };
       }
 
       // const isValid = await bcrypt.compare(password, isEmailExist[0].password);
@@ -29,7 +36,14 @@ module.exports = {
       });
       // return res.status(200).send({ message: "Admin login test" });
     } catch (error) {
-      res.status(error.status || 500).send(error);
+      // res.status(error.status || 500).send(error);
+
+      // next({
+      //   status_code: 500,
+      //   message: "Error admin login",
+      // });
+      console.log(error);
+      next(error);
     }
   },
   checkAdminLogin: async (req, res) => {
