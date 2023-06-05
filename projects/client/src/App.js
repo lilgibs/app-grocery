@@ -1,5 +1,8 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 import { Route, Routes } from "react-router-dom";
 import UserManagementSettings from "./pages/UserManagementSettings";
 
@@ -14,9 +17,12 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
+    <div>
       <Routes>
-        <Route path="/admin/settings/users" element={<UserManagementSettings/>}/>
+        <Route path="/" element={<AdminLogin />} />
+        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route path="/admin/settings/users" element={<UserManagementSettings />} />
       </Routes>
     </div>
   );

@@ -1,12 +1,14 @@
 const { join } = require("path");
-require('dotenv').config({ path: join(__dirname, '../.env') });
+require("dotenv").config({ path: join(__dirname, "../.env") });
 const express = require("express");
 const cors = require("cors");
-const { adminAuthRoutes } = require("./routes/index.js");
+const { adminAuthRoutes, authRoutes} = require("./routes");
 
-require('./config/db.js'); 
 
-const PORT = process.env.PORT || 8000;
+require("./config/db.js");
+
+// const PORT = process.env.PORT || 8000;
+const PORT = 8000;
 const app = express();
 app.use(cors());
 
@@ -26,6 +28,7 @@ app.get("/api/greetings", (req, res, next) => {
 // ===========================
 // NOTE : Add your routes here
 
+app.use("/api/auth", authRoutes);
 app.use('/admin', adminAuthRoutes);
 
 // ===========================
@@ -42,8 +45,8 @@ app.use((req, res, next) => {
 // error
 app.use((err, req, res, next) => {
   if (req.path.includes("/api/")) {
-    console.error("Error : ", err.stack);
-    res.status(500).send("Error !");
+    console.error("Error : ", err);
+    res.status(err.status_code).send(err.message);
   } else {
     next();
   }
