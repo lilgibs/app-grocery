@@ -33,12 +33,16 @@ export const adminSlice = createSlice({
 export function loginAdmin(data) {
   return async (dispatch) => {
     // console.log(data); //data in login form
-    let response = await Axios.post("http://localhost:8000/auth/adminLogin", data);
-    if (response) {
-      dispatch(setAdmin(response.data.data));
-      alert(response.data.message);
-      //checker
-      //console.log(response.data.data);
+    try {
+      let response = await Axios.post("http://localhost:8000/api/auth/adminLogin", data);
+      if (response) {
+        dispatch(setAdmin(response.data.data));
+        alert(response.data.message);
+        //checker
+        //console.log(response.data.data);
+      }
+    } catch {
+      alert("You are not registered as an admin");
     }
   };
 }
