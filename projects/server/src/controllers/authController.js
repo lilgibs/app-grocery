@@ -1,16 +1,18 @@
 const { db, query } = require("../config/db.js");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { validationResult } = require("express-validator");
 
 module.exports = {
   adminLogin: async (req, res, next) => {
     try {
-      const { email, password } = req.body;
+      const errors = validationResult(req);
 
-      // // test error throw
-      // if (!email.includes(`@`)) {
-      //   throw "Error dari throw"; // return error
-      // }
+      if (!errors.isEmpty()) {
+        throw { status_code: 400, message: "Format error at backend", errors: errors.array() };
+      }
+
+      const { email, password } = req.body;
 
       const isEmailExist = await query(`SELECT * FROM admins WHERE email=${db.escape(email)}`);
 
