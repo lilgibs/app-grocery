@@ -2,6 +2,10 @@ import axios from "axios";
 import logo from "./logo.svg";
 import "./styles/App.css";
 import { useEffect, useState } from "react";
+import { Routes, Route } from "react-router-dom";
+
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -14,11 +18,12 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        {message}
-      </header>
+    <div>
+      <Routes>
+        <Route path="/" element={<AdminLogin />} />
+        <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/admindashboard" element={<AdminDashboard />} />
+      </Routes>
     </div>
   );
 }

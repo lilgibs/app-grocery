@@ -1,0 +1,16 @@
+const express = require("express");
+const { authController } = require("../controllers");
+const { verifyToken } = require("../middleware/auth");
+const { body } = require("express-validator");
+
+const router = express.Router();
+
+router.post(
+  "/adminlogin",
+
+  [body("email").isEmail().withMessage("Must be a valid e-mail address."), body("password").isLength(3).withMessage("Password must be longer than 2 characters.")],
+  authController.adminLogin
+);
+router.post("/check-adminlogin", verifyToken, authController.checkAdminLogin);
+
+module.exports = router;
