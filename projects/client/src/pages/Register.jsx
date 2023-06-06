@@ -42,7 +42,9 @@ const Register = () => {
           onSubmit={async (value) => {
             setIsLoading(true);
             setIsDisabled(true);
-            dispatch(registerUser(value));
+            dispatch(registerUser(value)).then(() => {
+              nav("/adminlogin");
+            });
           }}
         >
           {(props) => {
