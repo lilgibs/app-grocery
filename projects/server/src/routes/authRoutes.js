@@ -7,10 +7,26 @@ const router = express.Router();
 
 router.post(
   "/adminlogin",
-
-  [body("email").isEmail().withMessage("Must be a valid e-mail address."), body("password").isLength(3).withMessage("Password must be longer than 2 characters.")],
+  [
+    body("email").isEmail().withMessage("Must be a valid e-mail address."),
+    body("password")
+      .isLength(3)
+      .withMessage("Password must be longer than 2 characters."),
+  ],
   authController.adminLogin
 );
 router.post("/check-adminlogin", verifyToken, authController.checkAdminLogin);
+router.post(
+  "/register",
+  [
+    body("email").isEmail().withMessage("Must be a valid e-mail address."),
+    body("password")
+      .isLength(3)
+      .withMessage("Password must be longer than 2 characters."),
+    body("name").notEmpty().withMessage("Name cannot be empty."),
+    body("phone").notEmpty().withMessage("Phone number cannot be empty."),
+  ],
+  authController.register
+);
 
 module.exports = router;
