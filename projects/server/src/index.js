@@ -29,7 +29,7 @@ app.get("/api/greetings", (req, res, next) => {
 // NOTE : Add your routes here
 
 app.use("/api/auth", authRoutes);
-app.use('/admin', adminAuthRoutes);
+app.use('/api/admin', adminAuthRoutes);
 
 // ===========================
 
