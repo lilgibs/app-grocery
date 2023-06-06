@@ -4,6 +4,8 @@ import "./styles/App.css";
 import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 
+import Navbar from "./components/Navbar";
+import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 
@@ -19,8 +21,9 @@ function App() {
 
   return (
     <div>
+      <Navbar />
       <Routes>
-        <Route path="/" element={<AdminLogin />} />
+        <Route path="/" element={<LandingPage />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
       </Routes>
