@@ -57,7 +57,7 @@ export function createBranchAdmin(data) {
       }
     } catch (error) {
       console.error(error.response.data);
-      alert('There was an error creating the branch admin.' || error.response.data);
+      alert(`There was an error creating the branch admin: error.response.data`);
     }
   }
 }
