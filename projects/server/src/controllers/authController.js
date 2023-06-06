@@ -141,7 +141,7 @@ module.exports = {
       const token = jwt.sign(payload, "joe", { expiresIn: "4h" });
 
       const mail = {
-        from: `Admin <admin@gmail.com>`,
+        from: `Admin <ichsannuriman12@gmail.com>`,
         to: `${email}`,
         subject: `Acount Verification`,
         html: `
@@ -154,6 +154,32 @@ module.exports = {
       return res
         .status(200)
         .send({ data: addUserResult, message: "Register success" });
+    } catch (error) {
+      next(error);
+    }
+  },
+  verification: async (req, res, next) => {
+    try {
+      const id = req.user.id;
+
+      const checkAccountQuery = `SELECT * FROM users WHERE user_id=${db.escape(
+        id
+      )}`;
+      const isAccountExist = await query(checkAccountQuery);
+
+      if (isAccountExist[0].is_verified == true) {
+        throw {
+          status_code: 400,
+          message: "Account has been verified before.",
+        };
+      }
+
+      let updateIsActiveQuery = `UPDATE users SET is_verified = true WHERE user_id = ${db.escape(
+        id
+      )}`;
+      let updateResponse = await query(updateIsActiveQuery);
+
+      res.status(200).send({ message: "Account is verified" });
     } catch (error) {
       next(error);
     }
