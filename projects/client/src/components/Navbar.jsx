@@ -1,19 +1,29 @@
-import { Fragment } from "react";
-import { Disclosure, Menu, Transition } from "@headlessui/react";
-import { Bars3Icon, BellIcon, XMarkIcon } from "@heroicons/react/24/outline";
+import React, { Fragment } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Disclosure } from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
+import { Button, Stack } from "@chakra-ui/react";
+import { Input, InputGroup, InputLeftElement } from "@chakra-ui/react";
+import { Icon, SearchIcon } from "@chakra-ui/icons";
+import { Menu, MenuButton, MenuList, MenuItem, MenuItemOption, MenuGroup, MenuOptionGroup, MenuDivider } from "@chakra-ui/react";
+import { BsFillCartFill } from "react-icons/bs";
+import { GrLocation } from "react-icons/gr";
+import { useNavigate } from "react-router-dom";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
   { name: "Products", href: "/", current: false },
-  { name: "Categories", href: "/", current: false },
 ];
 
 function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 const Navbar = () => {
+  const nav = useNavigate();
+  const userGlobal = useSelector((state) => state.location.location);
+
   return (
-    <Disclosure as="nav" className="bg-white color-gray">
+    <Disclosure as="nav" className="bg-white color-gray sticky top-0 z-50 drop-shadow-md">
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl">
@@ -25,7 +35,8 @@ const Navbar = () => {
                   {open ? <XMarkIcon className="block h-6 w-6" aria-hidden="true" /> : <Bars3Icon className="block h-6 w-6" aria-hidden="true" />}
                 </Disclosure.Button>
               </div>
-              <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+
+              <div className="flex flex-1 gap-5 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="hidden sm:block">
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
@@ -36,13 +47,51 @@ const Navbar = () => {
                   </div>
                 </div>
               </div>
-              <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                <button type="button" className="pr-2 hover:text-gray-300">
-                  Cart
+
+              <div className="absolute inset-y-0 right-0 flex gap-2 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 md:gap-3 lg:gap-4">
+                <div>
+                  <InputGroup>
+                    <InputLeftElement pointerEvents="none">
+                      <SearchIcon />
+                    </InputLeftElement>
+                    <Input placeholder="Search product" size="sm" w={{ base: "95px", md: "150px", lg: "700px" }} rounded="lg" />
+                  </InputGroup>
+                </div>
+
+                <div className="hidden md:block">
+                  <Menu>
+                    <MenuButton as={Button} size="sm" variant="ghost" colorScheme="green" rounded="full" border="1px">
+                      <Icon as={GrLocation} pb="1" mr="0.5" />
+                      <span />
+                      {userGlobal.long}.{userGlobal.lang}
+                    </MenuButton>
+                    <MenuList>
+                      <MenuItem>Change address</MenuItem>
+                    </MenuList>
+                  </Menu>
+                </div>
+
+                <button type="button" className="pr-2 text-gray-500 hover:text-gray-300">
+                  <Icon as={BsFillCartFill} />
                 </button>
 
+                <Stack direction="row" spacing={1}>
+                  <Button
+                    colorScheme="green"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      nav("/adminlogin");
+                    }}
+                  >
+                    Login
+                  </Button>
+                  <Button bg="green.400" color="white" variant="solid" size="sm">
+                    Register
+                  </Button>
+                </Stack>
                 {/* Profile dropdown */}
-                <Menu as="div" className="relative ml-3">
+                {/* <Menu as="div" className="relative ml-3">
                   <div>
                     <Menu.Button className="flex hover:text-gray-300 focus:text-green-500">Account</Menu.Button>
                   </div>
@@ -86,7 +135,7 @@ const Navbar = () => {
                       </Menu.Item>
                     </Menu.Items>
                   </Transition>
-                </Menu>
+                </Menu> */}
               </div>
             </div>
           </div>
