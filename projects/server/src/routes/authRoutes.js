@@ -29,5 +29,6 @@ router.post(
   ],
   authController.register
 );
+router.post("/verification", verifyToken, authController.verification);
 
 module.exports = router;

@@ -6,6 +6,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import { Route, Routes } from "react-router-dom";
 import UserManagementSettings from "./pages/UserManagementSettings";
 import Register from "./pages/Register";
+import Verification from "./pages/Verification";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -24,6 +25,7 @@ function App() {
       <Routes>
         <Route path="/" element={<AdminLogin />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verification/:token" element={<Verification />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route path="/admin/settings/users" element={<UserManagementSettings />} />
