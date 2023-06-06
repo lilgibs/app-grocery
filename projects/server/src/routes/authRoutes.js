@@ -1,5 +1,5 @@
 const express = require("express");
-const { authController } = require("../controllers");
+const { authController, adminAuthController } = require("../controllers");
 const { verifyToken } = require("../middleware/auth");
 const { body } = require("express-validator");
 
@@ -13,9 +13,10 @@ router.post(
       .isLength(3)
       .withMessage("Password must be longer than 2 characters."),
   ],
-  authController.adminLogin
+  adminAuthController.adminLogin
 );
-router.post("/check-adminlogin", verifyToken, authController.checkAdminLogin);
+router.post("/check-adminlogin", verifyToken, adminAuthController.checkAdminLogin);
+
 router.post(
   "/register",
   [
