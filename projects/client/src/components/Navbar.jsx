@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
-  { name: "Products", href: "/", current: false },
+  { name: "Products", href: "/products", current: false },
 ];
 
 function classNames(...classes) {
@@ -40,7 +40,12 @@ const Navbar = () => {
                 <div className="hidden sm:block">
                   <div className="flex space-x-4">
                     {navigation.map((item) => (
-                      <a key={item.name} href={item.href} className={classNames(item.current ? "text-green-500 hover:text-gray-300" : "hover:text-gray-300", "px-3 py-2 text-sm font-medium")} aria-current={item.current ? "page" : undefined}>
+                      <a
+                        key={item.name}
+                        href={item.href}
+                        className={classNames(window.location.pathname == item.href ? "text-green-500 hover:text-gray-300" : "hover:text-gray-300", "px-3 py-2 text-sm font-medium")}
+                        aria-current={item.current ? "page" : undefined}
+                      >
                         {item.name}
                       </a>
                     ))}
