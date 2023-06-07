@@ -60,7 +60,6 @@ export function loginUser(data) {
         alert(response.data.message);
       }
     } catch (error) {
-      console.log(error);
       alert(error.response.data);
     }
   };
