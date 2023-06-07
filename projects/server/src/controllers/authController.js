@@ -174,12 +174,62 @@ module.exports = {
         };
       }
 
-      let updateIsActiveQuery = `UPDATE users SET is_verified = true WHERE user_id = ${db.escape(
+      const updateIsActiveQuery = `UPDATE users SET is_verified = true WHERE user_id = ${db.escape(
         id
       )}`;
       let updateResponse = await query(updateIsActiveQuery);
 
       res.status(200).send({ message: "Account is verified" });
+    } catch (error) {
+      next(error);
+    }
+  },
+  login: async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+      const isEmailExist = await query(
+        `SELECT * FROM users WHERE email=${db.escape(email)}`
+      );
+      if (isEmailExist.length == 0) {
+        throw {
+          status_code: 400,
+          message: "Email or password is incorrect",
+        };
+      }
+
+      const isValid = await bcrypt.compare(password, isEmailExist[0].password);
+
+      if (!isValid) {
+        throw {
+          status_code: 400,
+          message: "Email or password is incorrect",
+        };
+      }
+
+      if (isEmailExist[0].is_verified == false) {
+        throw {
+          status_code: 400,
+          message: "Account is not verified yet, check your email",
+        };
+      }
+
+      const payload = {
+        id: isEmailExist[0].id_users,
+      };
+
+      const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
+
+      return res.status(200).send({
+        message: "Login Success",
+        token,
+        data: {
+          user_id: isEmailExist[0].user_id,
+          name: isEmailExist[0].name,
+          email: isEmailExist[0].email,
+          phone_number: isEmailExist[0].phone_number,
+          is_verified: isEmailExist[0].is_verified,
+        },
+      });
     } catch (error) {
       next(error);
     }

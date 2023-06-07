@@ -7,6 +7,7 @@ import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
 import Register from "./pages/Register";
 import Verification from "./pages/Verification";
+import Login from "./pages/Login";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -26,6 +27,7 @@ function App() {
         <Route path="/" element={<AdminLogin />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification/:token" element={<Verification />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
       </Routes>
