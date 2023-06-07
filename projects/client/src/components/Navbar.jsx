@@ -91,7 +91,15 @@ const Navbar = () => {
                   >
                     Login
                   </Button>
-                  <Button bg="green.400" color="white" variant="solid" size="sm">
+                  <Button
+                    bg="green.400"
+                    color="white"
+                    variant="solid"
+                    size="sm"
+                    onClick={() => {
+                      nav("/register");
+                    }}
+                  >
                     Register
                   </Button>
                 </Stack>
