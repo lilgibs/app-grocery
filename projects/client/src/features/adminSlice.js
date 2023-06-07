@@ -47,5 +47,20 @@ export function loginAdmin(data) {
   };
 }
 
+export function createBranchAdmin(data) {
+  return async () => {
+    console.log(data)
+    try {
+      let response = await Axios.post(`http://localhost:8000/api/admin/create`, data)
+      if (response) {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      console.error(error.response.data);
+      alert(`There was an error creating the branch admin: error.response.data`);
+    }
+  }
+}
+
 export const { setAdmin, resetAdmin } = adminSlice.actions;
 export default adminSlice.reducer;

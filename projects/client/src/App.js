@@ -1,10 +1,10 @@
 import axios from "axios";
-import "./styles/App.css";
 import { useEffect, useState } from "react";
-import { Routes, Route } from "react-router-dom";
 
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import { Route, Routes } from "react-router-dom";
+import UserManagementSettings from "./pages/UserManagementSettings";
 import Register from "./pages/Register";
 import Verification from "./pages/Verification";
 import Login from "./pages/Login";
@@ -30,6 +30,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
+        <Route path="/admin/settings/users" element={<UserManagementSettings />} />
       </Routes>
     </div>
   );
