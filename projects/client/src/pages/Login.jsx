@@ -110,7 +110,7 @@ const Login = () => {
                   <div>
                     <button
                       type="submit"
-                      className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                      className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
                       Login
                     </button>
@@ -120,10 +120,20 @@ const Login = () => {
             }}
           </Formik>
 
-          <p className="mt-10 text-center text-sm text-gray-500">
+          <p className="mt-8 text-center text-sm text-gray-500">
+            Haven't register yet?{" "}
             <a
-              href="/"
-              className="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+              href="/register"
+              className="font-semibold leading-6 text-green-600 hover:text-green-500"
+            >
+              Register
+            </a>
+          </p>
+
+          <p className="mt-1 text-center text-sm text-gray-500">
+            <a
+              href="/adminLogin"
+              className="font-semibold leading-6 text-green-600 hover:text-green-500"
             >
               Login as an admin
             </a>
