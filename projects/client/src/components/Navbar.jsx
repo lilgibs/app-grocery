@@ -5,7 +5,16 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Button, Stack } from "@chakra-ui/react";
 import { Input, InputGroup, InputLeftElement } from "@chakra-ui/react";
 import { Icon, SearchIcon } from "@chakra-ui/icons";
-import { Menu, MenuButton, MenuList, MenuItem, MenuItemOption, MenuGroup, MenuOptionGroup, MenuDivider } from "@chakra-ui/react";
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuDivider,
+} from "@chakra-ui/react";
 import { BsFillCartFill } from "react-icons/bs";
 import { GrLocation } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
@@ -23,7 +32,10 @@ const Navbar = () => {
   const userGlobal = useSelector((state) => state.location.location);
 
   return (
-    <Disclosure as="nav" className="bg-white color-gray sticky top-0 z-50 drop-shadow-md">
+    <Disclosure
+      as="nav"
+      className="bg-white color-gray sticky top-0 z-50 drop-shadow-md"
+    >
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl">
@@ -32,7 +44,11 @@ const Navbar = () => {
                 {/* Mobile menu button*/}
                 <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 hover:text-white">
                   <span className="sr-only">Open main menu</span>
-                  {open ? <XMarkIcon className="block h-6 w-6" aria-hidden="true" /> : <Bars3Icon className="block h-6 w-6" aria-hidden="true" />}
+                  {open ? (
+                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                  )}
                 </Disclosure.Button>
               </div>
 
@@ -43,7 +59,12 @@ const Navbar = () => {
                       <a
                         key={item.name}
                         href={item.href}
-                        className={classNames(window.location.pathname == item.href ? "text-green-500 hover:text-gray-300" : "hover:text-gray-300", "px-3 py-2 text-sm font-medium")}
+                        className={classNames(
+                          window.location.pathname == item.href
+                            ? "text-green-500 hover:text-gray-300"
+                            : "hover:text-gray-300",
+                          "px-3 py-2 text-sm font-medium"
+                        )}
                         aria-current={item.current ? "page" : undefined}
                       >
                         {item.name}
@@ -59,13 +80,25 @@ const Navbar = () => {
                     <InputLeftElement pointerEvents="none">
                       <SearchIcon />
                     </InputLeftElement>
-                    <Input placeholder="Search product" size="sm" w={{ base: "95px", md: "150px", lg: "700px" }} rounded="lg" />
+                    <Input
+                      placeholder="Search product"
+                      size="sm"
+                      w={{ base: "95px", md: "150px", lg: "700px" }}
+                      rounded="lg"
+                    />
                   </InputGroup>
                 </div>
 
                 <div className="hidden md:block">
                   <Menu>
-                    <MenuButton as={Button} size="sm" variant="ghost" colorScheme="green" rounded="full" border="1px">
+                    <MenuButton
+                      as={Button}
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="green"
+                      rounded="full"
+                      border="1px"
+                    >
                       <Icon as={GrLocation} pb="1" mr="0.5" />
                       <span />
                       {userGlobal.long}.{userGlobal.lang}
@@ -76,7 +109,10 @@ const Navbar = () => {
                   </Menu>
                 </div>
 
-                <button type="button" className="pr-2 text-gray-500 hover:text-gray-300">
+                <button
+                  type="button"
+                  className="pr-2 text-gray-500 hover:text-gray-300"
+                >
                   <Icon as={BsFillCartFill} />
                 </button>
 
@@ -86,7 +122,7 @@ const Navbar = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      nav("/adminlogin");
+                      nav("/login");
                     }}
                   >
                     Login
@@ -160,7 +196,12 @@ const Navbar = () => {
                   key={item.name}
                   as="a"
                   href={item.href}
-                  className={classNames(item.current ? "text-green-500" : "text-gray-300 hover:text-green-300", "block px-3 py-2 text-base font-medium")}
+                  className={classNames(
+                    item.current
+                      ? "text-green-500"
+                      : "text-gray-300 hover:text-green-300",
+                    "block px-3 py-2 text-base font-medium"
+                  )}
                   aria-current={item.current ? "page" : undefined}
                 >
                   {item.name}

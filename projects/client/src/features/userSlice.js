@@ -5,10 +5,10 @@ export const usersSlice = createSlice({
   name: "users",
   initialState: {
     user: {
-      id: "",
+      user_id: "",
       name: "",
       email: "",
-      phone: "",
+      phone_number: "",
       isVerified: false,
     },
   },
@@ -18,7 +18,7 @@ export const usersSlice = createSlice({
     },
     resetUser: (state) => {
       state.user = {
-        id: "",
+        user_id: "",
         name: "",
         email: "",
         phone: "",
@@ -39,6 +39,24 @@ export function registerUser(data) {
         data
       );
       if (response) {
+        alert(response.data.message);
+      }
+    } catch (error) {
+      alert(error.response.data);
+    }
+  };
+}
+
+export function loginUser(data) {
+  return async (dispatch) => {
+    try {
+      let response = await Axios.post(
+        "http://localhost:8000/api/auth/login",
+        data
+      );
+      if (response) {
+        dispatch(setUser(response.data.data));
+        localStorage.setItem("user_token", response.data.token);
         alert(response.data.message);
       }
     } catch (error) {

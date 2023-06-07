@@ -9,6 +9,7 @@ import { Route, Routes } from "react-router-dom";
 import UserManagementSettings from "./pages/UserManagementSettings";
 import Register from "./pages/Register";
 import Verification from "./pages/Verification";
+import Login from "./pages/Login";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -27,6 +28,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verification/:token" element={<Verification />} />
+        <Route path="/login" element={<Login />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route path="/admin/settings/users" element={<UserManagementSettings />} />
