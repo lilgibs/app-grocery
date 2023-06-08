@@ -1,8 +1,10 @@
 const { db, query } = require("../config/db");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const nodemailer = require("../config/nodemailer");
+const transporter = require("../config/nodemailer");
 const { validationResult } = require("express-validator");
+const ejs = require("ejs");
+const path = require("path");
 
 module.exports = {
   register: async (req, res, next) => {
@@ -40,16 +42,24 @@ module.exports = {
       let payload = { id: addUserResult.insertId };
       const token = jwt.sign(payload, "joe", { expiresIn: "4h" });
 
+      const renderEmailTemplate = (templatePath, data) => {
+        const filePath = path.join(__dirname, templatePath);
+        return ejs.renderFile(filePath, data);
+      };
+
+      const template = await renderEmailTemplate(
+        "../templates/emailTemplate.ejs",
+        { name, token }
+      );
+
       const mail = {
         from: `Admin <ichsannuriman12@gmail.com>`,
         to: `${email}`,
         subject: `Acount Verification`,
-        html: `
-        <p>This is verification for your account in XYZ ecommerce site.</p>
-      <a href="http://localhost:3000/verification/${token}">Click Here</a>`,
+        html: template,
       };
 
-      const response = await nodemailer.sendMail(mail);
+      const response = await transporter.sendMail(mail);
 
       return res
         .status(200)
@@ -114,7 +124,7 @@ module.exports = {
       }
 
       const payload = {
-        id: isEmailExist[0].id_users,
+        id: isEmailExist[0].user_id,
       };
 
       const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
@@ -128,6 +138,25 @@ module.exports = {
           email: isEmailExist[0].email,
           phone_number: isEmailExist[0].phone_number,
           is_verified: isEmailExist[0].is_verified,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  checkLogin: async (req, res, next) => {
+    try {
+      const users = await query(
+        `SELECT * FROM users WHERE user_id = ${db.escape(req.user.id)}`
+      );
+
+      return res.status(200).send({
+        data: {
+          user_id: users[0].user_id,
+          name: users[0].name,
+          email: users[0].email,
+          phone_number: users[0].phone_number,
+          is_verified: users[0].is_verified,
         },
       });
     } catch (error) {
