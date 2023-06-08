@@ -31,22 +31,6 @@ export const usersSlice = createSlice({
 export const { setUser, resetUser } = usersSlice.actions;
 export default usersSlice.reducer;
 
-export function registerUser(data) {
-  return async (dispatch) => {
-    try {
-      let response = await Axios.post(
-        "http://localhost:8000/api/auth/register",
-        data
-      );
-      if (response) {
-        alert(response.data.message);
-      }
-    } catch (error) {
-      alert(error.response.data);
-    }
-  };
-}
-
 export function loginUser(data) {
   return async (dispatch) => {
     try {

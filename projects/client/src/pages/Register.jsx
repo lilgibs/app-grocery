@@ -1,15 +1,32 @@
 import React, { useState } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { registerUser } from "../features/userSlice";
+import Axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 
 const Register = () => {
-  const dispatch = useDispatch();
   const nav = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
+
+  const registerUser = async (data) => {
+    try {
+      setIsLoading(true);
+      setIsDisabled(true);
+      let response = await Axios.post(
+        "http://localhost:8000/api/auth/register",
+        data
+      );
+      if (response) {
+        alert(response.data.message);
+        nav("/login");
+      }
+    } catch (error) {
+      alert(error.response.data);
+      setIsLoading(false);
+      setIsDisabled(false);
+    }
+  };
 
   const RegisterSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
@@ -39,12 +56,8 @@ const Register = () => {
         <Formik
           initialValues={{ name: "", email: "", password: "", phone: "" }}
           validationSchema={RegisterSchema}
-          onSubmit={async (value) => {
-            setIsLoading(true);
-            setIsDisabled(true);
-            dispatch(registerUser(value)).then(() => {
-              nav("/adminlogin");
-            });
+          onSubmit={(value) => {
+            registerUser(value);
           }}
         >
           {(props) => {
