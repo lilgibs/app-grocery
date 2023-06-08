@@ -7,21 +7,33 @@ const { handleValidationErrors, handleServerError } = require('../../utils/error
 module.exports = {
   getCategory: async (req, res, next) => {
     try {
+      const sqlQuery = `SELECT * FROM product_categories`;
+      const result = await query(sqlQuery);
 
+      res.status(200).json({
+        message: "Successfully fetched all product categories",
+        data: result
+      });
     } catch (error) {
-
+      handleServerError(error, next);
     }
   },
   createCategory: async (req, res, next) => {
-    const { product_category_name } = req.body
+    const { product_category_name } = req.body;
     const errors = validationResult(req);
 
     try {
       handleValidationErrors(errors);
 
-      const sqlQuery = `INSERT INTO product_categories (product_category_name) 
+      let product_category_image = "";
+      if (req.file) {
+        product_category_image = '/uploads/' + req.file.filename;
+      }
+
+      const sqlQuery = `INSERT INTO product_categories (product_category_name, product_category_image) 
         VALUES (
-          ${db.escape(product_category_name)}
+          ${db.escape(product_category_name)},
+          ${db.escape(product_category_image)}
         )`;
       const result = await query(sqlQuery)
 
@@ -30,7 +42,8 @@ module.exports = {
         data: result
       });
     } catch (error) {
-      handleServerError(error, next);
+      // handleServerError(error, next);
+      console.log(error)
     }
   },
   updateCategory: async (req, res, next) => {

@@ -3,6 +3,7 @@ require("dotenv").config({ path: join(__dirname, "../.env") });
 const express = require("express");
 const cors = require("cors");
 const { adminAuthRoutes, authRoutes, adminCategoryRoutes} = require("./routes");
+const path = require('path');
 
 
 require("./config/db.js");
@@ -27,7 +28,7 @@ app.get("/api/greetings", (req, res, next) => {
 });
 // ===========================
 // NOTE : Add your routes here
-
+app.use("/uploads", express.static(join(__dirname, 'uploads')));
 app.use("/api/auth", authRoutes);
 app.use('/api/admin', adminAuthRoutes);
 app.use('/api/admin/products', adminCategoryRoutes);
