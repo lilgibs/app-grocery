@@ -2,7 +2,7 @@ const { join } = require("path");
 require("dotenv").config({ path: join(__dirname, "../.env") });
 const express = require("express");
 const cors = require("cors");
-const { adminAuthRoutes, authRoutes} = require("./routes");
+const { adminAuthRoutes, authRoutes, adminCategoryRoutes} = require("./routes");
 
 
 require("./config/db.js");
@@ -30,6 +30,7 @@ app.get("/api/greetings", (req, res, next) => {
 
 app.use("/api/auth", authRoutes);
 app.use('/api/admin', adminAuthRoutes);
+app.use('/api/admin/products', adminCategoryRoutes);
 
 // ===========================
 

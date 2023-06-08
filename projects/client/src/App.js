@@ -10,6 +10,7 @@ import UserManagementSettings from "./pages/UserManagementSettings";
 import Register from "./pages/Register";
 import Verification from "./pages/Verification";
 import Login from "./pages/Login";
+import AdminCategories from "./pages/AdminCategories";
 
 function App() {
   const [message, setMessage] = useState("");
@@ -32,6 +33,7 @@ function App() {
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route path="/admin/settings/users" element={<UserManagementSettings />} />
+        <Route path="/admin/products/categories" element={<AdminCategories />} />
       </Routes>
     </div>
   );
