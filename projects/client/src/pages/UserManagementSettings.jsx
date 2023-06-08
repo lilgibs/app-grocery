@@ -1,13 +1,17 @@
 import { Formik, Form, Field, ErrorMessage, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
 import { createBranchAdmin } from '../features/adminSlice';
+import { useNavigate } from 'react-router-dom';
 
 function UserManagementSettings() {
   const [latLong, setLatLong] = useState({ lat: '', lng: '' })
 
+  // const role = useSelector(state => state.admin.role);
+  const role = 'admin'
+  const navigate = useNavigate();
   const dispatch = useDispatch()
 
   const GetCoordinatesButton = () => {
@@ -73,6 +77,13 @@ function UserManagementSettings() {
       <ErrorMessage name={name} component="div" className="text-red-500 text-xs italic" />
     </div>
   );
+
+  useEffect(() => {
+    // If the role is not 'super admin', redirect the user to a different page
+    if (role !== 'super admin') {
+      navigate('/');
+    }
+  }, [role, navigate]);
 
 
   return (

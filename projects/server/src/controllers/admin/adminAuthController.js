@@ -92,12 +92,23 @@ module.exports = {
   createBranchAdmin: async (req, res, next) => {
     const { name, email, password, role, store_name, store_location, longitude, latitude } = req.body;
 
+    // const adminRole = req.admin.role;
+    const adminRole = "Branch Admin";
+
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     try {
+      if (adminRole !== "Super Admin") {
+        throw {
+          status_code: 403,
+          message: "Access denied. You are not authorized to access this route.",
+          errors: errors.array(),
+        };
+      }
+
       const isEmailExist = await query(`select * from admins where email = ${db.escape(email)}`)
 
       if (isEmailExist.length > 0) {
@@ -133,10 +144,7 @@ module.exports = {
       });
     } catch (error) {
       console.error(error);
-      next({
-        status_code: 500,
-        message: "Server error!",
-      });
+      next(error);
     }
   }
 }
