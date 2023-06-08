@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "./components/Navbar";
 import LandingPage from "./pages/LandingPage";
@@ -10,13 +11,25 @@ import UserManagementSettings from "./pages/UserManagementSettings";
 import Register from "./pages/Register";
 import Verification from "./pages/Verification";
 import Login from "./pages/Login";
+import { checkLogin } from "./features/userSlice";
 
 function App() {
+  const dispatch = useDispatch();
   const [message, setMessage] = useState("");
+  const userToken = localStorage.getItem("user_token");
+  const userGlobal = useSelector((state) => state.user.user);
+
+  useEffect(() => {
+    if (userToken) {
+      dispatch(checkLogin(userToken));
+    }
+  }, []);
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/greetings`
+      );
       setMessage(data?.message || "");
     })();
   }, []);
@@ -31,7 +44,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
-        <Route path="/admin/settings/users" element={<UserManagementSettings />} />
+        <Route
+          path="/admin/settings/users"
+          element={<UserManagementSettings />}
+        />
       </Routes>
     </div>
   );
