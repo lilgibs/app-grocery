@@ -21,7 +21,7 @@ export const usersSlice = createSlice({
         user_id: "",
         name: "",
         email: "",
-        phone: "",
+        phone_number: "",
         isVerified: false,
       };
     },
@@ -58,6 +58,27 @@ export function loginUser(data) {
         dispatch(setUser(response.data.data));
         localStorage.setItem("user_token", response.data.token);
         alert(response.data.message);
+      }
+    } catch (error) {
+      alert(error.response.data);
+    }
+  };
+}
+
+export function checkLogin(token) {
+  return async (dispatch) => {
+    try {
+      let response = await Axios.post(
+        "http://localhost:8000/api/auth/check-login",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response) {
+        dispatch(setUser(response.data.data));
       }
     } catch (error) {
       alert(error.response.data);

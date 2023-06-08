@@ -114,7 +114,7 @@ module.exports = {
       }
 
       const payload = {
-        id: isEmailExist[0].id_users,
+        id: isEmailExist[0].user_id,
       };
 
       const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
@@ -128,6 +128,25 @@ module.exports = {
           email: isEmailExist[0].email,
           phone_number: isEmailExist[0].phone_number,
           is_verified: isEmailExist[0].is_verified,
+        },
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  checkLogin: async (req, res, next) => {
+    try {
+      const users = await query(
+        `SELECT * FROM users WHERE user_id = ${db.escape(req.user.id)}`
+      );
+
+      return res.status(200).send({
+        data: {
+          user_id: users[0].user_id,
+          name: users[0].name,
+          email: users[0].email,
+          phone_number: users[0].phone_number,
+          is_verified: users[0].is_verified,
         },
       });
     } catch (error) {
