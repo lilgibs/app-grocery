@@ -15,7 +15,11 @@ router.post(
   ],
   adminAuthController.adminLogin
 );
-router.post("/check-adminlogin", verifyToken, adminAuthController.checkAdminLogin);
+router.post(
+  "/check-adminlogin",
+  verifyToken,
+  adminAuthController.checkAdminLogin
+);
 
 router.post(
   "/register",
@@ -31,5 +35,6 @@ router.post(
 );
 router.post("/verification", verifyToken, authController.verification);
 router.post("/login", authController.login);
+router.post("/check-login", verifyToken, authController.checkLogin);
 
 module.exports = router;

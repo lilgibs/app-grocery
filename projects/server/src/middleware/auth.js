@@ -12,12 +12,13 @@ const verifyToken = (req, res, next) => {
     return res.status(401).send("Access Denied");
   }
 
-  let verifiedUser = jwt.verify(token, "joe");
-  if (!verifiedUser) {
-    return res.status(401).send("Access Denied");
-  }
+  jwt.verify(token, "joe", (err, decoded) => {
+    if (err) {
+      throw { status_code: 400, message: err.message };
+    }
 
-  req.user = verifiedUser;
+    req.user = decoded;
+  });
   next();
 };
 

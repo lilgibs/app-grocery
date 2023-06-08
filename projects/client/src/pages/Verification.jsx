@@ -20,7 +20,7 @@ function Verification() {
         );
         if (response) {
           alert(response.data.message);
-          navigate("/adminlogin");
+          navigate("/login");
         }
       }
     } catch (error) {

@@ -25,7 +25,7 @@ const Login = () => {
   }, [userGlobal]);
 
   return (
-    <div className="flex flex-row items-start justify-around m-12">
+    <div className="flex flex-row items-start justify-around m-8">
       <div className="flex-initial w-96 max-md:hidden">
         <img
           src="https://freepngimg.com/thumb/ecommerce/1-2-ecommerce-png.png"
