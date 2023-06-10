@@ -3,11 +3,13 @@ const { db, query } = require("../../config/db");
 const { validationResult } = require('express-validator');
 const jwt = require("jsonwebtoken");
 const { handleValidationErrors, handleServerError } = require('../../utils/errorHandlers');
+const path = require('path');
+const fs = require('fs');
 
 module.exports = {
   getCategory: async (req, res, next) => {
     try {
-      const sqlQuery = `SELECT * FROM product_categories`;
+      const sqlQuery = `SELECT * FROM product_categories WHERE is_deleted = 0 OR is_deleted IS NULL`;
       const result = await query(sqlQuery);
 
       res.status(200).json({
@@ -27,7 +29,7 @@ module.exports = {
 
       let product_category_image = "";
       if (req.file) {
-        product_category_image = '/uploads/' + req.file.filename;
+        product_category_image = 'uploads/' + req.file.filename;
       }
 
       const sqlQuery = `INSERT INTO product_categories (product_category_name, product_category_image) 
@@ -54,13 +56,37 @@ module.exports = {
     try {
       handleValidationErrors(errors);
 
-      const sqlQuery = `UPDATE product_categories 
+      //Ambil lokasi file gambar
+      const sqlQueryGetImage = `
+        SELECT product_category_image FROM product_categories
+        WHERE
+          product_category_id = ${db.escape(categoryId)}
+      `
+      const resultGetImage = await query(sqlQueryGetImage)
+      const currentImagePath = resultGetImage[0]?.product_category_image
+
+      //File gambar baru
+      let newImagePath = currentImagePath
+      if (req.file) {
+        newImagePath = 'uploads/' + req.file.filename;
+      }
+
+      const sqlQuery = `
+        UPDATE product_categories 
         SET 
-          product_category_name = ${db.escape(product_category_name)} 
+          product_category_name = ${db.escape(product_category_name)},
+          product_category_image = ${db.escape(newImagePath)}
         WHERE 
           product_category_id = ${db.escape(categoryId)}
       `;
       const result = await query(sqlQuery);
+
+      if (req.file && currentImagePath) {
+        const absolutePath = path.resolve(__dirname, '..', '..', 'uploads', path.basename(currentImagePath))
+        if (fs.existsSync(absolutePath)) {
+          fs.unlinkSync(absolutePath)
+        }
+      }
 
       res.status(200).json({
         message: "Product category updated",
@@ -74,21 +100,60 @@ module.exports = {
     const { categoryId } = req.params
 
     try {
-      const sqlQuery = `DELETE FROM product_categories 
+
+      //Hapus data dari database (ubah is_deleted = 1)
+      const sqlQueryDeleteCategory = `
+        UPDATE product_categories
+        SET 
+          is_deleted = 1
         WHERE 
           product_category_id = ${db.escape(categoryId)}
       `;
-      const result = await query(sqlQuery);
+      const resultDeleteCategory = await query(sqlQueryDeleteCategory);
 
       res.status(200).json({
-        message: "Product category deleted",
-        data: result
+        message: "Product category is deleted",
+        data: resultDeleteCategory
       });
     } catch (error) {
-      next({
-        status_code: 500,
-        message: "Server error!",
+      console.log(error)
+    }
+  },
+  hardDeleteCategory: async (req, res, next) => {
+    const { categoryId } = req.params
+
+    try {
+      //Ambil lokasi file gambar
+      const sqlQueryGetImage = `
+        SELECT product_category_image FROM product_categories 
+        WHERE 
+          product_category_id = ${db.escape(categoryId)}
+      `;
+      const resultGetImage = await query(sqlQueryGetImage);
+      const imagePath = resultGetImage[0]?.product_category_image;
+      console.log('img : ', imagePath)
+
+      //Hapus data dari database
+      const sqlQueryDeleteCategory = `
+        DELETE FROM product_categories 
+        WHERE 
+          product_category_id = ${db.escape(categoryId)}
+      `;
+      const resultDeleteCategory = await query(sqlQueryDeleteCategory);
+
+      //Hapus file gambar
+      if (imagePath) {
+        const absolutePath = path.resolve(__dirname, '..', '..', 'uploads', path.basename(imagePath));
+        fs.unlinkSync(absolutePath);
+      }
+
+      res.status(200).json({
+        message: "Product category and its associated image are deleted",
+        data: resultDeleteCategory
       });
+    } catch (error) {
+      console.log(error)
     }
   }
+
 }

@@ -10,8 +10,10 @@ router.post('/categories',
   check('product_category_name').notEmpty().withMessage('Category name is required'),
   adminCategoryController.createCategory)
 router.put('/categories/:categoryId',
+  upload.single('product_category_image'),
   check('product_category_name').notEmpty().withMessage('Category name is required'),
   adminCategoryController.updateCategory)
 router.delete('/categories/:categoryId', adminCategoryController.deleteCategory)
+router.delete('/categories/:categoryId/permanently', adminCategoryController.hardDeleteCategory)
 
 module.exports = router
