@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { FaPen, FaPlus, FaTrash } from 'react-icons/fa';
 import { Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter } from '@chakra-ui/react';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom"
 
 function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -9,7 +10,11 @@ function AdminCategories() {
 
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
+
   const initialRef = useRef();
+  const navigate = useNavigate()
+
+  const role = 'super admin'
 
   const fetchCategories = async () => {
     try {
@@ -39,8 +44,13 @@ function AdminCategories() {
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    // If the role is not 'super admin', redirect the user to a different page
+    if (role !== 'super admin') {
+      navigate('/');
+    } else {
+      fetchCategories();
+    }
+  }, [role, navigate]);
 
   const renderCategories = () => {
     return categories.map((category) => (
@@ -200,7 +210,7 @@ function AdminCategories() {
             </FormControl>
             <FormControl>
               <FormLabel>Category Image</FormLabel>
-              <Input 
+              <Input
                 type='file'
                 onChange={(e) => setCategoryImage(e.target.files[0])}
               />
