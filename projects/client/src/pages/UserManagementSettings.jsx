@@ -10,7 +10,7 @@ function UserManagementSettings() {
   const [latLong, setLatLong] = useState({ lat: '', lng: '' })
 
   // const role = useSelector(state => state.admin.role);
-  const role = 'admin'
+  const role = 'super admin'
   const navigate = useNavigate();
   const dispatch = useDispatch()
 
