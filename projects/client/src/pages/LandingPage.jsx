@@ -23,6 +23,12 @@ const LandingPage = () => {
   return (
     <div className="bg-white">
       <div className="relative isolate lg:px-20">
+        <div className="px-4 my-5 md:px-10">
+          <h3 className="text-xl font-semibold tracking-tight text-gray-900">
+            Nearest store:
+            <a className="text-green-400"> branch</a>
+          </h3>
+        </div>
         <div className="bg-sky-100 rounded-lg grid grid-col-1 gap-4 py-10 px-4 lg:my-5 md:px-10 md:grid-cols-3 lg:px-20">
           <div className="col-span-1 md:col-span-2">
             <Card align="center">

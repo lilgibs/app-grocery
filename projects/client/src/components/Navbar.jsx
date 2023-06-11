@@ -63,7 +63,7 @@ const Navbar = () => {
                   </InputGroup>
                 </div>
 
-                <div className="hidden md:block">
+                <div>
                   <Menu>
                     <MenuButton as={Button} size="sm" variant="ghost" colorScheme="green" rounded="full" border="1px">
                       <Icon as={GrLocation} pb="1" mr="0.5" />
@@ -80,29 +80,32 @@ const Navbar = () => {
                   <Icon as={BsFillCartFill} />
                 </button>
 
-                <Stack direction="row" spacing={1}>
-                  <Button
-                    colorScheme="green"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      nav("/login");
-                    }}
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    bg="green.400"
-                    color="white"
-                    variant="solid"
-                    size="sm"
-                    onClick={() => {
-                      nav("/register");
-                    }}
-                  >
-                    Register
-                  </Button>
-                </Stack>
+                <div className="hidden md:block">
+                  <Stack direction="row" spacing={1}>
+                    <Button
+                      colorScheme="green"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        nav("/login");
+                      }}
+                    >
+                      Login
+                    </Button>
+                    <Button
+                      bg="green.400"
+                      color="white"
+                      variant="solid"
+                      size="sm"
+                      onClick={() => {
+                        nav("/register");
+                      }}
+                    >
+                      Register
+                    </Button>
+                  </Stack>
+                </div>
+
                 {/* Profile dropdown */}
                 {/* <Menu as="div" className="relative ml-3">
                   <div>
@@ -154,7 +157,7 @@ const Navbar = () => {
           </div>
 
           <Disclosure.Panel className="sm:hidden">
-            <div className="space-y-1 px-2 pb-3 pt-2">
+            <div className="space-y-2 px-2 pb-4 pt-2">
               {navigation.map((item) => (
                 <Disclosure.Button
                   key={item.name}
@@ -166,6 +169,31 @@ const Navbar = () => {
                   {item.name}
                 </Disclosure.Button>
               ))}
+              <Disclosure.Button className="mx-2">
+                <Stack direction="row" spacing={2}>
+                  <Button
+                    colorScheme="green"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      nav("/login");
+                    }}
+                  >
+                    Login
+                  </Button>
+                  <Button
+                    bg="green.400"
+                    color="white"
+                    variant="solid"
+                    size="sm"
+                    onClick={() => {
+                      nav("/register");
+                    }}
+                  >
+                    Register
+                  </Button>
+                </Stack>
+              </Disclosure.Button>
             </div>
           </Disclosure.Panel>
         </>
