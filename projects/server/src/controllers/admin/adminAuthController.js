@@ -51,8 +51,7 @@ module.exports = {
   },
   checkAdminLogin: async (req, res) => {
     try {
-      const { email, password } = req.body;
-      const admin = await query(`SELECT * FROM admins WHERE email=${db.escape(email)}`);
+      const admin = await query(`SELECT * FROM admins WHERE email = ${db.escape(req.body.email)}`);
 
       if (admin[0].role == 0) {
         return res.status(200).send({
@@ -82,7 +81,7 @@ module.exports = {
         },
       });
 
-      // return res.status(200).send({ message: "Success" });
+      // return res.status(200).send(req.body.email);
     } catch (error) {
       res.status(error.status || 500).send(error);
     }

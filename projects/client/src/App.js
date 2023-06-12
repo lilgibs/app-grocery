@@ -12,12 +12,14 @@ import Register from "./pages/Register";
 import Verification from "./pages/Verification";
 import Login from "./pages/Login";
 import { checkLogin } from "./features/userSlice";
+import { checkLoginAdmin } from "./features/adminSlice";
 import AdminCategories from "./pages/AdminCategories";
 
 function App() {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
   const userToken = localStorage.getItem("user_token");
+  const adminToken = localStorage.getItem("admin_token");
   const userGlobal = useSelector((state) => state.user.user);
 
   useEffect(() => {
@@ -27,10 +29,14 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (adminToken) {
+      dispatch(checkLoginAdmin(adminToken));
+    }
+  }, []);
+
+  useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/greetings`
-      );
+      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
       setMessage(data?.message || "");
     })();
   }, []);
@@ -45,10 +51,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
-        <Route
-          path="/admin/settings/users"
-          element={<UserManagementSettings />}
-        />
+        <Route path="/admin/settings/users" element={<UserManagementSettings />} />
         <Route path="/admin/products/categories" element={<AdminCategories />} />
       </Routes>
     </div>
