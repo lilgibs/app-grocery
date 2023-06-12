@@ -49,10 +49,9 @@ module.exports = {
       next(error);
     }
   },
-  checkAdminLogin: async (req, res) => {
+  checkAdminLogin: async (req, res, next) => {
     try {
-      const admin = await query(`SELECT * FROM admins WHERE email = ${db.escape(req.body.email)}`);
-
+      const admin = await query(`SELECT * FROM admins WHERE admin_id = ${db.escape(req.user.adminId)}`);
       if (admin[0].role == 0) {
         return res.status(200).send({
           message: "Super admin verified",
@@ -67,7 +66,6 @@ module.exports = {
           },
         });
       }
-
       return res.status(200).send({
         message: "Branch admin verified",
         data: {
@@ -81,9 +79,10 @@ module.exports = {
         },
       });
 
-      // return res.status(200).send(req.body.email);
+      // console.log(req.user.adminId); // checker
     } catch (error) {
-      res.status(error.status || 500).send(error);
+      console.error(error);
+      next(error);
     }
   },
   createBranchAdmin: async (req, res, next) => {
