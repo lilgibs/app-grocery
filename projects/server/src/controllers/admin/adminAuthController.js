@@ -1,6 +1,6 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const { db, query } = require("../../config/db");
-const { validationResult } = require('express-validator');
+const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 
 module.exports = {
@@ -18,9 +18,7 @@ module.exports = {
 
       const { email, password } = req.body;
 
-      const isEmailExist = await query(
-        `SELECT * FROM admins WHERE email=${db.escape(email)}`
-      );
+      const isEmailExist = await query(`SELECT * FROM admins WHERE email=${db.escape(email)}`);
 
       if (isEmailExist.length == 0) {
         throw {
@@ -54,9 +52,7 @@ module.exports = {
   checkAdminLogin: async (req, res) => {
     try {
       const { email, password } = req.body;
-      const admin = await query(
-        `SELECT * FROM admins WHERE email=${db.escape(email)}`
-      );
+      const admin = await query(`SELECT * FROM admins WHERE email=${db.escape(email)}`);
 
       if (admin[0].role == 0) {
         return res.status(200).send({
@@ -85,6 +81,8 @@ module.exports = {
           is_deleted: admin[0].is_deleted,
         },
       });
+
+      // return res.status(200).send({ message: "Success" });
     } catch (error) {
       res.status(error.status || 500).send(error);
     }
@@ -109,7 +107,7 @@ module.exports = {
         };
       }
 
-      const isEmailExist = await query(`select * from admins where email = ${db.escape(email)}`)
+      const isEmailExist = await query(`select * from admins where email = ${db.escape(email)}`);
 
       if (isEmailExist.length > 0) {
         next({ status_code: 409, message: "Email has been used" });
@@ -121,9 +119,9 @@ module.exports = {
           ${db.escape(store_location)}, 
           ${db.escape(latitude)}, 
           ${db.escape(longitude)}
-        )`
-      const storeResult = await query(sqlQueryStore)
-      const store_id = storeResult.insertId
+        )`;
+      const storeResult = await query(sqlQueryStore);
+      const store_id = storeResult.insertId;
 
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -140,12 +138,11 @@ module.exports = {
       const result = await query(sqlQueryAdmin);
       res.status(201).json({
         message: "Branch admin created",
-        data: { id: result.insertId, email, role, store_id, store_name, store_location }
+        data: { id: result.insertId, email, role, store_id, store_name, store_location },
       });
     } catch (error) {
       console.error(error);
       next(error);
     }
-  }
-}
-
+  },
+};
