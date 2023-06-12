@@ -5,18 +5,19 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { Image, Stack, Heading, Text, Divider } from "@chakra-ui/react";
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
 import { Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
-import { setLocation, getLandingPageCity } from "../features/locationSlice";
+import { setLocation, getCityStore } from "../features/locationSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 const LandingPage = () => {
   const dispatch = useDispatch();
+  const nearestStore = useSelector((state) => state.location.location.nearestStore.store_name);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(function (position) {
       let latitude = position.coords.latitude;
       let longitude = position.coords.longitude;
 
-      dispatch(getLandingPageCity(latitude, longitude));
+      dispatch(getCityStore(latitude, longitude));
     });
   }, []);
 
@@ -26,7 +27,7 @@ const LandingPage = () => {
         <div className="px-4 my-5 md:px-10">
           <h3 className="text-xl font-semibold tracking-tight text-gray-900">
             Nearest store:
-            <a className="text-green-400"> branch</a>
+            <a className="text-green-500"> {nearestStore}</a>
           </h3>
         </div>
         <div className="bg-sky-100 rounded-lg grid grid-col-1 gap-4 py-10 px-4 lg:my-5 md:px-10 md:grid-cols-3 lg:px-20">

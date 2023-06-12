@@ -32,14 +32,12 @@ export const adminSlice = createSlice({
 
 export function loginAdmin(data) {
   return async (dispatch) => {
-    // console.log(data); //data in login form
     try {
       let response = await Axios.post("http://localhost:8000/api/auth/adminLogin", data);
       if (response) {
         dispatch(setAdmin(response.data.data));
+        localStorage.setItem("admin_token", response.data.token);
         alert(response.data.message);
-        //checker
-        //console.log(response.data.data);
       }
     } catch {
       alert("You are not registered as an admin");
@@ -47,11 +45,32 @@ export function loginAdmin(data) {
   };
 }
 
+export function checkLoginAdmin(token) {
+  return async (dispatch) => {
+    try {
+      let response = await Axios.post(
+        "http://localhost:8000/api/auth/check-adminlogin",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      if (response) {
+        dispatch(setAdmin(response.data.data));
+      }
+    } catch (error) {
+      alert(error.response.data);
+    }
+  };
+}
+
 export function createBranchAdmin(data) {
   return async () => {
-    console.log(data)
+    console.log(data);
     try {
-      let response = await Axios.post(`http://localhost:8000/api/admin/create`, data)
+      let response = await Axios.post(`http://localhost:8000/api/admin/create`, data);
       if (response) {
         alert(response.data.message);
       }
@@ -59,7 +78,7 @@ export function createBranchAdmin(data) {
       console.error(error.response.data);
       alert(`There was an error creating the branch admin: error.response.data`);
     }
-  }
+  };
 }
 
 export const { setAdmin, resetAdmin } = adminSlice.actions;
