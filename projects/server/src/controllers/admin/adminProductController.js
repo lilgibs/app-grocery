@@ -36,10 +36,10 @@ module.exports = {
   },
   addProduct: async (req, res, next) => {
     const { store_id, product_category_id, product_name, product_description, product_price, quantity_in_stock } = req.body;
-    // const errors = validationResult(req);
+    const errors = validationResult(req);
 
     try {
-      // handleValidationErrors(errors);
+      handleValidationErrors(errors);
 
       // 1. Memeriksa gambar
       let product_images = [];
@@ -53,8 +53,9 @@ module.exports = {
       // Memeriksa apakah product_name sudah tersedia di db
       const checkProductQuery = `SELECT * FROM products WHERE product_name = ${db.escape(product_name)}`
       const existingProduct = await query(checkProductQuery);
+
+      // Jika produk sudah ada, langsung tambahkan data ke store_inventory
       if (existingProduct.length > 0) {
-        // Jika produk sudah ada, langsung tambahkan data ke store_inventory
         const productId = existingProduct[0].product_id;
 
         const sqlQueryStoreInventory = `INSERT INTO store_inventory (
@@ -128,7 +129,7 @@ module.exports = {
       // Rollback transaksi jika terjadi kesalahan
       await query('ROLLBACK');
 
-      // handleServerError(error, next);
+      handleServerError(error, next);
       console.log(error)
     }
   },

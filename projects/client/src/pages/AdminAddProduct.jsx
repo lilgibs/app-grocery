@@ -47,6 +47,9 @@ function AddProduct() {
           .required('Required'),
         product_price: Yup.number()
           .required('Required'),
+        product_images: Yup.array()
+          .required('Required')
+          .max(3, 'You can only upload up to 3 images'),
       });
     } else {
       return Yup.object().shape({
@@ -72,7 +75,7 @@ function AddProduct() {
 
 
   return (
-    <div className="w-full max-w-xs flex-col sm:max-w-xl mx-auto mt-5">
+    <div className="w-[95%] sm:max-w-md md:max-w-xl flex-col mx-auto mt-5">
       <Formik
         initialValues={{
           store_id: '',
@@ -134,10 +137,11 @@ function AddProduct() {
                 id="product_images"
                 name="product_images"
                 onChange={(event) => {
-                  setFieldValue("product_images", event.currentTarget.files);
+                  setFieldValue("product_images", [...event.currentTarget.files]);
                 }}
                 multiple
               />
+              <ErrorMessage name="product_images" component="div" className="text-red-500 text-xs italic" />
             </div>
 
             <div className="flex items-center justify-between">
