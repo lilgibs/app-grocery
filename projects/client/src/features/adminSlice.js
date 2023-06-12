@@ -26,6 +26,7 @@ export const adminSlice = createSlice({
         store_id: "",
         is_deleted: false,
       };
+      localStorage.removeItem("admin_token");
     },
   },
 });

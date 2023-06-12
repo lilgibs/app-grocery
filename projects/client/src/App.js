@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "./components/Navbar";
+import AdminNavbar from "./components/AdminNavbar";
 import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -14,6 +15,7 @@ import Login from "./pages/Login";
 import { checkLogin } from "./features/userSlice";
 import { checkLoginAdmin } from "./features/adminSlice";
 import AdminCategories from "./pages/AdminCategories";
+import { getCityStore } from "./features/locationSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -36,6 +38,15 @@ function App() {
   }, []);
 
   useEffect(() => {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      let latitude = position.coords.latitude;
+      let longitude = position.coords.longitude;
+
+      dispatch(getCityStore(latitude, longitude));
+    });
+  }, []);
+
+  useEffect(() => {
     (async () => {
       const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
       setMessage(data?.message || "");
@@ -44,7 +55,17 @@ function App() {
 
   return (
     <div>
-      <Navbar />
+      {adminGlobal.id > 0 ? (
+        //when admin is logged in
+        <>
+          <AdminNavbar />
+        </>
+      ) : (
+        //when admin is logged out
+        <>
+          <Navbar />
+        </>
+      )}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
