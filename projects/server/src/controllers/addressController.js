@@ -1,0 +1,145 @@
+const { db, query } = require("../config/db");
+
+module.exports = {
+  addAddress: async (req, res, next) => {
+    try {
+      const { user_id, street, city, province } = req.body;
+      let city_id = 0;
+      let province_id = 0;
+
+      const isProvinceExist = await query(
+        `SELECT province_id FROM provinces WHERE province_name=${db.escape(
+          province.toUpperCase()
+        )}`
+      );
+
+      const isCityExist = await query(
+        `SELECT city_id FROM cities WHERE city_name=${db.escape(
+          city.toUpperCase()
+        )}`
+      );
+
+      if (isProvinceExist.length == 0) {
+        const addProvinceQuery = await query(
+          `INSERT INTO provinces VALUES(null, ${db.escape(
+            province.toUpperCase()
+          )})`
+        );
+        province_id = addProvinceQuery.insertId;
+      } else {
+        province_id = isProvinceExist[0].province_id;
+      }
+
+      if (isCityExist.length == 0) {
+        const addCityQuery = await query(
+          `INSERT INTO cities VALUES(null, ${db.escape(city.toUpperCase())})`
+        );
+        city_id = addCityQuery.insertId;
+      } else {
+        city_id = isCityExist[0].city_id;
+      }
+
+      const addUSerAddressQuery = await query(
+        `INSERT INTO addresses VALUES(null, ${db.escape(user_id)}, ${db.escape(
+          province_id
+        )}, ${db.escape(city_id)}, ${db.escape(full_address)}, )`
+      );
+    } catch (error) {
+      next(error);
+    }
+  },
+  getAddress: async (req, res, next) => {
+    try {
+      const user_id = req.params;
+
+      const getUserAddressQuery = await query(
+        `SELECT * FROM addresses WHERE user_id=${db.escape(
+          user_id
+        )} AND is_deleted=false`
+      );
+
+      const getProvinceQuery = await query(
+        `SELECT province_id FROM provinces WHERE province_id=${db.escape(
+          getUserAddressQuery[0].province_id
+        )}`
+      );
+
+      const getCityQuery = await query(
+        `SELECT city_id FROM cities WHERE city_id=${db.escape(
+          getUserAddressQuery[0].city_id
+        )}`
+      );
+
+      return res.status(200).send({
+        data: {
+          address_id: getUserAddressQuery[0].address_id,
+          user_id: getUserAddressQuery[0].user_id,
+          province: getProvinceQuery[0].province_name,
+          city: getCityQuery[0].city_name,
+          street: getUserAddressQuery[0].street,
+          longitude: getUserAddressQuery[0].longitude,
+          latitude: getUserAddressQuery[0].latitude,
+        },
+        message: "Retrieve User's data successfully!",
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  softDeleteAddress: async (req, res, next) => {
+    try {
+      const address_id = req.params;
+
+      const softDeleteAddressQuery = await query(
+        `UPDATE addresses SET is_deleted = true WHERE address_id = ${db.escape(
+          address_id
+        )}`
+      );
+
+      return res.status(200).send({ message: "Address deleted!" });
+    } catch (error) {
+      next(error);
+    }
+  },
+  editAddress: async (req, res, next) => {
+    try {
+      const { street, city, province } = req.body;
+      let city_id = 0;
+      let province_id = 0;
+
+      const isProvinceExist = await query(
+        `SELECT province_id FROM provinces WHERE province_name=${db.escape(
+          province.toUpperCase()
+        )}`
+      );
+
+      const isCityExist = await query(
+        `SELECT city_id FROM cities WHERE city_name=${db.escape(
+          city.toUpperCase()
+        )}`
+      );
+
+      if (isProvinceExist.length == 0) {
+        const addProvinceQuery = await query(
+          `INSERT INTO provinces VALUES(null, ${db.escape(
+            province.toUpperCase()
+          )})`
+        );
+        province_id = addProvinceQuery.insertId;
+      } else {
+        province_id = isProvinceExist[0].province_id;
+      }
+
+      if (isCityExist.length == 0) {
+        const addCityQuery = await query(
+          `INSERT INTO cities VALUES(null, ${db.escape(city.toUpperCase())})`
+        );
+        city_id = addCityQuery.insertId;
+      } else {
+        city_id = isCityExist[0].city_id;
+      }
+    } catch (error) {
+      next(error);
+    }
+  },
+};

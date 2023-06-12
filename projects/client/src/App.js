@@ -13,6 +13,7 @@ import Verification from "./pages/Verification";
 import Login from "./pages/Login";
 import { checkLogin } from "./features/userSlice";
 import AdminCategories from "./pages/AdminCategories";
+import UserProfile from "./pages/UserProfile";
 
 function App() {
   const dispatch = useDispatch();
@@ -49,7 +50,11 @@ function App() {
           path="/admin/settings/users"
           element={<UserManagementSettings />}
         />
-        <Route path="/admin/products/categories" element={<AdminCategories />} />
+        <Route
+          path="/admin/products/categories"
+          element={<AdminCategories />}
+        />
+        <Route path="/profile" element={<UserProfile />} />
       </Routes>
     </div>
   );

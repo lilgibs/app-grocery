@@ -89,7 +89,7 @@ module.exports = {
       )}`;
       let updateResponse = await query(updateIsActiveQuery);
 
-      res.status(200).send({ message: "Account is verified" });
+      return res.status(200).send({ message: "Account is verified" });
     } catch (error) {
       next(error);
     }
