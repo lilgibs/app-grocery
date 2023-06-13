@@ -3,28 +3,18 @@ import * as Yup from 'yup';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useState } from 'react';
-import { createBranchAdmin } from '../features/adminSlice';
+import { checkLoginAdmin, createBranchAdmin } from '../features/adminSlice';
 import { useNavigate } from 'react-router-dom';
 
 function UserManagementSettings() {
   const [latLong, setLatLong] = useState({ lat: '', lng: '' })
+  const [loading, setLoading] = useState(true);
 
-  // const role = useSelector(state => state.admin.role);
-  const role = 'super admin'
-  const navigate = useNavigate();
+  const role = useSelector(state => state.admin.admin.role);
+  const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const GetCoordinatesButton = () => {
-    const { values } = useFormikContext();
-
-    const handleClick = () => {
-      getCoordinates(values.store_location);
-    };
-
-    return <button className='bg-teal-500 shadow rounded w-1/4 py-2 px-3 text-white leading-tight hover:bg-teal-600' type="button" onClick={handleClick}>Get</button>;
-  };
-
-  const getCoordinates = async (storeLocation) => {
+  const getCoordinates = async (storeLocation, setFieldValue ) => {
     try {
       const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
         params: {
@@ -37,9 +27,10 @@ function UserManagementSettings() {
         const { lat, lng } = data.results[0].geometry;
         console.log('lat:', lat, 'lng:', lng)
         setLatLong({ lat, lng })
+        setFieldValue('latitude', lat);
+        setFieldValue('longitude', lng);
       } else {
-        // Data lokasi tidak ditemukan
-        alert('Location not found!');
+        alert('Location not found!'); // Data lokasi tidak ditemukan
         setLatLong({ lat: '', lng: '' });
       }
     } catch (error) {
@@ -47,6 +38,16 @@ function UserManagementSettings() {
       alert('There was an error fetching the coordinates.');
     }
   }
+
+  const GetCoordinatesButton = () => {
+    const { values, setFieldValue  } = useFormikContext();
+    
+    const handleClick = () => {
+      getCoordinates(values.store_location, setFieldValue );
+    };
+
+    return <button className='bg-teal-500 shadow rounded w-1/4 py-2 px-3 text-white leading-tight hover:bg-teal-600' type="button" onClick={handleClick}>Get</button>;
+  };
 
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -63,6 +64,12 @@ function UserManagementSettings() {
       .required('Required'),
     store_location: Yup.string()
       .required('Required'),
+    latitude: Yup.number()
+      .typeError('Latitude must be a number')
+      .required('Required'),
+    longitude: Yup.number()
+      .typeError('Longitude must be a number')
+      .required('Required')
   });
 
   const CustomInput = ({ name, type, label, children }) => (
@@ -79,12 +86,32 @@ function UserManagementSettings() {
   );
 
   useEffect(() => {
-    // If the role is not 'super admin', redirect the user to a different page
-    if (role !== 'super admin') {
+    const token = localStorage.getItem('admin_token');
+
+    if (token) { // check if the admin is logged in
+      dispatch(checkLoginAdmin(token));
+    }
+    else { // set loading to false if no token is found     
+      setLoading(false);
+    }
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (role !== null) {
+      setLoading(false);
+    }
+  }, [role]);
+
+  useEffect(() => {
+    if (!loading && role !== 99) {
       navigate('/');
     }
-  }, [role, navigate]);
+  }, [role, navigate, loading]);
 
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-full max-w-xs flex-col sm:max-w-xl mx-auto mt-5">
@@ -93,7 +120,7 @@ function UserManagementSettings() {
           name: '',
           email: '',
           password: '',
-          role: 'Branch Admin',
+          role: 1,
           store_name: '',
           store_location: '',
           latitude: '',
@@ -140,6 +167,7 @@ function UserManagementSettings() {
                       value={latLong.lat}
                       disabled
                     />
+                    <ErrorMessage name="latitude" component="div" className="text-red-500 text-xs italic" />
                   </div>
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="longitude">
@@ -152,6 +180,7 @@ function UserManagementSettings() {
                       value={latLong.lng}
                       disabled
                     />
+                    <ErrorMessage name="longitude" component="div" className="text-red-500 text-xs italic" />
                   </div>
                 </div>
               </div>
