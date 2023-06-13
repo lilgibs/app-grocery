@@ -5,11 +5,11 @@ export const adminSlice = createSlice({
   name: "users",
   initialState: {
     admin: {
-      admin_id: 0,
-      name: "",
-      email: "",
-      role: 0,
-      store_id: "",
+      admin_id: null,
+      name: null,
+      email: null,
+      role: null,
+      store_id: null,
       is_deleted: false,
     },
   },
@@ -19,12 +19,12 @@ export const adminSlice = createSlice({
     },
     resetAdmin: (state) => {
       state.admin = {
-        admin_id: 0,
-        name: "",
-        email: "",
-        role: 0,
-        store_id: "",
-        is_deleted: false,
+        admin_id: null,
+        name: null,
+        email: null,
+        role: null,
+        store_id: null,
+        is_deleted: false
       };
       localStorage.removeItem("admin_token");
     },
@@ -70,15 +70,20 @@ export function checkLoginAdmin(token) {
 
 export function createBranchAdmin(data) {
   return async () => {
-    console.log(data);
+    const adminToken = localStorage.getItem("admin_token");
     try {
-      let response = await Axios.post(`http://localhost:8000/api/admin/create`, data);
+      let response = await Axios.post(`http://localhost:8000/api/admin/create`, data,
+        {
+          headers: {
+            'Authorization': `Bearer ${adminToken}`
+          }
+        }
+      );
       if (response) {
         alert(response.data.message);
       }
     } catch (error) {
-      console.error(error.response.data);
-      alert(`There was an error creating the branch admin: error.response.data`);
+      alert(`There was an error creating the branch admin: ${error.response.data}`);
     }
   };
 }
