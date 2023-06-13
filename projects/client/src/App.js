@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import Navbar from "./components/Navbar";
+import AdminNavbar from "./components/AdminNavbar";
 import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -12,19 +13,38 @@ import Register from "./pages/Register";
 import Verification from "./pages/Verification";
 import Login from "./pages/Login";
 import { checkLogin } from "./features/userSlice";
+import { checkLoginAdmin } from "./features/adminSlice";
 import AdminCategories from "./pages/AdminCategories";
 import UserProfile from "./pages/UserProfile";
+import { getCityStore } from "./features/locationSlice";
 
 function App() {
   const dispatch = useDispatch();
   const [message, setMessage] = useState("");
   const userToken = localStorage.getItem("user_token");
+  const adminToken = localStorage.getItem("admin_token");
   const userGlobal = useSelector((state) => state.user.user);
+  const adminGlobal = useSelector((state) => state.admin.admin);
 
   useEffect(() => {
     if (userToken) {
       dispatch(checkLogin(userToken));
     }
+  }, []);
+
+  useEffect(() => {
+    if (adminToken) {
+      dispatch(checkLoginAdmin(adminToken));
+    }
+  }, []);
+
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(function (position) {
+      let latitude = position.coords.latitude;
+      let longitude = position.coords.longitude;
+
+      dispatch(getCityStore(latitude, longitude));
+    });
   }, []);
 
   useEffect(() => {
@@ -38,7 +58,17 @@ function App() {
 
   return (
     <div>
-      <Navbar />
+      {adminGlobal.id > 0 ? (
+        //when admin is logged in
+        <>
+          <AdminNavbar />
+        </>
+      ) : (
+        //when admin is logged out
+        <>
+          <Navbar />
+        </>
+      )}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/register" element={<Register />} />
@@ -54,7 +84,6 @@ function App() {
           path="/admin/products/categories"
           element={<AdminCategories />}
         />
-        <Route path="/profile" element={<UserProfile />} />
       </Routes>
     </div>
   );

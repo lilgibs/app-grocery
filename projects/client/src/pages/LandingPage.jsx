@@ -1,25 +1,14 @@
 import React, { useEffect } from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
-import { Image, Stack, Heading, Text, Divider } from "@chakra-ui/react";
-import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
-import { Alert, AlertIcon, AlertTitle, AlertDescription } from "@chakra-ui/react";
-import { setLocation, getCityStore } from "../features/locationSlice";
+import { Image, Stack, Heading, Text } from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 
 const LandingPage = () => {
   const dispatch = useDispatch();
   const nearestStore = useSelector((state) => state.location.location.nearestStore.store_name);
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(function (position) {
-      let latitude = position.coords.latitude;
-      let longitude = position.coords.longitude;
-
-      dispatch(getCityStore(latitude, longitude));
-    });
-  }, []);
 
   return (
     <div className="bg-white">
