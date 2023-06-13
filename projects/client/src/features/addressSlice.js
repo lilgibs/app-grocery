@@ -4,15 +4,16 @@ import Axios from "axios";
 export const addressSlice = createSlice({
   name: "addresses",
   initialState: {
-    address: {
-      address_id: "",
-      user_id: "",
-      province: "",
-      city: "",
-      street: "",
-      longitude: "",
-      latitude: "",
-    },
+    address: [],
+    // address: {
+    //   address_id: "",
+    //   user_id: "",
+    //   province: "",
+    //   city: "",
+    //   street: "",
+    //   longitude: "",
+    //   latitude: "",
+    // },
   },
   reducers: {
     setAddress: (state, action) => {
@@ -39,10 +40,10 @@ export function getAddress(user_id) {
   return async (dispatch) => {
     try {
       const response = await Axios.get(
-        `http://localhost:8000/api/address/${user_id}`
+        `http://localhost:8000/api/addresses/${user_id}`
       );
       if (response) {
-        dispatch(setAddress(response));
+        dispatch(setAddress(response.data.data));
       }
     } catch (error) {
       console.log(error.response.data);

@@ -6,6 +6,7 @@ const {
   adminAuthRoutes,
   authRoutes,
   adminCategoryRoutes,
+  storeRoutes,
   addressRoutes,
 } = require("./routes");
 const path = require("path");
@@ -36,8 +37,8 @@ app.use("/uploads", express.static(join(__dirname, "uploads")));
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin/products", adminCategoryRoutes);
+app.use("/api", storeRoutes);
 app.use("/api/addresses", addressRoutes);
-
 // ===========================
 
 // not found

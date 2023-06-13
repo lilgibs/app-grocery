@@ -2,8 +2,10 @@ const { db, query } = require("../config/db");
 
 module.exports = {
   addAddress: async (req, res, next) => {
+    console.log(req.body);
     try {
-      const { user_id, street, city, province } = req.body;
+      console.log(req.body);
+      const { user_id, street, city, province, longitude, latitude } = req.body;
       let city_id = 0;
       let province_id = 0;
 
@@ -39,18 +41,25 @@ module.exports = {
         city_id = isCityExist[0].city_id;
       }
 
-      const addUSerAddressQuery = await query(
+      const addAddressQuery = await query(
         `INSERT INTO addresses VALUES(null, ${db.escape(user_id)}, ${db.escape(
           province_id
-        )}, ${db.escape(city_id)}, ${db.escape(full_address)}, )`
+        )}, ${db.escape(city_id)}, ${db.escape(street)}, ${db.escape(
+          longitude
+        )}, ${db.escape(latitude)}), false, false`
       );
+
+      return res.status(200).send({
+        data: addAddressQuery,
+        message: "Address added successfully!",
+      });
     } catch (error) {
       next(error);
     }
   },
   getAddress: async (req, res, next) => {
     try {
-      const user_id = req.params;
+      const user_id = req.params.user_id;
 
       const getUserAddressQuery = await query(
         `SELECT * FROM addresses WHERE user_id=${db.escape(
@@ -71,15 +80,7 @@ module.exports = {
       );
 
       return res.status(200).send({
-        data: {
-          address_id: getUserAddressQuery[0].address_id,
-          user_id: getUserAddressQuery[0].user_id,
-          province: getProvinceQuery[0].province_name,
-          city: getCityQuery[0].city_name,
-          street: getUserAddressQuery[0].street,
-          longitude: getUserAddressQuery[0].longitude,
-          latitude: getUserAddressQuery[0].latitude,
-        },
+        data: getUserAddressQuery,
         message: "Retrieve User's data successfully!",
       });
     } catch (error) {
@@ -103,7 +104,8 @@ module.exports = {
   },
   editAddress: async (req, res, next) => {
     try {
-      const { street, city, province } = req.body;
+      const { street, city, province, longitude, latitude } = req.body;
+      const address_id = req.params;
       let city_id = 0;
       let province_id = 0;
 
@@ -138,6 +140,23 @@ module.exports = {
       } else {
         city_id = isCityExist[0].city_id;
       }
+
+      const editAddressQuery = await query(
+        `UPDATE addresses
+        SET
+          city_id = ${db.escape(city_id)},
+          province_id = ${db.escape(province_id)}
+          street = ${db.escape(street)}
+          longitude = ${db.escape(longitude)}
+          latitude = ${db.escape(latitude)}
+        WHERE
+          address_id = ${db.escape(address_id)}`
+      );
+
+      return res.status(200).send({
+        data: editAddressQuery,
+        message: "Address edited successfully!",
+      });
     } catch (error) {
       next(error);
     }

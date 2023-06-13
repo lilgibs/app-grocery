@@ -20,9 +20,10 @@ import { useNavigate } from "react-router-dom";
 import { getAddress } from "../features/addressSlice";
 
 function UserProfile() {
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
   // const userToken = localStorage.getItem("user_token");
   const userGlobal = useSelector((state) => state.user.user);
+  const userAddress = useSelector((state) => state.address.address);
   const [addresses, setAddresses] = useState([]);
   const [selectedAddress, setselectedAddress] = useState(null);
 
@@ -40,25 +41,24 @@ function UserProfile() {
   const initialRef = useRef();
   const navigate = useNavigate();
 
-  const fetchAddresses = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:8000/api/addresses/${userGlobal.user_id}`
-      );
-      setAddresses(response.data.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
+  // const fetchAddresses = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       `http://localhost:8000/api/addresses/${userGlobal.user_id}`
+  //     );
+  //     setAddresses(response.data.data);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
   const handleDeleteAddress = async (address_id) => {
     try {
-      const response = await axios.put(
+      const response = await axios.delete(
         `http://localhost:8000/api/addresses/${address_id}`
       );
       console.log(response.data);
       alert(response.data.message);
-      fetchAddresses();
     } catch (error) {
       console.error(error);
     }
@@ -69,11 +69,15 @@ function UserProfile() {
     onEditOpen();
   };
 
-  // useEffect(() => {
-  //   if (userToken) {
-  //     dispatch(getAddress(userGlobal.user_id));
-  //   }
-  // }, []);
+  useEffect(() => {
+    if (!userGlobal.user_id == "") {
+      dispatch(getAddress(userGlobal.user_id));
+    }
+  }, [userGlobal]);
+
+  useEffect(() => {
+    setAddresses(userAddress);
+  }, [userAddress]);
 
   const renderAddresses = () => {
     return addresses.map((address) => (
@@ -164,7 +168,7 @@ function UserProfile() {
         );
         alert(response.data.message);
         onAddClose();
-        fetchAddresses();
+        // fetchAddresses();
       } catch (error) {
         console.error(error);
       }
@@ -179,6 +183,101 @@ function UserProfile() {
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Add Address</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody pb={6}>
+            <FormControl>
+              <FormLabel>Street</FormLabel>
+              <Input
+                ref={initialRef}
+                placeholder="Enter Street"
+                value={addressStreet}
+                onChange={(e) => setaddressStreet(e.target.value)}
+              />
+            </FormControl>
+            <FormControl>
+              <FormLabel>City</FormLabel>
+              <Input
+                placeholder="Enter City"
+                value={addressCity}
+                onChange={(e) => setaddressCity(e.target.value)}
+              />
+            </FormControl>
+            {addressCity}
+            <FormControl>
+              <FormLabel>Province</FormLabel>
+              <Input
+                placeholder="Enter Province"
+                value={addressProvince}
+                onChange={(e) => setaddressProvince(e.target.value)}
+              />
+            </FormControl>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="green" mr={3} onClick={handleSubmit}>
+              Save
+            </Button>
+            <Button colorScheme="red" onClick={onAddClose}>
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+    );
+  };
+
+  const ModalEditAddress = () => {
+    const [addressStreet, setaddressStreet] = useState("");
+    const [addressCity, setaddressCity] = useState("");
+    const [addressProvince, setaddressProvince] = useState("");
+
+    const handleSubmit = async () => {
+      const coordinates = getCoordinates(
+        `${addressStreet}, ${addressCity}, ${addressProvince}`
+      );
+      const formData = new FormData();
+      formData.append("street", addressStreet);
+      formData.append("city", addressCity);
+      formData.append("province", addressProvince);
+      formData.append("longitude", coordinates.lng);
+      formData.append("latitude", coordinates.lat);
+      formData.append("user_id", userGlobal.user_id);
+
+      try {
+        const response = await axios.put(
+          `http://localhost:8000/api/addresses/${selectedAddress.address_id}`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        alert(response.data.message);
+        onAddClose();
+        // fetchAddresses();
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    useEffect(() => {
+      if (selectedAddress) {
+        setaddressStreet(selectedAddress.street);
+        setaddressCity(selectedAddress.city);
+        setaddressProvince(selectedAddress.province);
+      }
+    }, [selectedAddress]);
+
+    return (
+      <Modal
+        initialFocusRef={initialRef}
+        isOpen={isEditOpen}
+        onClose={onEditClose}
+      >
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Edit Address</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <FormControl>
@@ -214,81 +313,6 @@ function UserProfile() {
             <Button colorScheme="green" mr={3} onClick={handleSubmit}>
               Save
             </Button>
-            <Button colorScheme="red" onClick={onAddClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    );
-  };
-
-  const ModalEditAddress = () => {
-    const [categoryName, setCategoryName] = useState("");
-    const [categoryImage, setCategoryImage] = useState(null);
-
-    const handleSubmit = async () => {
-      const formData = new FormData();
-      formData.append("product_category_name", categoryName);
-      formData.append("product_category_image", categoryImage);
-
-      try {
-        const response = await axios.put(
-          `http://localhost:8000/api/admin/products/categories/${selectedCategory.product_category_id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-        alert(response.data.message);
-        onEditClose();
-        fetchCategories();
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    useEffect(() => {
-      if (selectedCategory) {
-        setCategoryName(selectedCategory.product_category_name);
-      }
-    }, [selectedCategory]);
-
-    return (
-      <Modal
-        initialFocusRef={initialRef}
-        isOpen={isEditOpen}
-        onClose={onEditClose}
-      >
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Category</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <FormControl>
-              <FormLabel>Category Name</FormLabel>
-              <Input
-                ref={initialRef}
-                placeholder="Enter Category Name"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Category Image</FormLabel>
-              <Input
-                type="file"
-                onChange={(e) => setCategoryImage(e.target.files[0])}
-              />
-            </FormControl>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="green" mr={3} onClick={handleSubmit}>
-              Save
-            </Button>
             <Button colorScheme="red" onClick={onEditClose}>
               Cancel
             </Button>
@@ -298,12 +322,21 @@ function UserProfile() {
     );
   };
 
+  // useEffect(() => {
+  //   if (userGlobal.user_id == "") {
+  //     alert("You haven't Login!");
+  //     navigate("/login");
+  //   } else {
+  //     fetchAddresses();
+  //   }
+  // }, [userGlobal]);
+
   return (
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
       <div className="p-4 bg-white border shadow-md rounded">
         <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
           <p className="font-semibold text-pink-500 text-lg">
-            Categories Management
+            Address Management
           </p>
         </div>
         <div className="flex justify-end">
@@ -311,13 +344,13 @@ function UserProfile() {
             onClick={onAddOpen}
             className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
           >
-            <FaPlus size={15} className="mr-2" /> Add Category
+            <FaPlus size={15} className="mr-2" /> Add Address
           </button>
         </div>
         <div className="flex flex-wrap justify-center gap-4">
-          {renderCategories()}
-          <ModalAddCategory />
-          <ModalEditCategory />
+          {renderAddresses()}
+          <ModalAddAddress />
+          <ModalEditAddress />
         </div>
       </div>
     </div>
