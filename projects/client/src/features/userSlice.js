@@ -24,6 +24,7 @@ export const usersSlice = createSlice({
         phone_number: "",
         isVerified: false,
       };
+      localStorage.removeItem("user_token");
     },
   },
 });
@@ -34,10 +35,7 @@ export default usersSlice.reducer;
 export function loginUser(data) {
   return async (dispatch) => {
     try {
-      let response = await Axios.post(
-        "http://localhost:8000/api/auth/login",
-        data
-      );
+      let response = await Axios.post("http://localhost:8000/api/auth/login", data);
       if (response) {
         dispatch(setUser(response.data.data));
         localStorage.setItem("user_token", response.data.token);

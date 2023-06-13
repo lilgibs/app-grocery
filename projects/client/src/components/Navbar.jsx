@@ -9,6 +9,7 @@ import { Menu, MenuButton, MenuList, MenuItem, MenuItemOption, MenuGroup, MenuOp
 import { BsFillCartFill } from "react-icons/bs";
 import { GrLocation } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
+import { resetUser } from "../features/userSlice";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
@@ -20,7 +21,9 @@ function classNames(...classes) {
 }
 const Navbar = () => {
   const nav = useNavigate();
-  const userGlobal = useSelector((state) => state.location.location);
+  const locationGlobal = useSelector((state) => state.location.location);
+  const userGlobal = useSelector((state) => state.user.user);
+  const dispatch = useDispatch();
 
   return (
     <Disclosure as="nav" className="bg-white color-gray sticky top-0 z-50 drop-shadow-md">
@@ -68,7 +71,7 @@ const Navbar = () => {
                     <MenuButton as={Button} size="sm" variant="ghost" colorScheme="green" rounded="full" border="1px">
                       <Icon as={GrLocation} pb="1" mr="0.5" />
                       <span />
-                      {userGlobal.city}
+                      {locationGlobal.city}
                     </MenuButton>
                     <MenuList>
                       <MenuItem>Change address</MenuItem>
@@ -76,82 +79,63 @@ const Navbar = () => {
                   </Menu>
                 </div>
 
-                <button type="button" className="pr-2 text-gray-500 hover:text-gray-300">
+                <button type="button" className="pr-1 text-gray-500 hover:text-gray-300">
                   <Icon as={BsFillCartFill} />
                 </button>
 
                 <div className="hidden md:block">
-                  <Stack direction="row" spacing={1}>
-                    <Button
-                      colorScheme="green"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        nav("/login");
-                      }}
-                    >
-                      Login
-                    </Button>
-                    <Button
-                      bg="green.400"
-                      color="white"
-                      variant="solid"
-                      size="sm"
-                      onClick={() => {
-                        nav("/register");
-                      }}
-                    >
-                      Register
-                    </Button>
-                  </Stack>
+                  {userGlobal.user_id > 0 ? (
+                    //when user is logged in
+                    <>
+                      <Menu>
+                        <MenuButton as={Button} size="sm" variant="solid" bg="green.400" color="white">
+                          {/* <Icon as={GrUser} mr="1" color="white" /> */}
+                          <span />
+                          Hi, {userGlobal.name}!
+                        </MenuButton>
+                        <MenuList>
+                          <MenuItem>Profile</MenuItem>
+                          <MenuItem
+                            onClick={() => {
+                              alert("logging out");
+                              dispatch(resetUser());
+                              nav("/");
+                            }}
+                          >
+                            Logout
+                          </MenuItem>
+                        </MenuList>
+                      </Menu>
+                    </>
+                  ) : (
+                    //when user is logged out
+                    <>
+                      <Stack direction="row" spacing={1}>
+                        <Button
+                          colorScheme="green"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            nav("/login");
+                          }}
+                        >
+                          Login
+                        </Button>
+                        <Button
+                          bg="green.400"
+                          color="white"
+                          variant="solid"
+                          size="sm"
+                          onClick={() => {
+                            nav("/register");
+                          }}
+                        >
+                          Register
+                        </Button>
+                      </Stack>
+                    </>
+                  )}
                 </div>
-
-                {/* Profile dropdown */}
-                {/* <Menu as="div" className="relative ml-3">
-                  <div>
-                    <Menu.Button className="flex hover:text-gray-300 focus:text-green-500">Account</Menu.Button>
-                  </div>
-                  <Transition
-                    as={Fragment}
-                    enter="transition ease-out duration-100"
-                    enterFrom="transform opacity-0 scale-95"
-                    enterTo="transform opacity-100 scale-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-100"
-                    leaveTo="transform opacity-0 scale-95"
-                  >
-                    <Menu.Items className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a href="/" className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700")}>
-                            Profile
-                          </a>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a href="/" className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700")}>
-                            My Addresses
-                          </a>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a href="/" className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700")}>
-                            Track Order
-                          </a>
-                        )}
-                      </Menu.Item>
-                      <Menu.Item>
-                        {({ active }) => (
-                          <a href="/" className={classNames(active ? "bg-gray-100" : "", "block px-4 py-2 text-sm text-gray-700")}>
-                            Sign out
-                          </a>
-                        )}
-                      </Menu.Item>
-                    </Menu.Items>
-                  </Transition>
-                </Menu> */}
               </div>
             </div>
           </div>
@@ -170,29 +154,57 @@ const Navbar = () => {
                 </Disclosure.Button>
               ))}
               <Disclosure.Button className="mx-2">
-                <Stack direction="row" spacing={2}>
-                  <Button
-                    colorScheme="green"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      nav("/login");
-                    }}
-                  >
-                    Login
-                  </Button>
-                  <Button
-                    bg="green.400"
-                    color="white"
-                    variant="solid"
-                    size="sm"
-                    onClick={() => {
-                      nav("/register");
-                    }}
-                  >
-                    Register
-                  </Button>
-                </Stack>
+                {userGlobal.user_id > 0 ? (
+                  //when user is logged in
+                  <>
+                    <Menu>
+                      <MenuButton as={Button} size="sm" variant="solid" colorScheme="green">
+                        {/* <Icon as={GrUser} mr="1" color="white" /> */}
+                        <span />
+                        Hi, {userGlobal.name}!
+                      </MenuButton>
+                      <MenuList>
+                        <MenuItem>Profile</MenuItem>
+                        <MenuItem
+                          onClick={() => {
+                            alert("logging out");
+                            dispatch(resetUser());
+                            nav("/");
+                          }}
+                        >
+                          Logout
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </>
+                ) : (
+                  //when user is logged out
+                  <>
+                    <Stack direction="row" spacing={1}>
+                      <Button
+                        colorScheme="green"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          nav("/login");
+                        }}
+                      >
+                        Login
+                      </Button>
+                      <Button
+                        bg="green.400"
+                        color="white"
+                        variant="solid"
+                        size="sm"
+                        onClick={() => {
+                          nav("/register");
+                        }}
+                      >
+                        Register
+                      </Button>
+                    </Stack>
+                  </>
+                )}
               </Disclosure.Button>
             </div>
           </Disclosure.Panel>

@@ -33,6 +33,8 @@ module.exports = {
 
       const addUserResult = await query(addUserQuery);
 
+      // //--------------------------------------------------------------------
+
       let payload = { id: addUserResult.insertId };
       const token = jwt.sign(payload, "joe", { expiresIn: "4h" });
 
@@ -51,6 +53,8 @@ module.exports = {
       };
 
       const response = await transporter.sendMail(mail);
+
+      // //--------------------------------------------------------------------
 
       return res.status(200).send({ data: addUserResult, message: "Register success" });
     } catch (error) {
