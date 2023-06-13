@@ -97,7 +97,7 @@ const Navbar = () => {
                           <MenuItem>Profile</MenuItem>
                           <MenuItem
                             onClick={() => {
-                              //alert("logging out");
+                              alert("logging out");
                               dispatch(resetUser());
                               nav("/");
                             }}
@@ -167,7 +167,7 @@ const Navbar = () => {
                         <MenuItem>Profile</MenuItem>
                         <MenuItem
                           onClick={() => {
-                            //alert("logging out");
+                            alert("logging out");
                             dispatch(resetUser());
                             nav("/");
                           }}

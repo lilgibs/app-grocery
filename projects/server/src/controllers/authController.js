@@ -33,21 +33,28 @@ module.exports = {
 
       const addUserResult = await query(addUserQuery);
 
-      // const renderEmailTemplate = (templatePath, data) => {
-      //   const filePath = path.join(__dirname, templatePath);
-      //   return ejs.renderFile(filePath, data);
-      // };
+      // //--------------------------------------------------------------------
 
-      // const template = await renderEmailTemplate("../templates/emailTemplate.ejs", { name, token });
+      let payload = { id: addUserResult.insertId };
+      const token = jwt.sign(payload, "joe", { expiresIn: "4h" });
 
-      // const mail = {
-      //   from: `Admin <ichsannuriman12@gmail.com>`,
-      //   to: `${email}`,
-      //   subject: `Acount Verification`,
-      //   html: template,
-      // };
+      const renderEmailTemplate = (templatePath, data) => {
+        const filePath = path.join(__dirname, templatePath);
+        return ejs.renderFile(filePath, data);
+      };
 
-      // const response = await transporter.sendMail(mail);
+      const template = await renderEmailTemplate("../templates/emailTemplate.ejs", { name, token });
+
+      const mail = {
+        from: `Admin <ichsannuriman12@gmail.com>`,
+        to: `${email}`,
+        subject: `Acount Verification`,
+        html: template,
+      };
+
+      const response = await transporter.sendMail(mail);
+
+      // //--------------------------------------------------------------------
 
       return res.status(200).send({ data: addUserResult, message: "Register success" });
     } catch (error) {

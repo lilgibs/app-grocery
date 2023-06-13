@@ -74,7 +74,7 @@ const AdminNavbar = () => {
                     <MenuItem>Profile</MenuItem>
                     <MenuItem
                       onClick={() => {
-                        //alert("logging out");
+                        alert("logging out");
                         dispatch(resetAdmin());
                         nav("/");
                       }}
