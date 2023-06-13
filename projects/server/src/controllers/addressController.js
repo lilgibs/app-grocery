@@ -2,9 +2,7 @@ const { db, query } = require("../config/db");
 
 module.exports = {
   addAddress: async (req, res, next) => {
-    console.log(req.body);
     try {
-      console.log(req.body);
       const { user_id, street, city, province, longitude, latitude } = req.body;
       let city_id = 0;
       let province_id = 0;
@@ -46,7 +44,7 @@ module.exports = {
           province_id
         )}, ${db.escape(city_id)}, ${db.escape(street)}, ${db.escape(
           longitude
-        )}, ${db.escape(latitude)}), false, false`
+        )}, ${db.escape(latitude)}, false, false)`
       );
 
       return res.status(200).send({
@@ -59,24 +57,14 @@ module.exports = {
   },
   getAddress: async (req, res, next) => {
     try {
-      const user_id = req.params.user_id;
+      const { user_id } = req.params;
 
       const getUserAddressQuery = await query(
-        `SELECT * FROM addresses WHERE user_id=${db.escape(
+        `SELECT addresses.*, provinces.province_name, cities.city_name FROM addresses
+        INNER JOIN provinces ON provinces.province_id = addresses.province_id
+        INNER JOIN cities ON cities.city_id = addresses.city_id WHERE user_id=${db.escape(
           user_id
         )} AND is_deleted=false`
-      );
-
-      const getProvinceQuery = await query(
-        `SELECT province_id FROM provinces WHERE province_id=${db.escape(
-          getUserAddressQuery[0].province_id
-        )}`
-      );
-
-      const getCityQuery = await query(
-        `SELECT city_id FROM cities WHERE city_id=${db.escape(
-          getUserAddressQuery[0].city_id
-        )}`
       );
 
       return res.status(200).send({
@@ -89,7 +77,7 @@ module.exports = {
   },
   softDeleteAddress: async (req, res, next) => {
     try {
-      const address_id = req.params;
+      const { address_id } = req.params;
 
       const softDeleteAddressQuery = await query(
         `UPDATE addresses SET is_deleted = true WHERE address_id = ${db.escape(
@@ -105,7 +93,7 @@ module.exports = {
   editAddress: async (req, res, next) => {
     try {
       const { street, city, province, longitude, latitude } = req.body;
-      const address_id = req.params;
+      const { address_id } = req.params;
       let city_id = 0;
       let province_id = 0;
 
@@ -145,9 +133,9 @@ module.exports = {
         `UPDATE addresses
         SET
           city_id = ${db.escape(city_id)},
-          province_id = ${db.escape(province_id)}
-          street = ${db.escape(street)}
-          longitude = ${db.escape(longitude)}
+          province_id = ${db.escape(province_id)},
+          street = ${db.escape(street)},
+          longitude = ${db.escape(longitude)},
           latitude = ${db.escape(latitude)}
         WHERE
           address_id = ${db.escape(address_id)}`

@@ -20,7 +20,9 @@ module.exports = {
 
       const { name, email, password, phone } = req.body;
 
-      const getEmailQuery = `SELECT * FROM users WHERE email=${db.escape(email)}`;
+      const getEmailQuery = `SELECT * FROM users WHERE email=${db.escape(
+        email
+      )}`;
       const isEmailExist = await query(getEmailQuery);
       if (isEmailExist.length > 0) {
         throw { status_code: 400, message: "Email has been used" };
@@ -29,7 +31,11 @@ module.exports = {
       const salt = await bcrypt.genSalt(10);
       const hashPassword = await bcrypt.hash(password, salt);
 
-      const addUserQuery = `INSERT INTO users VALUES (null, ${db.escape(email)}, ${db.escape(hashPassword)}, ${db.escape(name)},null,null,${db.escape(phone)}, null, false, false)`;
+      const addUserQuery = `INSERT INTO users VALUES (null, ${db.escape(
+        email
+      )}, ${db.escape(hashPassword)}, ${db.escape(name)},null,null,${db.escape(
+        phone
+      )}, null, false, false)`;
 
       const addUserResult = await query(addUserQuery);
 
@@ -41,7 +47,10 @@ module.exports = {
         return ejs.renderFile(filePath, data);
       };
 
-      const template = await renderEmailTemplate("../templates/emailTemplate.ejs", { name, token });
+      const template = await renderEmailTemplate(
+        "../templates/emailTemplate.ejs",
+        { name, token }
+      );
 
       const mail = {
         from: `Admin <ichsannuriman12@gmail.com>`,
@@ -52,7 +61,9 @@ module.exports = {
 
       const response = await transporter.sendMail(mail);
 
-      return res.status(200).send({ data: addUserResult, message: "Register success" });
+      return res
+        .status(200)
+        .send({ data: addUserResult, message: "Register success" });
     } catch (error) {
       next(error);
     }
@@ -61,7 +72,9 @@ module.exports = {
     try {
       const id = req.user.id;
 
-      const checkAccountQuery = `SELECT * FROM users WHERE user_id=${db.escape(id)}`;
+      const checkAccountQuery = `SELECT * FROM users WHERE user_id=${db.escape(
+        id
+      )}`;
       const isAccountExist = await query(checkAccountQuery);
 
       if (isAccountExist[0].is_verified == true) {
@@ -71,7 +84,9 @@ module.exports = {
         };
       }
 
-      const updateIsActiveQuery = `UPDATE users SET is_verified = true WHERE user_id = ${db.escape(id)}`;
+      const updateIsActiveQuery = `UPDATE users SET is_verified = true WHERE user_id = ${db.escape(
+        id
+      )}`;
       let updateResponse = await query(updateIsActiveQuery);
 
       return res.status(200).send({ message: "Account is verified" });
@@ -82,7 +97,9 @@ module.exports = {
   login: async (req, res, next) => {
     try {
       const { email, password } = req.body;
-      const isEmailExist = await query(`SELECT * FROM users WHERE email=${db.escape(email)}`);
+      const isEmailExist = await query(
+        `SELECT * FROM users WHERE email=${db.escape(email)}`
+      );
       if (isEmailExist.length == 0) {
         throw {
           status_code: 400,
@@ -110,7 +127,7 @@ module.exports = {
         id: isEmailExist[0].user_id,
       };
 
-      const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
+      const token = jwt.sign(payload, "joe", { expiresIn: "2h" });
 
       return res.status(200).send({
         message: "Login Success",
@@ -129,7 +146,9 @@ module.exports = {
   },
   checkLogin: async (req, res, next) => {
     try {
-      const users = await query(`SELECT * FROM users WHERE user_id = ${db.escape(req.user.id)}`);
+      const users = await query(
+        `SELECT * FROM users WHERE user_id = ${db.escape(req.user.id)}`
+      );
 
       return res.status(200).send({
         data: {

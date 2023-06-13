@@ -21,7 +21,7 @@ const Login = () => {
   });
 
   useEffect(() => {
-    if (userGlobal.user_id > 0) nav("/admindashboard");
+    if (userGlobal.user_id > 0) nav("/");
   }, [userGlobal]);
 
   return (

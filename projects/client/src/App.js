@@ -74,6 +74,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/verification/:token" element={<Verification />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={<UserProfile />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route

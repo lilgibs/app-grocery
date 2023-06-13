@@ -5,30 +5,10 @@ export const addressSlice = createSlice({
   name: "addresses",
   initialState: {
     address: [],
-    // address: {
-    //   address_id: "",
-    //   user_id: "",
-    //   province: "",
-    //   city: "",
-    //   street: "",
-    //   longitude: "",
-    //   latitude: "",
-    // },
   },
   reducers: {
     setAddress: (state, action) => {
       state.address = action.payload;
-    },
-    resetAddress: (state) => {
-      state.address = {
-        address_id: "",
-        user_id: "",
-        province: "",
-        city: "",
-        street: "",
-        longitude: "",
-        latitude: "",
-      };
     },
   },
 });

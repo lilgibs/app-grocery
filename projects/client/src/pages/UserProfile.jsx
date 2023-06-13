@@ -24,7 +24,7 @@ function UserProfile() {
   // const userToken = localStorage.getItem("user_token");
   const userGlobal = useSelector((state) => state.user.user);
   const userAddress = useSelector((state) => state.address.address);
-  const [addresses, setAddresses] = useState([]);
+  const [addresses, setAddresses] = useState(userAddress);
   const [selectedAddress, setselectedAddress] = useState(null);
 
   const {
@@ -41,17 +41,6 @@ function UserProfile() {
   const initialRef = useRef();
   const navigate = useNavigate();
 
-  // const fetchAddresses = async () => {
-  //   try {
-  //     const response = await axios.get(
-  //       `http://localhost:8000/api/addresses/${userGlobal.user_id}`
-  //     );
-  //     setAddresses(response.data.data);
-  //   } catch (error) {
-  //     console.error(error);
-  //   }
-  // };
-
   const handleDeleteAddress = async (address_id) => {
     try {
       const response = await axios.delete(
@@ -59,6 +48,7 @@ function UserProfile() {
       );
       console.log(response.data);
       alert(response.data.message);
+      dispatch(getAddress(userGlobal.user_id));
     } catch (error) {
       console.error(error);
     }
@@ -68,16 +58,6 @@ function UserProfile() {
     setselectedAddress(address);
     onEditOpen();
   };
-
-  useEffect(() => {
-    if (!userGlobal.user_id == "") {
-      dispatch(getAddress(userGlobal.user_id));
-    }
-  }, [userGlobal]);
-
-  useEffect(() => {
-    setAddresses(userAddress);
-  }, [userAddress]);
 
   const renderAddresses = () => {
     return addresses.map((address) => (
@@ -90,7 +70,7 @@ function UserProfile() {
             <div>
               <p className="text-lg font-semibold text-pink-500 ">Alamat:</p>
               <p className="text-md font-medium">
-                {address.street}, {address.city}, {address.province}
+                {address.street}, {address.city_name}, {address.province_name}
               </p>
             </div>
           </div>
@@ -145,30 +125,27 @@ function UserProfile() {
     const [addressProvince, setaddressProvince] = useState("");
 
     const handleSubmit = async () => {
-      const coordinates = getCoordinates(
+      const coordinates = await getCoordinates(
         `${addressStreet}, ${addressCity}, ${addressProvince}`
       );
-      const formData = new FormData();
-      formData.append("street", addressStreet);
-      formData.append("city", addressCity);
-      formData.append("province", addressProvince);
-      formData.append("longitude", coordinates.lng);
-      formData.append("latitude", coordinates.lat);
-      formData.append("user_id", userGlobal.user_id);
+
+      const data = {
+        street: addressStreet,
+        city: addressCity,
+        province: addressProvince,
+        longitude: coordinates.lng,
+        latitude: coordinates.lat,
+        user_id: userGlobal.user_id,
+      };
 
       try {
         const response = await axios.post(
           "http://localhost:8000/api/addresses",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          data
         );
         alert(response.data.message);
         onAddClose();
-        // fetchAddresses();
+        dispatch(getAddress(userGlobal.user_id));
       } catch (error) {
         console.error(error);
       }
@@ -202,7 +179,6 @@ function UserProfile() {
                 onChange={(e) => setaddressCity(e.target.value)}
               />
             </FormControl>
-            {addressCity}
             <FormControl>
               <FormLabel>Province</FormLabel>
               <Input
@@ -232,30 +208,26 @@ function UserProfile() {
     const [addressProvince, setaddressProvince] = useState("");
 
     const handleSubmit = async () => {
-      const coordinates = getCoordinates(
+      const coordinates = await getCoordinates(
         `${addressStreet}, ${addressCity}, ${addressProvince}`
       );
-      const formData = new FormData();
-      formData.append("street", addressStreet);
-      formData.append("city", addressCity);
-      formData.append("province", addressProvince);
-      formData.append("longitude", coordinates.lng);
-      formData.append("latitude", coordinates.lat);
-      formData.append("user_id", userGlobal.user_id);
+
+      const data = {
+        street: addressStreet,
+        city: addressCity,
+        province: addressProvince,
+        longitude: coordinates.lng,
+        latitude: coordinates.lat,
+      };
 
       try {
         const response = await axios.put(
           `http://localhost:8000/api/addresses/${selectedAddress.address_id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
+          data
         );
         alert(response.data.message);
         onAddClose();
-        // fetchAddresses();
+        dispatch(getAddress(userGlobal.user_id));
       } catch (error) {
         console.error(error);
       }
@@ -264,8 +236,8 @@ function UserProfile() {
     useEffect(() => {
       if (selectedAddress) {
         setaddressStreet(selectedAddress.street);
-        setaddressCity(selectedAddress.city);
-        setaddressProvince(selectedAddress.province);
+        setaddressCity(selectedAddress.city_name);
+        setaddressProvince(selectedAddress.province_name);
       }
     }, [selectedAddress]);
 
@@ -292,7 +264,6 @@ function UserProfile() {
             <FormControl>
               <FormLabel>City</FormLabel>
               <Input
-                ref={initialRef}
                 placeholder="Enter City"
                 value={addressCity}
                 onChange={(e) => setaddressCity(e.target.value)}
@@ -301,7 +272,6 @@ function UserProfile() {
             <FormControl>
               <FormLabel>Province</FormLabel>
               <Input
-                ref={initialRef}
                 placeholder="Enter Province"
                 value={addressProvince}
                 onChange={(e) => setaddressProvince(e.target.value)}
@@ -322,14 +292,40 @@ function UserProfile() {
     );
   };
 
-  // useEffect(() => {
-  //   if (userGlobal.user_id == "") {
-  //     alert("You haven't Login!");
-  //     navigate("/login");
-  //   } else {
-  //     fetchAddresses();
-  //   }
-  // }, [userGlobal]);
+  useEffect(() => {
+    let isUserGlobalUpdated = false;
+
+    const checkLoginStatus = () => {
+      if (isUserGlobalUpdated && userGlobal.user_id === "") {
+        alert("You haven't login");
+        navigate("/login");
+      }
+    };
+
+    checkLoginStatus();
+
+    const userGlobalUpdateListener = setInterval(() => {
+      if (userGlobal.user_id !== null) {
+        isUserGlobalUpdated = true;
+        clearInterval(userGlobalUpdateListener);
+        checkLoginStatus();
+      }
+    }, 100);
+
+    return () => {
+      clearInterval(userGlobalUpdateListener);
+    };
+  }, [userGlobal.user_id]);
+
+  useEffect(() => {
+    if (userGlobal.user_id !== null) {
+      dispatch(getAddress(userGlobal.user_id));
+    }
+  }, [userGlobal]);
+
+  useEffect(() => {
+    setAddresses(userAddress);
+  }, [userAddress]);
 
   return (
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
