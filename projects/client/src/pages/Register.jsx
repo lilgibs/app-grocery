@@ -72,6 +72,7 @@ const Register = () => {
             validationSchema={RegisterSchema}
             onSubmit={(value) => {
               registerUser(value);
+              console.log(value); //checker
             }}
           >
             {(props) => {
