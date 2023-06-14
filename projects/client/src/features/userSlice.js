@@ -63,6 +63,9 @@ export function checkLogin(token) {
         dispatch(setUser(response.data.data));
       }
     } catch (error) {
+      if (error.response.data === "jwt expired") {
+        localStorage.removeItem("user_token");
+      }
       alert(error.response.data);
     }
   };
