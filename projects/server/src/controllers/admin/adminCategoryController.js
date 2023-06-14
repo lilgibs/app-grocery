@@ -25,11 +25,26 @@ module.exports = {
     const errors = validationResult(req);
 
     try {
+      const adminRole = req.admin.adminRole;
+      if (adminRole !== 99) {
+        throw {
+          status_code: 403,
+          message: "Access denied. You are not authorized to access this route.",
+          errors: errors.array(),
+        };
+      }
+
       handleValidationErrors(errors);
 
       let product_category_image = "";
       if (req.file) {
         product_category_image = 'uploads/' + req.file.filename;
+      } else {
+        throw {
+          status_code: 400,
+          message: "No file uploaded.",
+          errors: errors.array(),
+        };
       }
 
       const sqlQuery = `INSERT INTO product_categories (product_category_name, product_category_image) 
@@ -44,7 +59,7 @@ module.exports = {
         data: result
       });
     } catch (error) {
-      // handleServerError(error, next);
+      handleServerError(error, next);
       console.log(error)
     }
   },
@@ -100,7 +115,6 @@ module.exports = {
     const { categoryId } = req.params
 
     try {
-
       //Hapus data dari database (ubah is_deleted = 1)
       const sqlQueryDeleteCategory = `
         UPDATE product_categories

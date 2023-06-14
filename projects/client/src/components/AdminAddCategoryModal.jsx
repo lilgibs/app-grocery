@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter, Button } from '@chakra-ui/react';
+import React from 'react';
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, ModalFooter, Button, Input } from '@chakra-ui/react';
 import axios from 'axios';
+import * as Yup from 'yup';
+import { ErrorMessage, Form, Formik, Field, setFieldValue } from 'formik';
 
 function AddCategoryModal({ isOpen, onClose, fetchCategories }) {
-  const [categoryName, setCategoryName] = useState('');
-  const [categoryImage, setCategoryImage] = useState(null);
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    const adminToken = localStorage.getItem("admin_token");
 
-
-  const handleSubmit = async () => {
     const formData = new FormData();
-    formData.append('product_category_name', categoryName);
-    formData.append('image', categoryImage);
+    formData.append('product_category_name', values.product_category_name);
+    formData.append('image', values.image);
 
     try {
       const response = await axios.post(
@@ -18,7 +18,8 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories }) {
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${adminToken}`
           }
         }
       );
@@ -28,40 +29,75 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories }) {
     } catch (error) {
       console.error(error);
     }
+    resetForm();
+    setSubmitting(false);
   };
+
+  const validationSchema = Yup.object().shape({
+    product_category_name: Yup.string().required('Required'),
+    image: Yup.mixed().required('Required')
+      .test(
+        "fileSize",
+        "File too large",
+        value => value && value.size <= 1024 * 1024  // file size <= 1MB
+      )
+      .test(
+        "fileFormat",
+        "Unsupported Format",
+        value => value && (value.type === "image/jpeg" || value.type === "image/png")
+      ),
+  })
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
       <ModalOverlay />
       <ModalContent>
-        <ModalHeader>Add Category</ModalHeader>
-        <ModalCloseButton />
-        <ModalBody pb={6}>
-          <FormControl>
-            <FormLabel>Category Name</FormLabel>
-            <Input
-              placeholder="Enter Category Name"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
-            />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Category Image</FormLabel>
-            <Input
-              type="file"
-              onChange={(e) => setCategoryImage(e.target.files[0])}
-            />
-          </FormControl>
-        </ModalBody>
-
-        <ModalFooter>
-          <Button colorScheme="green" mr={3} onClick={handleSubmit}>
-            Save
-          </Button>
-          <Button colorScheme="red" onClick={onClose}>
-            Cancel
-          </Button>
-        </ModalFooter>
+        <Formik
+          initialValues={{
+            product_category_name: '',
+            image: null
+          }}
+          validationSchema={validationSchema}
+          onSubmit={handleSubmit}
+        >
+          {({ isSubmitting, setFieldValue }) => (
+            <Form>
+              <ModalHeader>Add Category</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody pb={6}>
+                <FormControl>
+                  <FormLabel>Category Name</FormLabel>
+                  <Field
+                    as={Input}
+                    name='product_category_name'
+                    placeholder="Enter Category Name"
+                  />
+                  <ErrorMessage name="product_category_name" component="div" className="text-red-500 text-xs italic" />
+                </FormControl>
+                <FormControl>
+                  <FormLabel>Category Image</FormLabel>
+                  <Input
+                    id='image'
+                    name='image'
+                    type="file"
+                    onChange={(event) => {
+                      setFieldValue("image", event.currentTarget.files[0]);
+                    }}
+                  />
+                  <ErrorMessage name="image" component="div" className="text-red-500 text-xs italic" />
+                </FormControl>
+              </ModalBody>
+              <ModalFooter>
+                <Button colorScheme="green" mr={3} type="submit" disabled={isSubmitting}>
+                  Save
+                </Button>
+                <Button colorScheme="red" onClick={onClose}>
+                  Cancel
+                </Button>
+              </ModalFooter>
+            </Form>
+          )}
+        </Formik>
       </ModalContent>
     </Modal>
   );

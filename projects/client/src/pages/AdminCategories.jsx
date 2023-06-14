@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaPen, FaPlus, FaTrash } from 'react-icons/fa';
-import { Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
@@ -136,8 +136,8 @@ function AdminCategories() {
         </div>
         <div className="flex flex-wrap justify-center gap-4">
           {renderCategories()}
-          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={fetchCategories}/>
-          <AdminEditCategoryModal isOpen={isEditOpen} onClose={onEditClose} fetchCategories={fetchCategories} selectedCategory={selectedCategory}/>
+          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={fetchCategories} />
+          <AdminEditCategoryModal isOpen={isEditOpen} onClose={onEditClose} fetchCategories={fetchCategories} selectedCategory={selectedCategory} />
         </div>
       </div>
     </div>
