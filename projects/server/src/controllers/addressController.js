@@ -7,37 +7,18 @@ module.exports = {
       let city_id = 0;
       let province_id = 0;
 
-      const isProvinceExist = await query(
+      const getProvinceQuery = await query(
         `SELECT province_id FROM provinces WHERE province_name=${db.escape(
-          province.toUpperCase()
+          province
         )}`
       );
 
-      const isCityExist = await query(
-        `SELECT city_id FROM cities WHERE city_name=${db.escape(
-          city.toUpperCase()
-        )}`
+      const getCityQuery = await query(
+        `SELECT city_id FROM cities WHERE city_name=${db.escape(city)}`
       );
 
-      if (isProvinceExist.length == 0) {
-        const addProvinceQuery = await query(
-          `INSERT INTO provinces VALUES(null, ${db.escape(
-            province.toUpperCase()
-          )})`
-        );
-        province_id = addProvinceQuery.insertId;
-      } else {
-        province_id = isProvinceExist[0].province_id;
-      }
-
-      if (isCityExist.length == 0) {
-        const addCityQuery = await query(
-          `INSERT INTO cities VALUES(null, ${db.escape(city.toUpperCase())})`
-        );
-        city_id = addCityQuery.insertId;
-      } else {
-        city_id = isCityExist[0].city_id;
-      }
+      city_id = getCityQuery[0].city_id;
+      province_id = getProvinceQuery[0].province_id;
 
       const addAddressQuery = await query(
         `INSERT INTO addresses VALUES(null, ${db.escape(user_id)}, ${db.escape(

@@ -8,6 +8,8 @@ const {
   adminCategoryRoutes,
   storeRoutes,
   addressRoutes,
+  cityRoutes,
+  provinceRoutes,
 } = require("./routes");
 const path = require("path");
 
@@ -39,6 +41,8 @@ app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin/products", adminCategoryRoutes);
 app.use("/api", storeRoutes);
 app.use("/api/addresses", addressRoutes);
+app.use("/api/cities", cityRoutes);
+app.use("/api/provinces", provinceRoutes);
 // ===========================
 
 // not found

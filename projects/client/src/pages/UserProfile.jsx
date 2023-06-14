@@ -14,6 +14,8 @@ import {
   FormLabel,
   Input,
   ModalFooter,
+  Select,
+  FormErrorMessage,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -21,11 +23,13 @@ import { getAddress } from "../features/addressSlice";
 
 function UserProfile() {
   const dispatch = useDispatch();
-  // const userToken = localStorage.getItem("user_token");
+  const navigate = useNavigate();
   const userGlobal = useSelector((state) => state.user.user);
   const userAddress = useSelector((state) => state.address.address);
   const [addresses, setAddresses] = useState(userAddress);
   const [selectedAddress, setselectedAddress] = useState(null);
+  const [cityOptions, setCityOptions] = useState([]);
+  const [provinceOptions, setProvinceOptions] = useState([]);
 
   const {
     isOpen: isAddOpen,
@@ -39,7 +43,6 @@ function UserProfile() {
   } = useDisclosure();
 
   const initialRef = useRef();
-  const navigate = useNavigate();
 
   const handleDeleteAddress = async (address_id) => {
     try {
@@ -123,31 +126,58 @@ function UserProfile() {
     const [addressStreet, setaddressStreet] = useState("");
     const [addressCity, setaddressCity] = useState("");
     const [addressProvince, setaddressProvince] = useState("");
+    const [streetError, setStreetError] = useState("");
+    const [cityError, setCityError] = useState("");
+    const [provinceError, setProvinceError] = useState("");
 
     const handleSubmit = async () => {
-      const coordinates = await getCoordinates(
-        `${addressStreet}, ${addressCity}, ${addressProvince}`
-      );
+      let isValid = true;
+      if (addressStreet.trim() === "") {
+        setStreetError("Street is required");
+        isValid = false;
+      } else {
+        setStreetError("");
+      }
 
-      const data = {
-        street: addressStreet,
-        city: addressCity,
-        province: addressProvince,
-        longitude: coordinates.lng,
-        latitude: coordinates.lat,
-        user_id: userGlobal.user_id,
-      };
+      if (addressCity.trim() === "") {
+        setCityError("City is required");
+        isValid = false;
+      } else {
+        setCityError("");
+      }
 
-      try {
-        const response = await axios.post(
-          "http://localhost:8000/api/addresses",
-          data
+      if (addressProvince.trim() === "") {
+        setProvinceError("Province is required");
+        isValid = false;
+      } else {
+        setProvinceError("");
+      }
+
+      if (isValid) {
+        const coordinates = await getCoordinates(
+          `${addressStreet}, ${addressCity}, ${addressProvince}`
         );
-        alert(response.data.message);
-        onAddClose();
-        dispatch(getAddress(userGlobal.user_id));
-      } catch (error) {
-        console.error(error);
+
+        const data = {
+          street: addressStreet,
+          city: addressCity,
+          province: addressProvince,
+          longitude: coordinates.lng,
+          latitude: coordinates.lat,
+          user_id: userGlobal.user_id,
+        };
+
+        try {
+          const response = await axios.post(
+            "http://localhost:8000/api/addresses",
+            data
+          );
+          alert(response.data.message);
+          onAddClose();
+          dispatch(getAddress(userGlobal.user_id));
+        } catch (error) {
+          console.error(error);
+        }
       }
     };
 
@@ -162,7 +192,7 @@ function UserProfile() {
           <ModalHeader>Add Address</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl>
+            <FormControl isInvalid={streetError !== ""}>
               <FormLabel>Street</FormLabel>
               <Input
                 ref={initialRef}
@@ -170,22 +200,41 @@ function UserProfile() {
                 value={addressStreet}
                 onChange={(e) => setaddressStreet(e.target.value)}
               />
+              <FormErrorMessage>{streetError}</FormErrorMessage>
             </FormControl>
-            <FormControl>
+            <FormControl isInvalid={cityError !== ""}>
               <FormLabel>City</FormLabel>
-              <Input
-                placeholder="Enter City"
+              <Select
+                placeholder="Select City"
                 value={addressCity}
                 onChange={(e) => setaddressCity(e.target.value)}
-              />
+                isRequired={true}
+              >
+                {cityOptions.map((city) => (
+                  <option key={city.city_id} value={city.city_name}>
+                    {city.city_name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>{cityError}</FormErrorMessage>
             </FormControl>
-            <FormControl>
+            <FormControl isInvalid={provinceError !== ""}>
               <FormLabel>Province</FormLabel>
-              <Input
-                placeholder="Enter Province"
+              <Select
+                placeholder="Select Province"
                 value={addressProvince}
                 onChange={(e) => setaddressProvince(e.target.value)}
-              />
+              >
+                {provinceOptions.map((province) => (
+                  <option
+                    key={province.province_id}
+                    value={province.province_name}
+                  >
+                    {province.province_name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>{provinceError}</FormErrorMessage>
             </FormControl>
           </ModalBody>
 
@@ -206,30 +255,57 @@ function UserProfile() {
     const [addressStreet, setaddressStreet] = useState("");
     const [addressCity, setaddressCity] = useState("");
     const [addressProvince, setaddressProvince] = useState("");
+    const [streetError, setStreetError] = useState("");
+    const [cityError, setCityError] = useState("");
+    const [provinceError, setProvinceError] = useState("");
 
     const handleSubmit = async () => {
-      const coordinates = await getCoordinates(
-        `${addressStreet}, ${addressCity}, ${addressProvince}`
-      );
+      let isValid = true;
+      if (addressStreet.trim() === "") {
+        setStreetError("Street is required");
+        isValid = false;
+      } else {
+        setStreetError("");
+      }
 
-      const data = {
-        street: addressStreet,
-        city: addressCity,
-        province: addressProvince,
-        longitude: coordinates.lng,
-        latitude: coordinates.lat,
-      };
+      if (addressCity.trim() === "") {
+        setCityError("City is required");
+        isValid = false;
+      } else {
+        setCityError("");
+      }
 
-      try {
-        const response = await axios.put(
-          `http://localhost:8000/api/addresses/${selectedAddress.address_id}`,
-          data
+      if (addressProvince.trim() === "") {
+        setProvinceError("Province is required");
+        isValid = false;
+      } else {
+        setProvinceError("");
+      }
+
+      if (isValid) {
+        const coordinates = await getCoordinates(
+          `${addressStreet}, ${addressCity}, ${addressProvince}`
         );
-        alert(response.data.message);
-        onAddClose();
-        dispatch(getAddress(userGlobal.user_id));
-      } catch (error) {
-        console.error(error);
+
+        const data = {
+          street: addressStreet,
+          city: addressCity,
+          province: addressProvince,
+          longitude: coordinates.lng,
+          latitude: coordinates.lat,
+        };
+
+        try {
+          const response = await axios.put(
+            `http://localhost:8000/api/addresses/${selectedAddress.address_id}`,
+            data
+          );
+          alert(response.data.message);
+          onEditClose();
+          dispatch(getAddress(userGlobal.user_id));
+        } catch (error) {
+          console.error(error);
+        }
       }
     };
 
@@ -252,7 +328,7 @@ function UserProfile() {
           <ModalHeader>Edit Address</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl>
+            <FormControl isInvalid={streetError !== ""}>
               <FormLabel>Street</FormLabel>
               <Input
                 ref={initialRef}
@@ -260,22 +336,40 @@ function UserProfile() {
                 value={addressStreet}
                 onChange={(e) => setaddressStreet(e.target.value)}
               />
+              <FormErrorMessage>{streetError}</FormErrorMessage>
             </FormControl>
-            <FormControl>
+            <FormControl isInvalid={cityError !== ""}>
               <FormLabel>City</FormLabel>
-              <Input
-                placeholder="Enter City"
+              <Select
+                placeholder="Select City"
                 value={addressCity}
                 onChange={(e) => setaddressCity(e.target.value)}
-              />
+              >
+                {cityOptions.map((city) => (
+                  <option key={city.city_id} value={city.city_name}>
+                    {city.city_name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>{cityError}</FormErrorMessage>
             </FormControl>
-            <FormControl>
+            <FormControl isInvalid={provinceError !== ""}>
               <FormLabel>Province</FormLabel>
-              <Input
-                placeholder="Enter Province"
+              <Select
+                placeholder="Select Province"
                 value={addressProvince}
                 onChange={(e) => setaddressProvince(e.target.value)}
-              />
+              >
+                {provinceOptions.map((province) => (
+                  <option
+                    key={province.province_id}
+                    value={province.province_name}
+                  >
+                    {province.province_name}
+                  </option>
+                ))}
+              </Select>
+              <FormErrorMessage>{provinceError}</FormErrorMessage>
             </FormControl>
           </ModalBody>
 
@@ -326,6 +420,35 @@ function UserProfile() {
   useEffect(() => {
     setAddresses(userAddress);
   }, [userAddress]);
+
+  useEffect(() => {
+    const fetchCityOptions = async () => {
+      try {
+        const response = await axios.get("http://localhost:8000/api/cities/");
+        const data = response.data.data;
+
+        setCityOptions(data);
+      } catch (error) {
+        console.error("Gagal mendapatkan data kota:", error);
+      }
+    };
+
+    const fetchProvinceOptions = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:8000/api/provinces/"
+        );
+        const data = response.data.data;
+
+        setProvinceOptions(data);
+      } catch (error) {
+        console.error("Gagal mendapatkan data provinsi:", error);
+      }
+    };
+
+    fetchCityOptions();
+    fetchProvinceOptions();
+  }, []);
 
   return (
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
