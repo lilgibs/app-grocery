@@ -27,7 +27,10 @@ module.exports = {
         };
       }
 
-      let payload = { adminId: isEmailExist[0].admin_id };
+      let payload = { 
+        adminId: isEmailExist[0].admin_id,
+        adminRole: isEmailExist[0].role 
+      };
 
       const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
 
@@ -52,7 +55,7 @@ module.exports = {
   checkAdminLogin: async (req, res, next) => {
     try {
       const admin = await query(`SELECT * FROM admins WHERE admin_id = ${db.escape(req.user.adminId)}`);
-      if (admin[0].role == 0) {
+      if (admin[0].role == 99) {
         return res.status(200).send({
           message: "Super admin verified",
           data: {
@@ -88,16 +91,14 @@ module.exports = {
   createBranchAdmin: async (req, res, next) => {
     const { name, email, password, role, store_name, store_location, longitude, latitude } = req.body;
 
-    // const adminRole = req.admin.role;
-    const adminRole = "Branch Admin";
-
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
 
     try {
-      if (adminRole !== "Super Admin") {
+      const adminRole = req.admin.adminRole;
+      if (adminRole !== 99) {
         throw {
           status_code: 403,
           message: "Access denied. You are not authorized to access this route.",

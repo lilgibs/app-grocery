@@ -15,6 +15,7 @@ import Login from "./pages/Login";
 import { checkLogin } from "./features/userSlice";
 import { checkLoginAdmin } from "./features/adminSlice";
 import AdminCategories from "./pages/AdminCategories";
+import UserProfile from "./pages/UserProfile";
 import { getCityStore } from "./features/locationSlice";
 import AdminAddProduct from "./pages/AdminAddProduct";
 
@@ -49,7 +50,9 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/greetings`
+      );
       setMessage(data?.message || "");
     })();
   }, []);
@@ -72,10 +75,17 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/verification/:token" element={<Verification />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/profile" element={<UserProfile />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
-        <Route path="/admin/settings/users" element={<UserManagementSettings />} />
-        <Route path="/admin/products/categories" element={<AdminCategories />} />
+        <Route
+          path="/admin/settings/users"
+          element={<UserManagementSettings />}
+        />
+        <Route
+          path="/admin/products/categories"
+          element={<AdminCategories />}
+        />
         <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
       </Routes>
     </div>

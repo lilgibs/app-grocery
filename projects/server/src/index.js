@@ -2,7 +2,15 @@ const { join } = require("path");
 require("dotenv").config({ path: join(__dirname, "../.env") });
 const express = require("express");
 const cors = require("cors");
-const { adminAuthRoutes, authRoutes, adminCategoryRoutes, storeRoutes , adminProductRoutes} = require("./routes");
+const {
+  adminAuthRoutes,
+  authRoutes,
+  adminCategoryRoutes,
+  storeRoutes,
+  addressRoutes,
+  cityRoutes,
+  provinceRoutes,
+, adminProductRoutes} = require("./routes");
 const path = require("path");
 
 require("./config/db.js");
@@ -32,7 +40,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminAuthRoutes);
 app.use("/api/admin/products", adminCategoryRoutes);
 app.use("/api", storeRoutes);
-app.use('/api/admin/products', adminProductRoutes);
+app.use("/api/addresses", addressRoutes);
+app.use("/api/cities", cityRoutes);
+app.use("/api/provinces", provinceRoutes);app.use('/api/admin/products', adminProductRoutes);
 
 // ===========================
 

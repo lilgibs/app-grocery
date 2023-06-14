@@ -6,9 +6,11 @@ const adminVerifyToken = (req, res, next) => {
   if (!token) {
     return res.status(401).json({ message: "No token, authorization denied." });
   }
+  
+  const adminToken = token.split(" ")[1];
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const decoded = jwt.verify(adminToken, "joe");
     req.admin = decoded;
     next();
   } catch (error) {
