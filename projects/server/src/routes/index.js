@@ -11,7 +11,7 @@ module.exports = {
   authRoutes,
   adminAuthRoutes,
   adminCategoryRoutes,
-    adminProductRoutes,
+  adminProductRoutes,
   storeRoutes,
   addressRoutes,
   cityRoutes,
