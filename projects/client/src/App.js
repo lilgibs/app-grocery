@@ -17,6 +17,7 @@ import { checkLoginAdmin } from "./features/adminSlice";
 import AdminCategories from "./pages/AdminCategories";
 import UserProfile from "./pages/UserProfile";
 import { getCityStore } from "./features/locationSlice";
+import AdminAddProduct from "./pages/AdminAddProduct";
 
 function App() {
   const dispatch = useDispatch();
@@ -85,6 +86,7 @@ function App() {
           path="/admin/products/categories"
           element={<AdminCategories />}
         />
+        <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
       </Routes>
     </div>
   );

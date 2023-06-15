@@ -10,7 +10,7 @@ const {
   addressRoutes,
   cityRoutes,
   provinceRoutes,
-} = require("./routes");
+  adminProductRoutes } = require("./routes");
 const path = require("path");
 
 require("./config/db.js");
@@ -43,6 +43,8 @@ app.use("/api", storeRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/cities", cityRoutes);
 app.use("/api/provinces", provinceRoutes);
+app.use('/api/admin/products', adminProductRoutes);
+
 // ===========================
 
 // not found
