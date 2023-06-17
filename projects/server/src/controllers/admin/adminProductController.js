@@ -5,24 +5,8 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = {
-  getProduct: async (req, res, next) => {
+  getProducts: async (req, res, next) => {
     try {
-
-    }
-    catch {
-
-    }
-  },
-  getProductByName: async (req, res, next) => {
-    try {
-      // const productName = req.query.name;
-      // if (!productName) {
-      //   return res.status(400).json({ error: 'Product name is required' })
-      // }
-
-      // const sqlQuery = `SELECT * FROM products 
-      //   WHERE product_name LIKE ${db.escape('%' + productName + '%')}`
-
       const sqlQuery = `SELECT * FROM products`
       const result = await query(sqlQuery)
 
@@ -32,6 +16,107 @@ module.exports = {
       });
     } catch (error) {
       console.log(error)
+    }
+  },
+  getStoreProducts: async (req, res, next) => {
+    try {
+      const page = parseInt(req.query.page) || 1;
+      const limit = parseInt(req.query.limit) || 10;
+      const offset = (page - 1) * limit;
+      const searchText = req.query.search || '';
+      const productCategoryId = req.query.category;
+      const sortType = req.query.sortType; // 'price' or 'stock'
+      const sortOrder = req.query.sortOrder; // 'asc' or 'desc'
+      const adminStoreId = req.admin.adminStoreId;
+
+      // Mendapatkan jumlah produk berdasarkan store_id
+      let countSqlQuery = ` SELECT COUNT(*) as total
+        FROM products p
+        JOIN store_inventory si ON p.product_id = si.product_id
+        WHERE (si.is_deleted = 0 OR si.is_deleted IS NULL) AND si.store_id = ${db.escape(adminStoreId)}
+      `;
+      if (searchText !== '') {
+        countSqlQuery += ` AND p.product_name LIKE ${db.escape('%' + searchText + '%')}`;
+      }
+      if (productCategoryId) {
+        countSqlQuery += ` AND p.product_category_id = ${db.escape(productCategoryId)}`;
+      }
+
+      const countResult = await query(countSqlQuery, [adminStoreId]);
+      const total = countResult[0].total;
+
+      // Menggabungkan tabel products, store_inventory, dan stores berdasarkan product_id dan store_id
+      // Menambahkan klausa WHERE untuk menentukan store_id
+      let sqlQuery = `
+        SELECT 
+          si.store_inventory_id,
+          p.product_id,
+          pc.product_category_name,
+          p.product_name,
+          p.product_description,
+          p.product_price,
+          si.quantity_in_stock,
+          (SELECT image_url FROM product_images WHERE product_id = p.product_id LIMIT 1) as image_url
+        FROM products p
+        JOIN product_categories pc ON p.product_category_id = pc.product_category_id
+        JOIN store_inventory si ON p.product_id = si.product_id
+        WHERE (si.is_deleted = 0 OR si.is_deleted IS NULL) AND si.store_id = ${db.escape(adminStoreId)}
+      `;
+      if (searchText !== '') {
+        sqlQuery += ` AND p.product_name LIKE ${db.escape('%' + searchText + '%')}`;
+      }
+      if (productCategoryId) {
+        sqlQuery += ` AND p.product_category_id = ${db.escape(productCategoryId)}`;
+      }
+      if (sortType && sortOrder) {
+        sqlQuery += ` ORDER BY ${sortType === 'price' ? 'p.product_price' : 'si.quantity_in_stock'} ${sortOrder}`;
+      }
+      sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
+
+      const result = await query(sqlQuery, [adminStoreId]);
+
+      res.status(200).json({
+        message: 'Products fetched successfully',
+        products: result,
+        total: total
+      });
+    } catch (error) {
+      console.log(error)
+    }
+  },
+  getProductById: async (req, res, next) => {
+    const { productId } = req.params;
+    try {
+      const sqlProductQuery = `SELECT * FROM products WHERE product_id = ${db.escape(productId)}`;
+      const productResult = await query(sqlProductQuery);
+
+      if (productResult.length > 0) {
+        const sqlImageQuery = `SELECT * FROM product_images WHERE product_id = ${db.escape(productId)}`;
+        const imageResult = await query(sqlImageQuery);
+
+        const product = {
+          product_id: productResult[0].product_id,
+          product_category_id: productResult[0].product_category_id,
+          product_name: productResult[0].product_name,
+          product_description: productResult[0].product_description,
+          product_price: productResult[0].product_price,
+          product_images: imageResult,
+        };
+
+        res.status(200).json({
+          message: 'Product fetched successfully',
+          product: product,
+        });
+      } else {
+        res.status(404).json({
+          message: 'Product not found',
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      res.status(500).json({
+        message: 'Internal server error',
+      });
     }
   },
   addProduct: async (req, res, next) => {
@@ -182,23 +267,24 @@ module.exports = {
     }
   },
   deleteProduct: async (req, res, next) => {
-    const { categoryId } = req.params
+    const { productId } = req.params
+    const adminStoreId = req.admin.adminStoreId;
 
     try {
-
       //Hapus data dari database (ubah is_deleted = 1)
       const sqlQueryDeleteCategory = `
-        UPDATE product_categories
+        UPDATE store_inventory
         SET 
           is_deleted = 1
         WHERE 
-          product_category_id = ${db.escape(categoryId)}
+          store_id = ${adminStoreId} AND
+          product_id = ${db.escape(productId)}
       `;
-      const resultDeleteCategory = await query(sqlQueryDeleteCategory);
+      const resultDeleteProduct = await query(sqlQueryDeleteCategory);
 
       res.status(200).json({
-        message: "Product category is deleted",
-        data: resultDeleteCategory
+        message: "Product is deleted",
+        data: resultDeleteProduct
       });
     } catch (error) {
       console.log(error)
