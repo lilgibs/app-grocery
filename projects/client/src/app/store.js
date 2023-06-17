@@ -3,6 +3,7 @@ import adminReducer from "../features/adminSlice";
 import locationReducer from "../features/locationSlice";
 import userReducer from "../features/userSlice";
 import addressReducer from "../features/addressSlice";
+import productReducer from "../features/productSlice";
 
 export default configureStore({
   reducer: {
@@ -10,5 +11,6 @@ export default configureStore({
     location: locationReducer,
     user: userReducer,
     address: addressReducer,
+    product: productReducer,
   },
 });
