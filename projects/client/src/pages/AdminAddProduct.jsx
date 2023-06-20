@@ -8,6 +8,8 @@ import { IoMdRemoveCircle } from 'react-icons/io';
 
 import Select from 'react-select';
 import axios from 'axios';
+import { checkLoginAdmin } from '../features/adminSlice';
+import { useNavigate } from 'react-router-dom';
 
 function AddProduct() {
   const [loading, setLoading] = useState(true);
@@ -18,8 +20,11 @@ function AddProduct() {
   const [isNewOption, setIsNewOption] = useState(false);
   const [imagePreviews, setImagePreviews] = useState([]);
 
-  const adminStoreId = useSelector(state => state.admin.admin.store_id);
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const adminToken = localStorage.getItem('admin_token');
+  const role = useSelector(state => state.admin.admin.role);
+  const adminStoreId = useSelector(state => state.admin.admin.store_id);
 
   const fetchCategories = async () => {
     try {
@@ -67,38 +72,30 @@ function AddProduct() {
     setFieldValue('product_images', newImages);
   };
 
-  // useEffect(() => {
-  //   const token = localStorage.getItem('admin_token');
-
-  //   if (token) { // check if the admin is logged in
-  //     dispatch(checkLoginAdmin(token));
-  //   }
-  //   else { // set loading to false if no token is found     
-  //     setLoading(false);
-  //   }
-  // }, [dispatch]);
-
-  // useEffect(() => {
-  //   if (role !== null) {
-  //     setLoading(false);
-  //   }
-  // }, [role]);
-
-  // // useEffect(() => {
-  // //   if (!loading && role !== 1) {
-  // //     navigate('/');
-  // //   }
-  // else {
-  // fetchCategories();
-  // fetchProductOptions(); 
-  // }
-  // // }, [role, navigate, loading]);
+  useEffect(() => {
+    adminToken ? dispatch(checkLoginAdmin(adminToken)) : setLoading(false);
+  }, [dispatch]);
 
   useEffect(() => {
-    fetchCategories();
-    fetchProductOptions(); // Memuat data produk dari database saat komponen dimount
-  }, []);
+    if (role !== null) {
+      setLoading(false);
+    }
+  }, [role]);
 
+  useEffect(() => {
+    if (!loading && (role != 99 && role !== 1)) {
+      navigate('/');
+    }
+    else {
+      fetchCategories();
+      fetchProductOptions();
+    }
+  }, [role, navigate, loading]);
+
+  // useEffect(() => {
+  //   fetchCategories();
+  //   fetchProductOptions(); // Memuat data produk dari database saat komponen dimount
+  // }, []);
 
   const getValidationSchema = () => {
     if (isNewOption) {
@@ -141,6 +138,10 @@ function AddProduct() {
       <ErrorMessage name={name} component="div" className="text-red-500 text-xs italic" />
     </div>
   );
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-[95%] sm:max-w-md md:max-w-xl flex-col mx-auto mt-5">
@@ -203,9 +204,6 @@ function AddProduct() {
                   setIsNewOption(selectedOption && selectedOption.__isNew__);
                   setFieldValue('product_name', selectedOption ? selectedOption.label : '');
                 }}
-              // onBlur={() => {
-              //   setFieldValue('product_name', '');
-              // }}
               />
               <ErrorMessage name="product_name" component="div" className="text-red-500 text-xs italic" />
             </div>

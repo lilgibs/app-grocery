@@ -90,7 +90,7 @@ function App() {
         />
         <Route path="/admin/products/" element={<AdminProducts />} />
         <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
-        <Route path="/admin/products/:product_id" element={<AdminEditProduct />} />
+        <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
       </Routes>
     </div>
   );

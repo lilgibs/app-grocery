@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-export const fetchCategories = async () => {
+export async function fetchCategories() {
   try {
     const response = await axios.get('http://localhost:8000/api/admin/products/categories/');
     const categories = response.data.data;

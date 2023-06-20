@@ -1,6 +1,20 @@
 import { createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 
+
+const adminToken = localStorage.getItem('admin_token');
+
+function getConfig(isMultipart = false) {
+  const adminToken = localStorage.getItem('admin_token');
+
+  return {
+    headers: {
+      'Authorization': `Bearer ${adminToken}`,
+      'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json'
+    }
+  }
+}
+
 export const productSlice = createSlice({
   name: "product",
   initialState: {
@@ -54,10 +68,62 @@ export function addProduct(product) {
         })
       }
 
-      let response = await axios.post("http://localhost:8000/api/admin/products/add-product", formData)
+      let response = await axios.post("http://localhost:8000/api/admin/products/add-product", formData, getConfig(true))
+      alert(response.data.message)
+    } catch (error) {
+      alert(error.response.data)
+    }
+  }
+}
+
+export function updateProduct(productId, product) {
+  console.log(product)
+  return async (dispatch) => {
+    try {
+      const response = await axios.put(`http://localhost:8000/api/admin/products/${productId}`, product, getConfig());
+      console.log(response);
+      response.status === 200 && dispatch(fetchProduct(productId)) && alert('Product updated');
+    } catch (error) {
+      console.error(error);
+      alert(error.response.data)
+    }
+  };
+}
+
+export function uploadImage(file, productId, imageId) {
+  return async (dispatch) => {
+    const formData = new FormData();
+    formData.append("product_id", productId);
+    formData.append("product_image", file);
+
+    try {
+      let response;
+      if (imageId) { // Jika gambar sudah ada, lakukan pembaruan
+        response = await axios.put(`http://localhost:8000/api/admin/products/image/${imageId}`, formData, getConfig(true));
+      } else { // Jika tidak, unggah gambar baru
+        response = await axios.post('http://localhost:8000/api/admin/products/image', formData, getConfig(true));
+      }
       console.log(response)
+      alert(response.data.message)
+      dispatch(fetchProduct(productId))
     } catch (error) {
       console.log(error)
+    }
+  };
+}
+
+export function deleteImage(imageId, productId) {
+  return async (dispatch) => {
+    try {
+      console.log(imageId)
+      const response = await axios.delete(`http://localhost:8000/api/admin/products/image/${imageId}/permanently?productId=${productId}`, getConfig());
+      console.log(response)
+      alert(response.data.message)
+      dispatch(fetchProduct(productId))
+    } catch (error) {
+      console.log(error)
+      alert(error.response.data.message)
+      return null;
     }
   }
 }
