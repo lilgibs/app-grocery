@@ -30,11 +30,14 @@ export const productSlice = createSlice({
   reducers: {
     setProduct: (state, action) => {
       state.product = action.payload
+    },
+    resetProduct: (state) => {
+      state.product = null
     }
   }
 })
 
-export const { setProduct } = productSlice.actions
+export const { setProduct, resetProduct } = productSlice.actions
 export default productSlice.reducer
 
 export function fetchProduct(productId) {
@@ -45,6 +48,23 @@ export function fetchProduct(productId) {
       dispatch(setProduct(response.data.product));
     } catch (error) {
       console.error(error);
+    }
+  };
+}
+
+export function fetchProductUser(productId, storeId) {
+  return async (dispatch) => {
+    let url = `http://localhost:8000/api/products/${productId}?`
+    if (storeId) {
+      url += `storeId=${storeId}`
+    }
+    try {
+      const response = await axios.get(url);
+      console.log(response)
+      dispatch(setProduct(response.data.product));
+    } catch (error) {
+      console.error(error);
+      dispatch(resetProduct)
     }
   };
 }
