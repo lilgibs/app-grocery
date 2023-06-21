@@ -11,8 +11,9 @@ import { useNavigate } from "react-router-dom";
 import { resetAdmin } from "../features/adminSlice";
 
 const navigation = [
-  { name: "Dashboard", href: "/AdminDashboard", current: true },
-  { name: "Products", href: "/products", current: false },
+  { name: "Dashboard", href: "/admin/dashboard", current: true },
+  { name: "Products", href: "/admin/products", current: false },
+  { name: "Orders", href: "/admin/orders", current: false },
 ];
 
 function classNames(...classes) {

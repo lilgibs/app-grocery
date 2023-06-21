@@ -20,6 +20,8 @@ import { getCityStore } from "./features/locationSlice";
 import AdminAddProduct from "./pages/AdminAddProduct";
 import AdminProducts from "./pages/AdminProducts";
 import AdminEditProduct from "./pages/AdminEditProduct";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 
 function App() {
   const dispatch = useDispatch();
@@ -52,9 +54,7 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/greetings`
-      );
+      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
       setMessage(data?.message || "");
     })();
   }, []);
@@ -78,16 +78,12 @@ function App() {
         <Route path="/verification/:token" element={<Verification />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<UserProfile />} />
+        <Route path="/cart" element={<Cart />} />
+        <Route path="/orders" element={<Orders />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
-        <Route path="/admindashboard" element={<AdminDashboard />} />
-        <Route
-          path="/admin/settings/users"
-          element={<UserManagementSettings />}
-        />
-        <Route
-          path="/admin/products/categories"
-          element={<AdminCategories />}
-        />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/settings/users" element={<UserManagementSettings />} />
+        <Route path="/admin/products/categories" element={<AdminCategories />} />
         <Route path="/admin/products/" element={<AdminProducts />} />
         <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
         <Route path="/admin/products/:product_id" element={<AdminEditProduct />} />
