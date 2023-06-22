@@ -4,19 +4,20 @@ import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } 
 import { Button, ButtonGroup } from "@chakra-ui/react";
 import { NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import { Card, CardHeader, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
-import { Select } from "@chakra-ui/react";
+import { Icon, Select } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import { GrUpdate } from "react-icons/gr";
 
 const Cart = () => {
   const nav = useNavigate();
   const userGlobal = useSelector((state) => state.user.user);
 
   return (
-    <div className="mx-20">
+    <div className="mx-20 my-10">
       {userGlobal.user_id > 0 ? (
         <>
           <div>
-            <h1 className="text-3xl my-10 font-semibold tracking-tight text-gray-900 ">Shopping Cart</h1>
+            <h1 className="text-3xl mb-10 font-semibold tracking-tight text-gray-900 ">Shopping Cart</h1>
           </div>
 
           <div className="grid grid-cols-3 gap-5">
@@ -62,6 +63,7 @@ const Cart = () => {
                       </Button>
 
                       <Button bg="orange.400" color="white">
+                        <Icon as={GrUpdate} mr="2" />
                         Update cart
                       </Button>
                     </div>
