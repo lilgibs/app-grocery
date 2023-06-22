@@ -25,7 +25,6 @@ function App() {
   const adminToken = localStorage.getItem("admin_token");
   const userGlobal = useSelector((state) => state.user.user);
   const adminGlobal = useSelector((state) => state.admin.admin);
-
   useEffect(() => {
     if (userToken) {
       dispatch(checkLogin(userToken));

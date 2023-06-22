@@ -5,6 +5,7 @@ const storeController = require("./storeController");
 const addressController = require("./addressController");
 const cityController = require("./cityController");
 const provinceController = require("./provinceController");
+const profileController = require("./profileController");
 
 module.exports = {
   authController,
@@ -14,4 +15,5 @@ module.exports = {
   addressController,
   cityController,
   provinceController,
+  profileController,
 };

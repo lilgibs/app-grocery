@@ -10,6 +10,7 @@ const {
   addressRoutes,
   cityRoutes,
   provinceRoutes,
+  profileRoutes,
 } = require("./routes");
 const path = require("path");
 
@@ -43,6 +44,7 @@ app.use("/api", storeRoutes);
 app.use("/api/addresses", addressRoutes);
 app.use("/api/cities", cityRoutes);
 app.use("/api/provinces", provinceRoutes);
+app.use("/api/profiles", profileRoutes);
 // ===========================
 
 // not found

@@ -16,11 +16,17 @@ export const addressSlice = createSlice({
 export const { setAddress, resetAddress } = addressSlice.actions;
 export default addressSlice.reducer;
 
-export function getAddress(user_id) {
+export function getAddress(user_id, token) {
   return async (dispatch) => {
     try {
       const response = await Axios.get(
-        `http://localhost:8000/api/addresses/${user_id}`
+        `http://localhost:8000/api/addresses/${user_id}`,
+        // {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       if (response) {
         dispatch(setAddress(response.data.data));

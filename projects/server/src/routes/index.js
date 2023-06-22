@@ -5,6 +5,7 @@ const storeRoutes = require("./storeRoutes");
 const addressRoutes = require("./addressRoutes");
 const cityRoutes = require("./cityRoutes");
 const provinceRoutes = require("./provinceRoutes");
+const profileRoutes = require("./profileRoutes");
 
 module.exports = {
   authRoutes,
@@ -14,4 +15,5 @@ module.exports = {
   addressRoutes,
   cityRoutes,
   provinceRoutes,
+  profileRoutes,
 };
