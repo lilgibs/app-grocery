@@ -69,7 +69,7 @@ export function checkLoginAdmin(token) {
         dispatch(setAdmin(response.data.data));
       }
     } catch (error) {
-      alert("error");
+      // alert("error");
       console.log(error);
     } finally {
       dispatch(setLoading(true));
