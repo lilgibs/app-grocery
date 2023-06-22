@@ -29,7 +29,8 @@ module.exports = {
 
       let payload = { 
         adminId: isEmailExist[0].admin_id,
-        adminRole: isEmailExist[0].role 
+        adminRole: isEmailExist[0].role,
+        adminStoreId: isEmailExist[0].store_id 
       };
 
       const token = jwt.sign(payload, "joe", { expiresIn: "1h" });

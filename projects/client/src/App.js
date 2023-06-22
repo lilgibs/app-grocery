@@ -17,6 +17,11 @@ import { checkLoginAdmin } from "./features/adminSlice";
 import AdminCategories from "./pages/AdminCategories";
 import UserProfile from "./pages/UserProfile";
 import { getCityStore } from "./features/locationSlice";
+import AdminAddProduct from "./pages/AdminAddProduct";
+import AdminProducts from "./pages/AdminProducts";
+import AdminEditProduct from "./pages/AdminEditProduct";
+import Products from "./pages/Products";
+import Product from "./pages/Product";
 
 function App() {
   const dispatch = useDispatch();
@@ -84,6 +89,11 @@ function App() {
           path="/admin/products/categories"
           element={<AdminCategories />}
         />
+        <Route path="/admin/products/" element={<AdminProducts />} />
+        <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
+        <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:productId" element={<Product />} />
       </Routes>
     </div>
   );

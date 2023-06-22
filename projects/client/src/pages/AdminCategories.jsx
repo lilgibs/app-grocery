@@ -1,20 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaPen, FaPlus, FaTrash } from 'react-icons/fa';
-import { Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter } from '@chakra-ui/react';
+import { useDisclosure } from '@chakra-ui/react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom"
+import { useDispatch, useSelector } from 'react-redux';
+import { checkLoginAdmin } from '../features/adminSlice';
+import AdminAddCategoryModal from '../components/AdminAddCategoryModal';
+import AdminEditCategoryModal from '../components/AdminEditCategoryModal';
 
 function AdminCategories() {
+  const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
 
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
 
-  const initialRef = useRef();
+  const role = useSelector(state => state.admin.admin.role);
+  const dispatch = useDispatch()
   const navigate = useNavigate()
-
-  const role = 'super admin'
 
   const fetchCategories = async () => {
     try {
@@ -42,15 +46,6 @@ function AdminCategories() {
     setSelectedCategory(category);
     onEditOpen();
   };
-
-  useEffect(() => {
-    // If the role is not 'super admin', redirect the user to a different page
-    if (role !== 'super admin') {
-      navigate('/');
-    } else {
-      fetchCategories();
-    }
-  }, [role, navigate]);
 
   const renderCategories = () => {
     return categories.map((category) => (
@@ -93,142 +88,35 @@ function AdminCategories() {
     ));
   };
 
-  const ModalAddCategory = () => {
-    const [categoryName, setCategoryName] = useState('');
-    const [categoryImage, setCategoryImage] = useState(null);
+  useEffect(() => {
+    const token = localStorage.getItem('admin_token');
 
-    const handleSubmit = async () => {
-      const formData = new FormData();
-      formData.append('product_category_name', categoryName);
-      formData.append('image', categoryImage);
+    if (token) { // check if the admin is logged in
+      dispatch(checkLoginAdmin(token));
+    }
+    else { // set loading to false if no token is found     
+      setLoading(false);
+    }
+  }, [dispatch]);
 
-      try {
-        const response = await axios.post(
-          'http://localhost:8000/api/admin/products/categories/',
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
-        alert(response.data.message);
-        onAddClose();
-        fetchCategories();
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  useEffect(() => {
+    if (role !== null) {
+      setLoading(false);
+    }
+  }, [role]);
 
-    return (
-      <Modal initialFocusRef={initialRef} isOpen={isAddOpen} onClose={onAddClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Add Category</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <FormControl>
-              <FormLabel>Category Name</FormLabel>
-              <Input
-                ref={initialRef}
-                placeholder="Enter Category Name"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Category Image</FormLabel>
-              <Input
-                type="file"
-                onChange={(e) => setCategoryImage(e.target.files[0])}
-              />
-            </FormControl>
-          </ModalBody>
+  useEffect(() => {
+    if (!loading && role !== 99) {
+      navigate('/');
+    } else {
+      fetchCategories();
+    }
+  }, [role, navigate, loading]);
 
-          <ModalFooter>
-            <Button colorScheme="green" mr={3} onClick={handleSubmit}>
-              Save
-            </Button>
-            <Button colorScheme="red" onClick={onAddClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    );
-  };
 
-  const ModalEditCategory = () => {
-    const [categoryName, setCategoryName] = useState('');
-    const [categoryImage, setCategoryImage] = useState(null)
-
-    const handleSubmit = async () => {
-      const formData = new FormData()
-      formData.append('product_category_name', categoryName)
-      formData.append('product_category_image', categoryImage)
-
-      try {
-
-        const response = await axios.put(
-          `http://localhost:8000/api/admin/products/categories/${selectedCategory.product_category_id}`,
-          formData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data'
-            }
-          }
-        );
-        alert(response.data.message);
-        onEditClose();
-        fetchCategories();
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    useEffect(() => {
-      if (selectedCategory) {
-        setCategoryName(selectedCategory.product_category_name);
-      }
-    }, [selectedCategory]);
-
-    return (
-      <Modal initialFocusRef={initialRef} isOpen={isEditOpen} onClose={onEditClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Edit Category</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody pb={6}>
-            <FormControl>
-              <FormLabel>Category Name</FormLabel>
-              <Input
-                ref={initialRef}
-                placeholder="Enter Category Name"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-              />
-            </FormControl>
-            <FormControl>
-              <FormLabel>Category Image</FormLabel>
-              <Input
-                type='file'
-                onChange={(e) => setCategoryImage(e.target.files[0])}
-              />
-            </FormControl>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="green" mr={3} onClick={handleSubmit}>
-              Save
-            </Button>
-            <Button colorScheme="red" onClick={onEditClose}>
-              Cancel
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
-    );
-  };
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
@@ -248,8 +136,8 @@ function AdminCategories() {
         </div>
         <div className="flex flex-wrap justify-center gap-4">
           {renderCategories()}
-          <ModalAddCategory />
-          <ModalEditCategory />
+          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={fetchCategories} />
+          <AdminEditCategoryModal isOpen={isEditOpen} onClose={onEditClose} fetchCategories={fetchCategories} selectedCategory={selectedCategory} />
         </div>
       </div>
     </div>
