@@ -93,7 +93,7 @@ function App() {
         <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
         <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
         <Route path="/products" element={<Products />} />
-        <Route path="/products/:productId" element={<Product />} />
+        <Route path="/products/:productName" element={<Product />} />
       </Routes>
     </div>
   );

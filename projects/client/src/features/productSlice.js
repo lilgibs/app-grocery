@@ -25,7 +25,8 @@ export const productSlice = createSlice({
       product_description: null,
       product_price: null,
       product_images: [],
-    }
+    },
+    isLoading: false
   },
   reducers: {
     setProduct: (state, action) => {
@@ -33,7 +34,10 @@ export const productSlice = createSlice({
     },
     resetProduct: (state) => {
       state.product = null
-    }
+    },
+    setLoading: (state, action) => {
+      state.isLoading = action.payload;
+    },
   }
 })
 
@@ -52,13 +56,14 @@ export function fetchProduct(productId) {
   };
 }
 
-export function fetchProductUser(productId, storeId) {
-  console.log(productId, storeId)
+export function fetchProductUser(productName, storeId) {
+  console.log(productName, storeId)
+
   return async (dispatch) => {
-    let url = `http://localhost:8000/api/products/${productId}?`
-    if (storeId) {
-      url += `storeId=${storeId}`
-    }
+    productName = productName.replace(/-/g, ' ');
+    let url = `http://localhost:8000/api/products/${productName}?`
+    if (storeId) { url += `storeId=${storeId}` }
+
     try {
       const response = await axios.get(url);
       console.log(response.data.product)
