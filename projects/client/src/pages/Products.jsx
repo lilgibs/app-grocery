@@ -4,7 +4,9 @@ import { fetchCategories } from '../api/adminApi';
 import Select from 'react-select';
 import { fetchProducts } from '../api/userApi';
 import { useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux';
+import { resetProduct } from '../features/productSlice';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -48,6 +50,10 @@ function Products() {
   //   fetchProducts();
   // };
 
+  function formatProductName(productName) {
+    return productName.replace(/\s+/g, '-').toLowerCase();
+  }
+
   useEffect(() => {
     const getCategories = async () => {
       const result = await fetchCategories();
@@ -60,7 +66,7 @@ function Products() {
     }
     getProducts()
     getCategories();
-  }, [store_id]);
+  }, [store_id, ]);
 
   return (
     <div className='flex flex-col gap-5'>
@@ -109,7 +115,7 @@ function Products() {
             <div className='bg-blue-100 h-16'></div>
             <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 h-auto'>
               {products.map(product => (
-                <Card variant='elevated' className='cursor-pointer' onClick={() => navigate(`/products/${product.product_id}`)}>
+                <Card variant='elevated' className='cursor-pointer' onClick={() => navigate(`/products/${formatProductName(product.product_name)}`)}>
                   <Image
                     src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80'
                     alt='Green double couch with wooden legs'

@@ -6,13 +6,15 @@ import { formatRupiah } from '../utils/formatRupiah';
 
 function Product() {
   const [quantity, setQuantity] = useState(1)
+  const[loading, setLoading] = useState(true)
 
-  const { productId } = useParams();
+  const { productName } = useParams();
   const dispatch = useDispatch()
   const navigate = useNavigate();
 
   const { user_id } = useSelector((state) => state.user.user);
   const product = useSelector(state => state.product.product)
+  const { isLoading } = useSelector(state => state.product)
   const { store_id, store_name } = useSelector(state => state.location.location.nearestStore)
 
   // fungsi untuk menambah quantity
@@ -50,15 +52,19 @@ function Product() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        await dispatch(fetchProductUser(productId, store_id));
+        await dispatch(fetchProductUser(productName, store_id));
       } catch (error) {
-        alert(error.response.data)
+        await alert(error.response.data)
         navigate('/products');
       }
     };
 
     fetchData();
-  }, [dispatch, store_id, navigate, productId]);
+  }, [productName, store_id]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className='flex flex-col gap-5 mt-10'>

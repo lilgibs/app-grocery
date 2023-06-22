@@ -38,8 +38,8 @@ module.exports = {
       handleServerError(error, next)
     }
   },
-  getProductById: async (req, res, next) => {
-    const { productId } = req.params;
+  getProductDetail: async (req, res, next) => {
+    const { productName } = req.params;
     let storeId = req.query.storeId;
 
     const errors = validationResult(req);
@@ -51,15 +51,15 @@ module.exports = {
     }
 
     try {
-      console.log(storeId)
-      const sqlProductQuery = `SELECT * FROM products WHERE product_id = ${db.escape(productId)}`;
+      console.log(storeId, productName)
+      const sqlProductQuery = `SELECT * FROM products WHERE product_name = ${db.escape(productName)}`;
       const productResult = await query(sqlProductQuery);
 
-      const sqlStoreInventory = `SELECT * FROM store_inventory WHERE product_id = ${db.escape(productId)} AND store_id = ${db.escape(storeId)}`;
+      const sqlStoreInventory = `SELECT * FROM store_inventory WHERE product_id = ${db.escape(productResult[0].product_id)} AND store_id = ${db.escape(storeId)}`;
       const storeInventoryResult = await query(sqlStoreInventory);
 
       if (productResult.length > 0 && storeInventoryResult.length > 0) {
-        const sqlImageQuery = `SELECT * FROM product_images WHERE product_id = ${db.escape(productId)}`;
+        const sqlImageQuery = `SELECT * FROM product_images WHERE product_id = ${db.escape(productResult[0].product_id)}`;
         const imageResult = await query(sqlImageQuery);
 
         const product = {
