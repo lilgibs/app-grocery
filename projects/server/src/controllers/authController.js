@@ -140,6 +140,9 @@ module.exports = {
           email: isEmailExist[0].email,
           phone_number: isEmailExist[0].phone_number,
           is_verified: isEmailExist[0].is_verified,
+          gender: isEmailExist[0].gender,
+          birthdate: isEmailExist[0].birthdate,
+          profile_picture: isEmailExist[0].profile_picture,
         },
       });
     } catch (error) {
@@ -158,6 +161,9 @@ module.exports = {
           name: users[0].name,
           email: users[0].email,
           phone_number: users[0].phone_number,
+          gender: users[0].gender,
+          birthdate: users[0].birthdate,
+          profile_picture: users[0].profile_picture,
           is_verified: users[0].is_verified,
         },
       });
