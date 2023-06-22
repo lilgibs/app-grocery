@@ -44,7 +44,7 @@ export function fetchProduct(productId) {
   return async (dispatch) => {
     try {
       const response = await axios.get(`http://localhost:8000/api/admin/products/${productId}`);
-      console.log(response)
+      console.log(response.data.product)
       dispatch(setProduct(response.data.product));
     } catch (error) {
       console.error(error);
@@ -53,6 +53,7 @@ export function fetchProduct(productId) {
 }
 
 export function fetchProductUser(productId, storeId) {
+  console.log(productId, storeId)
   return async (dispatch) => {
     let url = `http://localhost:8000/api/products/${productId}?`
     if (storeId) {
@@ -60,11 +61,10 @@ export function fetchProductUser(productId, storeId) {
     }
     try {
       const response = await axios.get(url);
-      console.log(response)
+      console.log(response.data.product)
       dispatch(setProduct(response.data.product));
     } catch (error) {
-      console.error(error);
-      dispatch(resetProduct)
+      throw error;
     }
   };
 }
