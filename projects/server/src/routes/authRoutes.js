@@ -34,7 +34,16 @@ router.post(
   authController.register
 );
 router.post("/verification", verifyToken, authController.verification);
-router.post("/login", authController.login);
+router.post(
+  "/login",
+  [
+    body("email").isEmail().withMessage("Must be a valid e-mail address."),
+    body("password")
+      .isLength(3)
+      .withMessage("Password must be longer than 2 characters."),
+  ],
+  authController.login
+);
 router.post("/check-login", verifyToken, authController.checkLogin);
 
 module.exports = router;

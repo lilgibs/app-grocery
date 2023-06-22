@@ -20,10 +20,6 @@ import {
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { getAddress } from "../features/addressSlice";
-import Sidebar from "../components/Sidebar";
-import Biodata from "../components/Biodata";
-import Setting from "../components/Setting";
-import Address from "../components/Address";
 
 function UserProfile() {
   const dispatch = useDispatch();
@@ -35,7 +31,6 @@ function UserProfile() {
   const [selectedAddress, setselectedAddress] = useState(null);
   const [cityOptions, setCityOptions] = useState([]);
   const [provinceOptions, setProvinceOptions] = useState([]);
-  const [selectedComponent, setSelectedComponent] = useState("Biodata");
 
   const {
     isOpen: isAddOpen,
@@ -471,26 +466,27 @@ function UserProfile() {
   }, []);
 
   return (
-    <div className="flex">
-      <Sidebar
-        setSelectedComponent={setSelectedComponent}
-        menuItems={["Biodata", "Address", "Settings"]}
-      />
-      {selectedComponent === "Biodata" ? (
-        <div className="flex w-full flex-col items-center">
-          <Biodata />
+    <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
+      <div className="p-4 bg-white border shadow-md rounded">
+        <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
+          <p className="font-semibold text-green-500 text-lg">
+            Address Management
+          </p>
         </div>
-      ) : null}
-      {selectedComponent === "Address" ? (
-        <div className="flex w-full flex-col items-center">
-          <Address />
+        <div className="flex justify-end">
+          <button
+            onClick={onAddOpen}
+            className="bg-green-500 hover:bg-green-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
+          >
+            <FaPlus size={15} className="mr-2" /> Add Address
+          </button>
         </div>
-      ) : null}
-      {selectedComponent === "Settings" ? (
-        <div className="flex w-full flex-col items-center">
-          <Setting />
+        <div className="flex flex-wrap justify-center gap-4">
+          {renderAddresses()}
+          <ModalAddAddress />
+          <ModalEditAddress />
         </div>
-      ) : null}
+      </div>
     </div>
   );
 }
