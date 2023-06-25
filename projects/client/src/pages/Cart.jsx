@@ -1,16 +1,22 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
 import { Button, ButtonGroup } from "@chakra-ui/react";
 import { NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import { Card, CardHeader, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
 import { Icon, Select } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
 import { GrUpdate } from "react-icons/gr";
+import { fetchCart } from "../features/cartSlice";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 
 const Cart = () => {
   const nav = useNavigate();
+  const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
+
+  const getCart = () => {
+    console.log("get cart items");
+  };
 
   return (
     <div className="mx-20 my-10">
@@ -63,7 +69,7 @@ const Cart = () => {
                       </Button>
 
                       <Button bg="orange.400" color="white">
-                        <Icon as={GrUpdate} mr="2" />
+                        <Icon as={GrUpdate} mr="2" onClick={getCart} />
                         Update cart
                       </Button>
                     </div>

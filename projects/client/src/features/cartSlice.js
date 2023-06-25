@@ -18,7 +18,6 @@ export const cartSlice = createSlice({
     },
     resetCart: (state) => {
       state.cart = {
-        cart_id: 0,
         cart_count: 0,
         cart_item: [],
       };
@@ -31,3 +30,14 @@ export const cartSlice = createSlice({
 
 export const { setCart, resetCart, setLoaded } = cartSlice.actions;
 export default cartSlice.reducer;
+
+export function fetchCart(userId) {
+  return async (dispatch) => {
+    try {
+      const response = await Axios.get(`http://localhost:8000/api/cart`, userId);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+}
