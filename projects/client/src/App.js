@@ -22,6 +22,8 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminEditProduct from "./pages/AdminEditProduct";
 import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
+import Products from "./pages/Products";
+import Product from "./pages/Product";
 
 function App() {
   const dispatch = useDispatch();
@@ -30,7 +32,6 @@ function App() {
   const adminToken = localStorage.getItem("admin_token");
   const userGlobal = useSelector((state) => state.user.user);
   const adminGlobal = useSelector((state) => state.admin.admin);
-
   useEffect(() => {
     if (userToken) {
       dispatch(checkLogin(userToken));
@@ -86,7 +87,9 @@ function App() {
         <Route path="/admin/products/categories" element={<AdminCategories />} />
         <Route path="/admin/products/" element={<AdminProducts />} />
         <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
-        <Route path="/admin/products/:product_id" element={<AdminEditProduct />} />
+        <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:productName" element={<Product />} />
       </Routes>
     </div>
   );

@@ -12,6 +12,7 @@ export const adminSlice = createSlice({
       store_id: null,
       is_deleted: false,
     },
+    isLoaded: false,
   },
   reducers: {
     setAdmin: (state, action) => {
@@ -24,9 +25,12 @@ export const adminSlice = createSlice({
         email: null,
         role: null,
         store_id: null,
-        is_deleted: false
+        is_deleted: false,
       };
       localStorage.removeItem("admin_token");
+    },
+    setLoading: (state, action) => {
+      state.isLoaded = action.payload;
     },
   },
 });
@@ -34,7 +38,10 @@ export const adminSlice = createSlice({
 export function loginAdmin(data) {
   return async (dispatch) => {
     try {
-      let response = await Axios.post("http://localhost:8000/api/auth/adminLogin", data);
+      let response = await Axios.post(
+        "http://localhost:8000/api/auth/adminLogin",
+        data
+      );
       if (response) {
         dispatch(setAdmin(response.data.data));
         localStorage.setItem("admin_token", response.data.token);
@@ -62,8 +69,10 @@ export function checkLoginAdmin(token) {
         dispatch(setAdmin(response.data.data));
       }
     } catch (error) {
-      alert("error");
+      // alert("error");
       console.log(error);
+    } finally {
+      dispatch(setLoading(true));
     }
   };
 }
@@ -72,21 +81,25 @@ export function createBranchAdmin(data) {
   return async () => {
     const adminToken = localStorage.getItem("admin_token");
     try {
-      let response = await Axios.post(`http://localhost:8000/api/admin/create`, data,
+      let response = await Axios.post(
+        `http://localhost:8000/api/admin/create`,
+        data,
         {
           headers: {
-            'Authorization': `Bearer ${adminToken}`
-          }
+            Authorization: `Bearer ${adminToken}`,
+          },
         }
       );
       if (response) {
         alert(response.data.message);
       }
     } catch (error) {
-      alert(`There was an error creating the branch admin: ${error.response.data}`);
+      alert(
+        `There was an error creating the branch admin: ${error.response.data}`
+      );
     }
   };
 }
 
-export const { setAdmin, resetAdmin } = adminSlice.actions;
+export const { setAdmin, resetAdmin, setLoading } = adminSlice.actions;
 export default adminSlice.reducer;
