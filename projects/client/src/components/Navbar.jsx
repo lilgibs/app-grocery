@@ -95,7 +95,7 @@ const Navbar = () => {
                     //when user is logged in
                     <>
                       <Menu>
-                        <MenuButton as={Button} size="sm" variant="solid" bg="green.400" color="white">
+                        <MenuButton as={Button} size="sm" variant="solid" bg="green.400" color="white" maxW="100px">
                           {/* <Icon as={GrUser} mr="1" color="white" /> */}
                           <span />
                           Hi, {userGlobal.name}!

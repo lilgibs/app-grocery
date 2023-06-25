@@ -1,13 +1,29 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, CardHeader, CardBody, CardFooter, Text, Heading, Box, StackDivider } from "@chakra-ui/react";
 import { Button, Stack } from "@chakra-ui/react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 
 const Orders = () => {
   const nav = useNavigate();
   const userGlobal = useSelector((state) => state.user.user);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  // Image upload and preview
+  const [previewImage, setPreviewImage] = useState(null);
+
+  const handleImageUpload = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewImage(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   return (
     <div className="mx-20">
@@ -61,7 +77,7 @@ const Orders = () => {
                   </CardBody>
 
                   <CardFooter className="flex gap-3">
-                    <Button variant="solid" colorScheme="orange">
+                    <Button variant="solid" colorScheme="orange" onClick={onOpen}>
                       Upload Payment Proof
                     </Button>
 
@@ -70,6 +86,51 @@ const Orders = () => {
                     </Button>
                   </CardFooter>
                 </Card>
+
+                <Modal isOpen={isOpen} onClose={onClose}>
+                  <ModalOverlay />
+                  <ModalContent>
+                    <ModalHeader>Upload payment proof</ModalHeader>
+                    <ModalCloseButton />
+
+                    <ModalBody>
+                      <div>
+                        <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
+                          Payment proof
+                        </label>
+                        <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                          {previewImage ? (
+                            <img src={previewImage} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded" />
+                          ) : (
+                            <div className="text-center">
+                              {/* <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" /> */}
+                              <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                                <label
+                                  htmlFor="file-upload"
+                                  className="relative cursor-pointer rounded-md bg-white font-semibold text-green-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                                >
+                                  <span>Upload a file</span>
+                                  <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleImageUpload} />
+                                </label>
+                                <p className="pl-1">or drag and drop</p>
+                              </div>
+                              <p className="text-xs leading-5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </ModalBody>
+
+                    <ModalFooter>
+                      <Button colorScheme="orange" mr={3}>
+                        Upload
+                      </Button>
+                      <Button variant="ghost" onClick={onClose}>
+                        Cancel
+                      </Button>
+                    </ModalFooter>
+                  </ModalContent>
+                </Modal>
               </TabPanel>
 
               <TabPanel className="flex flex-col gap-5">
