@@ -18,12 +18,13 @@ import {
   FormErrorMessage,
 } from "@chakra-ui/react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { getAddress } from "../features/addressSlice";
+import { fetchCity } from "../api/CityApi";
+import { fetchProvince } from "../api/ProvinceApi";
+import { getCoordinates } from "../api/UtilApi";
 
 function UserProfile() {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const userGlobal = useSelector((state) => state.user.user);
   const userAddress = useSelector((state) => state.address.address);
   const userToken = localStorage.getItem("user_token");
@@ -102,30 +103,6 @@ function UserProfile() {
         </div>
       </div>
     ));
-  };
-
-  const getCoordinates = async (storeLocation) => {
-    try {
-      const response = await axios.get(
-        "https://api.opencagedata.com/geocode/v1/json",
-        {
-          params: {
-            key: "9f48b305cf314d489b980f43d69e0cab",
-            q: storeLocation,
-          },
-        }
-      );
-      const data = response.data;
-      if (data.results && data.results.length > 0) {
-        return data.results[0].geometry;
-      } else {
-        // Data lokasi tidak ditemukan
-        alert("Location not found!");
-      }
-    } catch (error) {
-      console.error(error);
-      alert("There was an error fetching the coordinates.");
-    }
   };
 
   const ModalAddAddress = () => {
@@ -403,30 +380,6 @@ function UserProfile() {
   };
 
   useEffect(() => {
-    let isUserGlobalUpdated = false;
-
-    const checkLoginStatus = () => {
-      if (isUserGlobalUpdated && userGlobal.user_id === "") {
-        navigate("/login");
-      }
-    };
-
-    checkLoginStatus();
-
-    const userGlobalUpdateListener = setInterval(() => {
-      if (userGlobal.user_id !== null) {
-        isUserGlobalUpdated = true;
-        clearInterval(userGlobalUpdateListener);
-        checkLoginStatus();
-      }
-    }, 500);
-
-    return () => {
-      clearInterval(userGlobalUpdateListener);
-    };
-  }, [userGlobal.user_id]);
-
-  useEffect(() => {
     if (userGlobal.user_id !== null) {
       dispatch(getAddress(userGlobal.user_id, userToken));
     }
@@ -438,27 +391,13 @@ function UserProfile() {
 
   useEffect(() => {
     const fetchCityOptions = async () => {
-      try {
-        const response = await axios.get("http://localhost:8000/api/cities/");
-        const data = response.data.data;
-
-        setCityOptions(data);
-      } catch (error) {
-        console.error("Gagal mendapatkan data kota:", error);
-      }
+      const cityOptions = await fetchCity();
+      setCityOptions(cityOptions);
     };
 
     const fetchProvinceOptions = async () => {
-      try {
-        const response = await axios.get(
-          "http://localhost:8000/api/provinces/"
-        );
-        const data = response.data.data;
-
-        setProvinceOptions(data);
-      } catch (error) {
-        console.error("Gagal mendapatkan data provinsi:", error);
-      }
+      const provinceOptions = await fetchProvince();
+      setProvinceOptions(provinceOptions);
     };
 
     fetchCityOptions();
