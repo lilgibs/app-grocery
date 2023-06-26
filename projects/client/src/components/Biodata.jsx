@@ -1,8 +1,7 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import Axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { checkLogin } from "../features/userSlice";
 import {
@@ -14,12 +13,31 @@ import {
   ModalCloseButton,
   ModalBody,
 } from "@chakra-ui/react";
+import moment from "moment";
+import { editUserProfile, uploadProfilePhoto } from "../api/ProfileApi";
 
 function Biodata() {
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
   const userToken = localStorage.getItem("user_token");
-  const nav = useNavigate();
+
+  const handleFileChange = async (event) => {
+    const file = event.target.files[0];
+
+    if (!["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
+      alert("Only JPEG/JPG/PNG files are supported");
+      return;
+    }
+
+    if (file.size > 1000000) {
+      // size limit 1MB
+      alert("Maximum size is 1MB");
+      return;
+    }
+
+    await uploadProfilePhoto(file, userGlobal.user_id, userToken);
+    dispatch(checkLogin(userToken));
+  };
 
   const {
     isOpen: isEditOpen,
@@ -36,26 +54,7 @@ function Biodata() {
       .required("Please input your email"),
   });
 
-  const editUserProfile = async (data) => {
-    try {
-      let response = await Axios.put(
-        `http://localhost:8000/api/profiles/${userGlobal.user_id}`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${userToken}`,
-          },
-        }
-      );
-      if (response) {
-        alert(response.data.message);
-      }
-    } catch (error) {
-      alert(error.response.data);
-    }
-  };
-
-  const ModalEditAddress = () => {
+  const ModalEditProfile = () => {
     return (
       <Modal
         initialFocusRef={initialRef}
@@ -76,7 +75,7 @@ function Biodata() {
               }}
               validationSchema={RegisterSchema}
               onSubmit={async (value) => {
-                await editUserProfile(value);
+                await editUserProfile(value, userGlobal.user_id, userToken);
                 onEditClose();
                 dispatch(checkLogin(userToken));
               }}
@@ -176,12 +175,12 @@ function Biodata() {
                     <div className="flex gap-3">
                       <button
                         type="submit"
-                        className="rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        className="rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                       >
                         Submit
                       </button>
                       <button
-                        className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                        className="rounded-md bg-red-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-red-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         onClick={onEditClose}
                       >
                         Cancel
@@ -197,48 +196,51 @@ function Biodata() {
     );
   };
 
-  useEffect(() => {
-    let isUserGlobalUpdated = false;
-
-    const checkLoginStatus = () => {
-      if (isUserGlobalUpdated && userGlobal.user_id === "") {
-        nav("/login");
-      }
-    };
-
-    checkLoginStatus();
-
-    const userGlobalUpdateListener = setInterval(() => {
-      if (userGlobal.user_id !== null) {
-        isUserGlobalUpdated = true;
-        clearInterval(userGlobalUpdateListener);
-        checkLoginStatus();
-      }
-    }, 500);
-
-    return () => {
-      clearInterval(userGlobalUpdateListener);
-    };
-  }, [userGlobal.user_id]);
-
   return (
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mt-5">
       <div className="p-4 bg-white border shadow-md rounded">
-        <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
+        <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-8">
           <p className="font-semibold text-green-500 text-lg">Biodata</p>
         </div>
-        <div className="flex flex-col items-start gap-5">
-          <p>Name: {userGlobal.name}</p>
-          <p>Email: {userGlobal.email}</p>
-          <p>Gender: {userGlobal.gender}</p>
-          <p>Birthdate: {userGlobal.birthdate}</p>
-          <button
-            className="bg-green-500 hover:bg-green-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
-            onClick={onEditOpen}
-          >
-            Edit
-          </button>
-          <ModalEditAddress />
+        <div className="flex gap-10 items-center">
+          <div className="flex flex-col items-center gap-6 p-6 border shadow rounded">
+            <img
+              className="w-52 h-52"
+              src={
+                userGlobal.profile_picture
+                  ? `http://localhost:8000/${userGlobal.profile_picture}`
+                  : "http://localhost:8000/uploads/default_profile_picture.jpg"
+              }
+              alt="profile picture"
+            />
+            <label htmlFor="profile_picture">
+              <span className="bg-blue-500 hover:bg-blue-600 font-semibold text-white py-2 px-4 rounded-md cursor-pointer">
+                Upload Photo
+              </span>
+              <input
+                className="hidden"
+                type="file"
+                name="profile_picture"
+                id="profile_picture"
+                onChange={handleFileChange}
+              />
+            </label>
+          </div>
+          <div className="flex flex-col items-start gap-7">
+            <p>Name: {userGlobal.name}</p>
+            <p>Email: {userGlobal.email}</p>
+            <p>Gender: {userGlobal.gender}</p>
+            <p>
+              Birthdate: {moment(userGlobal.birthdate).format("DD MMMM YYYY")}
+            </p>
+            <button
+              className="bg-green-500 hover:bg-green-600 font-semibold text-white py-2 px-4 rounded-md mb-2"
+              onClick={onEditOpen}
+            >
+              Edit
+            </button>
+            <ModalEditProfile />
+          </div>
         </div>
       </div>
     </div>
