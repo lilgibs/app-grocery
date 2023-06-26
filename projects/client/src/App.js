@@ -20,8 +20,11 @@ import { getCityStore } from "./features/locationSlice";
 import AdminAddProduct from "./pages/AdminAddProduct";
 import AdminProducts from "./pages/AdminProducts";
 import AdminEditProduct from "./pages/AdminEditProduct";
+import Cart from "./pages/Cart";
+import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import Product from "./pages/Product";
+import { fetchCart } from "./features/cartSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -43,6 +46,12 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (userToken) {
+      dispatch(fetchCart(userGlobal));
+    }
+  });
+
+  useEffect(() => {
     navigator.geolocation.getCurrentPosition(function (position) {
       let latitude = position.coords.latitude;
       let longitude = position.coords.longitude;
@@ -53,16 +62,14 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/greetings`
-      );
+      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
       setMessage(data?.message || "");
     })();
   }, []);
 
   return (
     <div>
-      {adminGlobal.id > 0 ? (
+      {adminGlobal.id != null ? (
         //when admin is logged in
         <>
           <AdminNavbar />
@@ -74,26 +81,58 @@ function App() {
         </>
       )}
       <Routes>
+        {adminGlobal.id != null ? (
+          //when admin is logged in
+          <>
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/settings/users" element={<UserManagementSettings />} />
+            <Route path="/admin/products/categories" element={<AdminCategories />} />
+            <Route path="/admin/products/" element={<AdminProducts />} />
+            <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
+            <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
+          </>
+        ) : (
+          //when admin is logged out
+          <></>
+        )}
+
+        {userGlobal.user_id != null ? (
+          //when user is logged in
+          <>
+            <Route path="/profile" element={<UserProfile />} />
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:productName" element={<Product />} />
+          </>
+        ) : (
+          //when user is logged out
+          <>
+            <Route path="/cart" element={<Cart />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/products" element={<Products />} />
+            <Route path="/products/:productName" element={<Product />} />
+          </>
+        )}
+
         <Route path="/" element={<LandingPage />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/verification/:token" element={<Verification />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/profile" element={<UserProfile />} />
+        <Route path="/register" element={<Register />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
-        <Route path="/admindashboard" element={<AdminDashboard />} />
-        <Route
-          path="/admin/settings/users"
-          element={<UserManagementSettings />}
-        />
-        <Route
-          path="/admin/products/categories"
-          element={<AdminCategories />}
-        />
+        <Route path="/verification/:token" element={<Verification />} />
+
+        {/* <Route path="/profile" element={<UserProfile />} /> */
+        /* <Route path="/cart" element={<Cart />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/products" element={<Products />} />
+        <Route path="/products/:productName" element={<Product />} /> */
+        /* <Route path="/adminlogin" element={<AdminLogin />} />
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/settings/users" element={<UserManagementSettings />} />
+        <Route path="/admin/products/categories" element={<AdminCategories />} />
         <Route path="/admin/products/" element={<AdminProducts />} />
         <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
-        <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/products/:productName" element={<Product />} />
+        <Route path="/admin/products/:productId" element={<AdminEditProduct />} /> */}
       </Routes>
     </div>
   );

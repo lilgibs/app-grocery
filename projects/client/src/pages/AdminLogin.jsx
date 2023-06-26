@@ -17,7 +17,7 @@ const AdminLogin = () => {
   });
 
   useEffect(() => {
-    if (adminGlobal.id > 0) nav("/admindashboard");
+    if (adminGlobal.id > 0) nav("/admin/dashboard");
   }, [adminGlobal]);
 
   return (
