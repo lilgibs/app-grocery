@@ -14,8 +14,9 @@ const Cart = () => {
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
 
-  const getCart = () => {
-    console.log("get cart items");
+  const updateCart = () => {
+    // console.log("get cart items");
+    dispatch(fetchCart(userGlobal));
   };
 
   return (
@@ -68,8 +69,8 @@ const Cart = () => {
                         ← Continue Shopping
                       </Button>
 
-                      <Button bg="orange.400" color="white">
-                        <Icon as={GrUpdate} mr="2" onClick={getCart} />
+                      <Button bg="orange.400" color="white" onClick={updateCart}>
+                        <Icon as={GrUpdate} mr="2" />
                         Update cart
                       </Button>
                     </div>

@@ -10,6 +10,7 @@ import { BsFillCartFill } from "react-icons/bs";
 import { GrLocation } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import { resetUser } from "../features/userSlice";
+import { resetCart } from "../features/cartSlice";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
@@ -112,6 +113,7 @@ const Navbar = () => {
                             onClick={() => {
                               alert("logging out");
                               dispatch(resetUser());
+                              dispatch(resetCart());
                               nav("/");
                             }}
                           >
@@ -182,6 +184,7 @@ const Navbar = () => {
                           onClick={() => {
                             alert("logging out");
                             dispatch(resetUser());
+                            dispatch(resetCart());
                             nav("/");
                           }}
                         >

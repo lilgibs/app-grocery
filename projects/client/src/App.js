@@ -24,6 +24,7 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import Product from "./pages/Product";
+import { fetchCart } from "./features/cartSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -45,6 +46,12 @@ function App() {
   }, []);
 
   useEffect(() => {
+    if (userToken) {
+      dispatch(fetchCart(userGlobal));
+    }
+  });
+
+  useEffect(() => {
     navigator.geolocation.getCurrentPosition(function (position) {
       let latitude = position.coords.latitude;
       let longitude = position.coords.longitude;
@@ -62,7 +69,7 @@ function App() {
 
   return (
     <div>
-      {adminGlobal.id > 0 ? (
+      {adminGlobal.id != null ? (
         //when admin is logged in
         <>
           <AdminNavbar />
