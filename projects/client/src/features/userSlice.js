@@ -6,13 +6,13 @@ export const usersSlice = createSlice({
   name: "users",
   initialState: {
     user: {
-      user_id: "",
-      name: "",
-      email: "",
-      phone_number: "",
-      gender: "",
-      birthdate: "",
-      profile_picture: "",
+      user_id: null,
+      name: null,
+      email: null,
+      phone_number: null,
+      gender: null,
+      birthdate: null,
+      profile_picture: null,
       isVerified: false,
     },
     isLoaded: false,
@@ -23,13 +23,13 @@ export const usersSlice = createSlice({
     },
     resetUser: (state) => {
       state.user = {
-        user_id: "",
-        name: "",
-        email: "",
-        phone_number: "",
-        gender: "",
-        birthdate: "",
-        profile_picture: "",
+        user_id: null,
+        name: null,
+        email: null,
+        phone_number: null,
+        gender: null,
+        birthdate: null,
+        profile_picture: null,
         isVerified: false,
       };
       localStorage.removeItem("user_token");
@@ -46,14 +46,9 @@ export default usersSlice.reducer;
 export function loginUser(data) {
   return async (dispatch) => {
     try {
-      let response = await Axios.post(
-        "http://localhost:8000/api/auth/login",
-        data
-      );
+      let response = await Axios.post("http://localhost:8000/api/auth/login", data);
       if (response) {
-        response.data.data.birthdate = moment(
-          response.data.data.birthdate
-        ).format("YYYY-MM-DD");
+        response.data.data.birthdate = moment(response.data.data.birthdate).format("YYYY-MM-DD");
         dispatch(setUser(response.data.data));
         localStorage.setItem("user_token", response.data.token);
         alert(response.data.message);
@@ -77,9 +72,7 @@ export function checkLogin(token) {
         }
       );
       if (response) {
-        response.data.data.birthdate = moment(
-          response.data.data.birthdate
-        ).format("YYYY-MM-DD");
+        response.data.data.birthdate = moment(response.data.data.birthdate).format("YYYY-MM-DD");
         dispatch(setUser(response.data.data));
       }
     } catch (error) {

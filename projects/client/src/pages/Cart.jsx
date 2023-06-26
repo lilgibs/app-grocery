@@ -8,15 +8,40 @@ import { GrUpdate } from "react-icons/gr";
 import { fetchCart } from "../features/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import CartItem from "../components/CartItem";
 
 const Cart = () => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
+  const cartItemsGlobal = useSelector((state) => state.cart.cart.cart_items);
 
   const updateCart = () => {
     // console.log("get cart items");
     dispatch(fetchCart(userGlobal));
+  };
+
+  const renderCartItems = () => {
+    return cartItemsGlobal.map((p, index) => {
+      return (
+        <CartItem
+          //
+          key={index}
+          //
+          cart_id={p.cart_id}
+          //
+          product={p.product_name}
+          //
+          price={p.product_price}
+          //
+          quantity={p.quantity}
+          //
+          stock={p.quantity_in_stock}
+          //
+          subtotal={p.subtotal}
+        />
+      );
+    });
   };
 
   return (
@@ -41,27 +66,7 @@ const Cart = () => {
                     </Tr>
                   </Thead>
 
-                  <Tbody>
-                    <Tr>
-                      <Td>Product 1</Td>
-                      <Td>Rp30.000,00</Td>
-                      <Td>
-                        <NumberInput defaultValue={2} max={15} min={0} clampValueOnBlur={false} w="80px">
-                          <NumberInputField />
-                          <NumberInputStepper>
-                            <NumberIncrementStepper />
-                            <NumberDecrementStepper />
-                          </NumberInputStepper>
-                        </NumberInput>
-                      </Td>
-                      <Td>Rp60.000,00</Td>
-                      <Td>
-                        <Button colorScheme="red" variant="ghost">
-                          X
-                        </Button>
-                      </Td>
-                    </Tr>
-                  </Tbody>
+                  <Tbody>{renderCartItems()}</Tbody>
 
                   <TableCaption className="pt-10">
                     <div className="flex flex-row justify-between">
