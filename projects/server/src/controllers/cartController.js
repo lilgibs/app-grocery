@@ -53,7 +53,7 @@ module.exports = {
         let resultCheckInventoryStockQuery = await query(checkInventoryStockQuery);
 
         if (resultCheckInventoryStockQuery[0].quantity_in_stock < quantity + cartExist[0].quantity) {
-          throw { status_code: 400, message: "Add to cart fails. Not enough stock." }; // check  jika stock < quantity
+          throw { status_code: 400, message: "Add to cart fails. Not enough stock." }; // check  jika stock < quantity + jumlah di cart sekarang
         }
 
         const updateCartQuantityQuery = `
@@ -135,6 +135,25 @@ module.exports = {
 
     try {
       if (method == "add") {
+        const checkCurrentCartQtyQuery = `
+        SELECT quantity
+        FROM cart
+        WHERE cart_id = ${db.escape(cartId)};
+        `;
+
+        const checkInventoryStockQuery = `
+        SELECT quantity_in_stock
+        FROM store_inventory
+        WHERE product_id = ${db.escape(productId)};
+        `;
+
+        let resultcheckCurrentCartQtyQuery = await query(checkCurrentCartQtyQuery);
+        let resultCheckInventoryStockQuery = await query(checkInventoryStockQuery);
+
+        if (resultCheckInventoryStockQuery[0].quantity_in_stock < quantity + resultcheckCurrentCartQtyQuery[0].quantity) {
+          throw { status_code: 400, message: "Update cart fails. Not enough stock." }; // check  jika stock < quantity + jumlah di cart sekarang
+        }
+
         const updateCartQuery = `
         UPDATE cart
         SET quantity = quantity +  ${db.escape(quantity)}
@@ -149,6 +168,18 @@ module.exports = {
       }
 
       if (method == "subs") {
+        const checkCurrentCartQtyQuery = `
+        SELECT quantity
+        FROM cart
+        WHERE cart_id = ${db.escape(cartId)};
+        `;
+
+        let resultcheckCurrentCartQtyQuery = await query(checkCurrentCartQtyQuery);
+
+        if (resultcheckCurrentCartQtyQuery[0].quantity - quantity < 1) {
+          throw { status_code: 400, message: "Update cart fails. Minimum quantity is 1." }; // check  jika stock < quantity + jumlah di cart sekarang
+        }
+
         const updateCartQuery = `
         UPDATE cart
         SET quantity = quantity -  ${db.escape(quantity)}
@@ -161,8 +192,8 @@ module.exports = {
           data: resultUpdateCartQuery,
         });
       }
-    } catch {
-      next;
+    } catch (error) {
+      next(error);
     }
   },
 };

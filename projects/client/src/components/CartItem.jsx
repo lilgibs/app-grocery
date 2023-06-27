@@ -29,22 +29,19 @@ const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtot
     }
   };
 
-  const handleAddCartQty = async () => {
+  const handleUpdateCart = async (method) => {
     try {
       let cart = {
         cart_id: cart_id,
         product_id: product_id,
-        quantity: quantity,
-        method: "add",
+        quantity: 1,
+        method: method,
       };
 
-      // console.log(cart);
       const response = await axios.post("http://localhost:8000/api/cart/updatecart", cart);
       dispatch(fetchCart(userGlobal));
-      alert(response.data.message);
-      // console.log(response.data);
     } catch (error) {
-      console.error("Failed to add cart quantity:", error);
+      method == "add" ? alert("Not enough stock for this product") : alert("Minimum quantity in cart is 1");
     }
   };
 
@@ -57,11 +54,19 @@ const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtot
       </Td>
       <Td>{formatRupiah(price)}</Td>
       <Td>
-        <NumberInput defaultValue={quantity} max={stock} min={1} clampValueOnBlur={true} isDisabled={true} w="80px">
-          <NumberInputField />
+        <NumberInput>
+          {quantity}
           <NumberInputStepper>
-            <NumberIncrementStepper />
-            <NumberDecrementStepper />
+            <NumberIncrementStepper
+              onClick={() => {
+                handleUpdateCart("add");
+              }}
+            />
+            <NumberDecrementStepper
+              onClick={() => {
+                handleUpdateCart("subs");
+              }}
+            />
           </NumberInputStepper>
         </NumberInput>
       </Td>
