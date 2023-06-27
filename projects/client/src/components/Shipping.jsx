@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardHeader, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
-import { Icon, Select, FormControl, FormLabel } from "@chakra-ui/react";
+import { Card, CardHeader, CardBody, Heading, Stack, Text } from "@chakra-ui/react";
+import { Icon, Select, FormControl } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@chakra-ui/react";
-import { Button, ButtonGroup } from "@chakra-ui/react";
+import { Button } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setShippingCourier, setShippingServices, resetShipping } from "../features/shippingSlice";
 import { setShippingOption, setShippingAddress } from "../features/cartSlice";
@@ -77,25 +77,24 @@ function Shipping() {
         setAddressIndex(i);
         let destinationId = addressGlobal[i].city_id;
 
-        console.log(nearestStore.store_location);
-        // let form = {
-        //   origin: "48", // batam store - HARUS EDIT !!!!
-        //   destination: destinationId,
-        //   weight: 100,
-        //   courier: selectedCourier,
-        // };
+        let form = {
+          origin: nearestStore.store_location,
+          destination: destinationId,
+          weight: 100,
+          courier: selectedCourier,
+        };
 
-        // let response = await axios.post("http://localhost:8000/api/cart/getshipping", form);
+        let response = await axios.post("http://localhost:8000/api/cart/getshipping", form);
 
-        // let courier = response.data.rajaongkir.results[0].name;
-        // let services = response.data.rajaongkir.results[0].costs;
+        let courier = response.data.rajaongkir.results[0].name;
+        let services = response.data.rajaongkir.results[0].costs;
 
-        // // console.log("kurir: " + courier);
-        // // console.log("kode kurir: " + courier_method);
-        // // console.log(services);
+        // console.log("kurir: " + courier);
+        // console.log("kode kurir: " + courier_method);
+        // console.log(services);
 
-        // dispatch(setShippingCourier(courier));
-        // dispatch(setShippingServices(services));
+        dispatch(setShippingCourier(courier));
+        dispatch(setShippingServices(services));
       } catch (error) {
         console.log(error);
       }
