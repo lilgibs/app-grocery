@@ -1,9 +1,22 @@
-const axios = require("axios");
+const { db, query } = require("../config/db");
 const request = require("request");
 
 module.exports = {
   getShipping: async (req, res, next) => {
+    let store = req.body.origin;
     try {
+      const storeToCityId = `
+      SELECT city_id
+      FROM cities
+      WHERE city_name = ${db.escape(store)}
+      `;
+
+      let resultStoreToCityId = await query(storeToCityId);
+
+      let cityId = resultStoreToCityId[0].city_id;
+
+      req.body.origin = cityId.toString(); // change city_name to city_id in form
+
       var options = {
         method: "POST",
         url: "https://api.rajaongkir.com/starter/cost",
