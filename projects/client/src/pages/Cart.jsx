@@ -30,15 +30,12 @@ const Cart = () => {
     let sumSubtotal = 0;
     cartItemsGlobal.forEach((x) => {
       sumSubtotal += Number(x.subtotal);
-      // console.log(sumSubtotal);
       setSubtotal(sumSubtotal); // get subtotal
     });
-  });
 
-  useEffect(() => {
-    let sumTotal = cartShippingOptionGlobal == null ? subtotal : subtotal + cartShippingOptionGlobal.cost[0].value;
+    let sumTotal = cartItemsGlobal.length == 0 ? 0 : cartShippingOptionGlobal == null ? subtotal : subtotal + cartShippingOptionGlobal.cost[0].value;
 
-    setTotal(sumTotal);
+    setTotal(sumTotal); //get total
   });
 
   const renderCartItems = () => {
@@ -115,8 +112,8 @@ const Cart = () => {
                       <Heading size="sm">Shipping</Heading>
                       {cartShippingOptionGlobal == null ? <div className="text-green-500 font-bold">⚠ Select shipping option</div> : <>{formatRupiah(cartShippingOptionGlobal.cost[0].value)}</>}
                     </Box>
-                    <Box className="flex justify-between font-bold text-lg">
-                      <Heading size="md">Total</Heading>
+                    <Box className="flex justify-between font-bold text-3xl">
+                      <Text>Total</Text>
                       <Text>{formatRupiah(total)}</Text>
                     </Box>
                   </Stack>

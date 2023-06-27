@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
 import { Icon, Select, FormControl, FormLabel } from "@chakra-ui/react";
 import { Radio, RadioGroup } from "@chakra-ui/react";
@@ -14,15 +14,26 @@ function Shipping() {
   const addressGlobal = useSelector((state) => state.address.address);
   const shippingServicesGlobal = useSelector((state) => state.shipping.shipping);
   const services = shippingServicesGlobal.services;
+  const nearestStore = useSelector((state) => state.location.location.nearestStore);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedCourier, setSelectedCourier] = useState("");
-  const [value, setValue] = useState("");
+  const [addressIndex, setAddressIndex] = useState();
+  const [radioButton, setRadioButton] = useState(null);
+
+  useEffect(() => {
+    if (selectedAddress === "" || selectedCourier === "") {
+      dispatch(setShippingAddress(null));
+      dispatch(setShippingOption(null));
+      dispatch(resetShipping());
+      setRadioButton(null);
+    }
+  }, [selectedCourier, selectedAddress]);
 
   const renderAddress = () => {
     return addressGlobal.map((p) => {
       return (
-        <option value={p.city_id}>
-          {p.city_id}-{p.city_name}
+        <option value={p.address_id}>
+          {p.street}, {p.city_name}
         </option>
       );
     });
@@ -31,11 +42,14 @@ function Shipping() {
   const renderShippingServices = () => {
     return services.map((p) => {
       let index = services.indexOf(p);
+      const regex = /[\d\-!@#$%^&*()_+=[\]{}|\\:;"'<>,.?/~`]+/g; // hanya print angka dan special characters saja
       return (
         <Radio size="lg" mb="2" value={index}>
-          {p.description}: {p.cost[0].etd} days
-          <br />
-          {formatRupiah(p.cost[0].value)}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="font-bold">{p.description} -</div>
+            <div>{formatRupiah(p.cost[0].value)}</div>
+          </div>
+          <div className="text-sm text-green-600 font-bold">Delivery time: {p.cost[0].etd.match(regex).join("")} days</div>
         </Radio>
       );
     });
@@ -57,25 +71,31 @@ function Shipping() {
       alert("Select your address and preffered courier");
     } else {
       try {
-        let form = {
-          origin: "48", // batam store - HARUS EDIT !!!!
-          destination: selectedAddress,
-          weight: 100,
-          courier: selectedCourier,
-        };
+        let i = addressGlobal.findIndex((x) => {
+          return x.address_id == selectedAddress;
+        });
+        setAddressIndex(i);
+        let destinationId = addressGlobal[i].city_id;
 
-        let response = await axios.post("http://localhost:8000/api/cart/getshipping", form);
+        console.log(nearestStore.store_location);
+        // let form = {
+        //   origin: "48", // batam store - HARUS EDIT !!!!
+        //   destination: destinationId,
+        //   weight: 100,
+        //   courier: selectedCourier,
+        // };
 
-        let courier = response.data.rajaongkir.results[0].name;
-        let courier_method = response.data.rajaongkir.results[0].code;
-        let services = response.data.rajaongkir.results[0].costs;
+        // let response = await axios.post("http://localhost:8000/api/cart/getshipping", form);
 
-        // console.log("kurir: " + courier);
-        // console.log("kode kurir: " + courier_method);
-        // console.log(services);
+        // let courier = response.data.rajaongkir.results[0].name;
+        // let services = response.data.rajaongkir.results[0].costs;
 
-        dispatch(setShippingCourier(courier));
-        dispatch(setShippingServices(services));
+        // // console.log("kurir: " + courier);
+        // // console.log("kode kurir: " + courier_method);
+        // // console.log(services);
+
+        // dispatch(setShippingCourier(courier));
+        // dispatch(setShippingServices(services));
       } catch (error) {
         console.log(error);
       }
@@ -86,15 +106,17 @@ function Shipping() {
     <Card>
       <CardHeader>
         <Heading size="md">Shipping option</Heading>
+        <Text className="mt-2">
+          Deliver from: <a className="font-bold text-green-500"> {nearestStore.store_name}</a>
+        </Text>
+        {/* {selectedAddress}
+        {selectedCourier}
+        {addressIndex} */}
       </CardHeader>
 
       <CardBody className="flex flex-col gap-5">
-        {/* <div>
-          <Select placeholder="Select address">{renderAddress()}</Select>
-        </div> */}
-
-        <FormControl className="grid grid-cols-3 gap-3">
-          <div className="col-span-2 grid grid-cols-2 gap-2">
+        <FormControl className="grid grid-cols-4 gap-3">
+          <div className="col-span-3 grid grid-cols-2 gap-2">
             <Select placeholder="Select address" onChange={handleAddressChange}>
               {renderAddress()}
             </Select>
@@ -108,25 +130,20 @@ function Shipping() {
 
           <div>
             <Button colorScheme="orange" onClick={handleButtonClick}>
-              See delivery services
+              See services
             </Button>
           </div>
         </FormControl>
         <div>
           <RadioGroup
             onChange={(value) => {
-              // console.log(services[value]);
-              setValue(value);
-              dispatch(setShippingAddress(selectedAddress));
+              setRadioButton(Number(value));
+              dispatch(setShippingAddress(addressGlobal[addressIndex]));
               dispatch(setShippingOption(services[value]));
             }}
+            value={radioButton}
           >
-            <Stack direction="column">
-              {/* <Radio value="1">First</Radio>
-              <Radio value="2">Second</Radio>
-              <Radio value="3">Third</Radio> */}
-              {renderShippingServices()}
-            </Stack>
+            <Stack direction="column">{renderShippingServices()}</Stack>
           </RadioGroup>
         </div>
       </CardBody>

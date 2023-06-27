@@ -8,10 +8,8 @@ export const cartSlice = createSlice({
     cart: {
       cart_count: 0,
       cart_items: [],
-      subtotal: 0,
       shipping_address: null,
       shipping_option: null,
-      total: 0,
     },
   },
   reducers: {
@@ -37,10 +35,8 @@ export const cartSlice = createSlice({
       state.cart = {
         cart_count: 0,
         cart_items: [],
-        subtotal: 0,
         shipping_address: null,
         shipping_option: null,
-        total: 0,
       };
     },
   },
