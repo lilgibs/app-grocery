@@ -8,8 +8,9 @@ export const cartSlice = createSlice({
     cart: {
       cart_count: 0,
       cart_items: [],
+      shipping_address: null,
+      shipping_option: null,
     },
-    isLoaded: false,
   },
   reducers: {
     setCart: (state, action) => {
@@ -17,6 +18,12 @@ export const cartSlice = createSlice({
     },
     setCartItems: (state, action) => {
       state.cart.cart_items = action.payload;
+    },
+    setShippingAddress: (state, action) => {
+      state.cart.shipping_address = action.payload;
+    },
+    setShippingOption: (state, action) => {
+      state.cart.shipping_option = action.payload;
     },
     updateCartCount: (state, action) => {
       state.cart.cart_count = state.cart.cart_items.length;
@@ -28,15 +35,14 @@ export const cartSlice = createSlice({
       state.cart = {
         cart_count: 0,
         cart_items: [],
+        shipping_address: null,
+        shipping_option: null,
       };
-    },
-    setLoaded: (state, action) => {
-      state.isLoaded = action.payload;
     },
   },
 });
 
-export const { setCart, resetCart, setCartItems, updateCartCount, resetCartItems, setLoaded } = cartSlice.actions;
+export const { setCart, setShippingOption, setShippingAddress, resetCart, setCartItems, updateCartCount, resetCartItems } = cartSlice.actions;
 export default cartSlice.reducer;
 
 export function fetchCart(user) {
