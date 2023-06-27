@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, Center } from "@chakra-ui/react";
 import { Button, ButtonGroup } from "@chakra-ui/react";
 import { NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
 import { Card, CardHeader, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
@@ -8,18 +8,38 @@ import { GrUpdate } from "react-icons/gr";
 import { fetchCart } from "../features/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { formatRupiah } from "../utils/formatRupiah";
 import CartItem from "../components/CartItem";
+import Shipping from "../components/Shipping";
 
 const Cart = () => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
   const cartItemsGlobal = useSelector((state) => state.cart.cart.cart_items);
+  const cartShippingOptionGlobal = useSelector((state) => state.cart.cart.shipping_option);
+  const [subtotal, setSubtotal] = useState(0);
+  const [total, setTotal] = useState(0);
 
   const updateCart = () => {
     // console.log("get cart items");
     dispatch(fetchCart(userGlobal));
   };
+
+  useEffect(() => {
+    let sumSubtotal = 0;
+    cartItemsGlobal.forEach((x) => {
+      sumSubtotal += Number(x.subtotal);
+      // console.log(sumSubtotal);
+      setSubtotal(sumSubtotal); // get subtotal
+    });
+  });
+
+  useEffect(() => {
+    let sumTotal = cartShippingOptionGlobal == null ? subtotal : subtotal + cartShippingOptionGlobal.cost[0].value;
+
+    setTotal(sumTotal);
+  });
 
   const renderCartItems = () => {
     return cartItemsGlobal.map((p, index) => {
@@ -27,17 +47,12 @@ const Cart = () => {
         <CartItem
           //
           key={index}
-          //
           cart_id={p.cart_id}
-          //
+          product_id={p.product_id}
           product={p.product_name}
-          //
           price={p.product_price}
-          //
           quantity={p.quantity}
-          //
           stock={p.quantity_in_stock}
-          //
           subtotal={p.subtotal}
         />
       );
@@ -74,10 +89,10 @@ const Cart = () => {
                         ← Continue Shopping
                       </Button>
 
-                      <Button bg="orange.400" color="white" onClick={updateCart}>
+                      {/* <Button bg="orange.400" color="white" onClick={updateCart}>
                         <Icon as={GrUpdate} mr="2" />
                         Update cart
-                      </Button>
+                      </Button> */}
                     </div>
                   </TableCaption>
                 </Table>
@@ -90,19 +105,19 @@ const Cart = () => {
                   <Stack divider={<StackDivider />} spacing="4">
                     <Box className="flex justify-between">
                       <Heading size="sm">Subtotal</Heading>
-                      Rp60.000,00
+                      {cartItemsGlobal.length == 0 ? <>Your cart is empty</> : <>{formatRupiah(subtotal)}</>}
                     </Box>
                     <Box className="flex justify-between">
                       <Heading size="sm">Discount</Heading>
-                      Rp0
+                      No discount applied
                     </Box>
                     <Box className="flex justify-between">
                       <Heading size="sm">Shipping</Heading>
-                      Rp15.000,00
+                      {cartShippingOptionGlobal == null ? <div className="text-green-500 font-bold">⚠ Select shipping option</div> : <>{formatRupiah(cartShippingOptionGlobal.cost[0].value)}</>}
                     </Box>
                     <Box className="flex justify-between font-bold text-lg">
                       <Heading size="md">Total</Heading>
-                      <Text>Rp75.000,00</Text>
+                      <Text>{formatRupiah(total)}</Text>
                     </Box>
                   </Stack>
                 </CardBody>
@@ -116,38 +131,11 @@ const Cart = () => {
             </div>
           </div>
 
-          <div className="mt-5">
+          <div className="grid grid-cols-2 mt-5">
             <div>
-              <Card>
-                <CardHeader>
-                  <Heading size="md">Shipping option</Heading>
-                </CardHeader>
-
-                <CardBody className="grid grid-rows-2 gap-2">
-                  <div>
-                    <Select placeholder="Address">
-                      <option value="option1">Address 1</option>
-                    </Select>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-2">
-                    <Select placeholder="Courier">
-                      <option value="option1">POS Indonesia</option>
-                    </Select>
-
-                    <Select placeholder="Service">
-                      <option value="option1">POS Sameday</option>
-                      <option value="option1">POS Kargo</option>
-                    </Select>
-                  </div>
-                </CardBody>
-
-                <CardFooter className="flex text-sm gap-1">
-                  <Text>Estimated arrival date:</Text>
-                  <Text className="text-green-500 font-bold">13 July 2023</Text>
-                </CardFooter>
-              </Card>
+              <Shipping />
             </div>
+            <div></div>
           </div>
         </>
       ) : (

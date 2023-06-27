@@ -54,11 +54,12 @@ function Product() {
 
       // console.log(object);
       const response = await axios.post("http://localhost:8000/api/cart/addtocart", cart);
+
       dispatch(fetchCart(userGlobal));
       dispatch(fetchProductUser(productName, store_id));
       alert(response.data.message);
     } catch (error) {
-      console.error("Failed to add item to cart:", error);
+      alert(`Add to cart fails. Amount in cart (${quantity}) exceeds product's stock`);
     }
   };
 
