@@ -5,18 +5,16 @@ const transporter = require("../config/nodemailer");
 const { validationResult } = require("express-validator");
 const ejs = require("ejs");
 const path = require("path");
+const {
+  handleValidationErrors,
+  handleServerError,
+} = require("../utils/errorHandlers");
 
 module.exports = {
   register: async (req, res, next) => {
     try {
       const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        throw {
-          status_code: 400,
-          message: `${errors.array()[0].msg} (Backend)`,
-          errors: errors.array(),
-        };
-      }
+      handleValidationErrors(errors);
 
       const { name, email, password, phone } = req.body;
 
@@ -39,8 +37,6 @@ module.exports = {
 
       const addUserResult = await query(addUserQuery);
 
-      // //--------------------------------------------------------------------
-
       let payload = { id: addUserResult.insertId };
       const token = jwt.sign(payload, "joe", { expiresIn: "4h" });
 
@@ -50,7 +46,7 @@ module.exports = {
       };
 
       const template = await renderEmailTemplate(
-        "../templates/emailTemplate.ejs",
+        "../templates/accountVerification.ejs",
         { name, token }
       );
 
@@ -64,10 +60,10 @@ module.exports = {
       const response = await transporter.sendMail(mail);
 
       return res
-        .status(200)
+        .status(201)
         .send({ data: addUserResult, message: "Register success" });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   verification: async (req, res, next) => {
@@ -93,11 +89,14 @@ module.exports = {
 
       return res.status(200).send({ message: "Account is verified" });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   login: async (req, res, next) => {
     try {
+      const errors = validationResult(req);
+      handleValidationErrors(errors);
+
       const { email, password } = req.body;
       const isEmailExist = await query(
         `SELECT * FROM users WHERE email=${db.escape(email)}`
@@ -146,7 +145,7 @@ module.exports = {
         },
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   checkLogin: async (req, res, next) => {
@@ -168,7 +167,84 @@ module.exports = {
         },
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
+    }
+  },
+  resetPasswordEmail: async (req, res, next) => {
+    try {
+      const { email, name } = req.body;
+      const { user_id } = req.params;
+
+      let payload = { user_id: user_id, email: email };
+      const token = jwt.sign(payload, "joe", { expiresIn: "5m" });
+
+      const renderEmailTemplate = (templatePath, data) => {
+        const filePath = path.join(__dirname, templatePath);
+        return ejs.renderFile(filePath, data);
+      };
+
+      const template = await renderEmailTemplate(
+        "../templates/resetPassword.ejs",
+        { name, token }
+      );
+
+      const mail = {
+        from: `Admin <ichsannuriman12@gmail.com>`,
+        to: `${email}`,
+        subject: `Acount Verification`,
+        html: template,
+      };
+
+      const response = await transporter.sendMail(mail);
+
+      return res.status(200).send({
+        message:
+          "A verification has been sent to your email. Check your email to proceed.",
+      });
+    } catch (error) {
+      handleServerError(error, next);
+    }
+  },
+  changePassword: async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      handleValidationErrors(errors);
+
+      const { user_id } = req.params;
+      const { oldPassword, newPassword } = req.body;
+
+      const getPasswordQuery = await query(
+        `SELECT password FROM users WHERE user_id = ${db.escape(user_id)}`
+      );
+
+      const passwordCompare = await bcrypt.compare(
+        oldPassword,
+        getPasswordQuery[0].password
+      );
+
+      if (!passwordCompare) {
+        throw {
+          status_code: 400,
+          message: "Old password did not match.",
+        };
+      }
+
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(newPassword, salt);
+
+      const updatePasswordQuery = await query(
+        `UPDATE users
+        SET
+          password = ${db.escape(hashPassword)}
+        WHERE
+          user_id = ${db.escape(user_id)}`
+      );
+
+      return res
+        .status(200)
+        .send({ message: "Password changed successfully." });
+    } catch (error) {
+      handleServerError(error, next);
     }
   },
 };

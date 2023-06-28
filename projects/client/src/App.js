@@ -22,6 +22,7 @@ import AdminProducts from "./pages/AdminProducts";
 import AdminEditProduct from "./pages/AdminEditProduct";
 import Products from "./pages/Products";
 import Product from "./pages/Product";
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
   const dispatch = useDispatch();
@@ -79,6 +80,7 @@ function App() {
         <Route path="/verification/:token" element={<Verification />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<UserProfile />} />
+        <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
         <Route path="/admindashboard" element={<AdminDashboard />} />
         <Route
@@ -90,8 +92,14 @@ function App() {
           element={<AdminCategories />}
         />
         <Route path="/admin/products/" element={<AdminProducts />} />
-        <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
-        <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
+        <Route
+          path="/admin/products/add-product"
+          element={<AdminAddProduct />}
+        />
+        <Route
+          path="/admin/products/:productId"
+          element={<AdminEditProduct />}
+        />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:productName" element={<Product />} />
       </Routes>

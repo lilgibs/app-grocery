@@ -1,15 +1,15 @@
 const express = require("express");
 const { authController, adminAuthController } = require("../controllers");
 const { verifyToken } = require("../middleware/auth");
-const { body } = require("express-validator");
+const { check } = require("express-validator");
 
 const router = express.Router();
 
 router.post(
   "/adminlogin",
   [
-    body("email").isEmail().withMessage("Must be a valid e-mail address."),
-    body("password")
+    check("email").isEmail().withMessage("Must be a valid e-mail address."),
+    check("password")
       .isLength(3)
       .withMessage("Password must be longer than 2 characters."),
   ],
@@ -24,12 +24,12 @@ router.post(
 router.post(
   "/register",
   [
-    body("email").isEmail().withMessage("Must be a valid e-mail address."),
-    body("password")
+    check("email").isEmail().withMessage("Must be a valid e-mail address."),
+    check("password")
       .isLength(3)
       .withMessage("Password must be longer than 2 characters."),
-    body("name").notEmpty().withMessage("Name cannot be empty."),
-    body("phone").isNumeric().withMessage("Phone number must be a number."),
+    check("name").notEmpty().withMessage("Name cannot be empty."),
+    check("phone").isNumeric().withMessage("Phone number must be a number."),
   ],
   authController.register
 );
@@ -37,13 +37,27 @@ router.post("/verification", verifyToken, authController.verification);
 router.post(
   "/login",
   [
-    body("email").isEmail().withMessage("Must be a valid e-mail address."),
-    body("password")
+    check("email").isEmail().withMessage("Must be a valid e-mail address."),
+    check("password")
       .isLength(3)
       .withMessage("Password must be longer than 2 characters."),
   ],
   authController.login
 );
 router.post("/check-login", verifyToken, authController.checkLogin);
+router.post("/reset-password", verifyToken, authController.resetPasswordEmail);
+router.put(
+  "/change-password/:user_id",
+  verifyToken,
+  [
+    check("oldPassword")
+      .isLength(3)
+      .withMessage("Password must be longer than 2 characters."),
+    check("newPassword")
+      .isLength(3)
+      .withMessage("Password must be longer than 2 characters."),
+  ],
+  authController.changePassword
+);
 
 module.exports = router;
