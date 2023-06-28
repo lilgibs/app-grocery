@@ -1,19 +1,28 @@
 import axios from "axios";
 
-export async function fetchProducts(storeId) {
-  let url = `http://localhost:8000/api/products`;
+export async function fetchProducts(storeId, category, page, limit, sortType, sortOrder) {
+  const params = {
+    page: page,
+    limit: limit
+  };
+
   if (storeId) {
-    url += `?storeId=${storeId}`;
+    params.storeId = storeId;
   }
-  
+
+  if (category) {
+    params.productCategory = category;
+  }
+
+  if(sortType && sortOrder){
+    params.sortType = sortType;
+    params.sortOrder = sortOrder;
+  }
+
   try {
-    const response = await axios.get(url)
-    if (storeId) {
-      url += `storeId=${storeId}`
-    }
+    const response = await axios.get('http://localhost:8000/api/products', { params })
     console.log(response.data.products)
-    const products = response.data.products
-    return products
+    return response.data;
   } catch (error) {
     console.error(error)
   }

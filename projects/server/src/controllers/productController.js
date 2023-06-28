@@ -1,10 +1,16 @@
 const { validationResult } = require("express-validator");
 const { db, query } = require("../config/db");
-const { handleServerError } = require("../utils/errorHandlers");
+const { handleServerError, handleValidationErrors } = require("../utils/errorHandlers");
 
 module.exports = {
   getProducts: async (req, res, next) => {
     let storeId = req.query.storeId
+    const page = parseInt(req.query.page) || 1
+    const limit = parseInt(req.query.limit) || 10
+    const offset = (page - 1) * limit
+    const productCategory = req.query.productCategory
+    const sortType = req.query.sortType; // 'price' or 'stock'
+    const sortOrder = req.query.sortOrder; // 'asc' or 'desc'
 
     if (!storeId) {
       const defaultStoreQuery = 'SELECT store_id FROM stores LIMIT 1';
@@ -13,9 +19,10 @@ module.exports = {
     }
 
     try {
-      const productQuery = `SELECT 
+      let productQuery = `SELECT 
           p.product_id,
           p.product_category_id,
+          pc.product_category_name,
           p.product_name,
           p.product_description,
           p.product_price,
@@ -24,24 +31,46 @@ module.exports = {
           si.store_id,
           (SELECT image_url FROM product_images WHERE product_id = p.product_id LIMIT 1) as image_url
         FROM products p          
-        JOIN 
-          store_inventory si on p.product_id = si.product_id
-        WHERE 
-          si.store_id = ${db.escape(storeId)}`
+        JOIN store_inventory si on p.product_id = si.product_id
+        JOIN product_categories pc ON p.product_category_id = pc.product_category_id
+        WHERE si.store_id = ${db.escape(storeId)}`
 
-      let resultProductQuery = await query(productQuery)
+      let countQuery = `SELECT COUNT(*) as total
+        FROM products p
+        JOIN store_inventory si on p.product_id = si.product_id
+        JOIN product_categories pc ON p.product_category_id = pc.product_category_id
+        WHERE si.store_id = ${db.escape(storeId)}`
+
+      if (productCategory) {
+        productQuery += ` AND product_category_name LIKE ${db.escape('%' + productCategory + '%')}`
+        countQuery += ` AND product_category_name LIKE ${db.escape('%' + productCategory + '%')}`
+      }
+
+      if (sortType && sortOrder) {
+        productQuery += ` ORDER BY ${sortType === 'price' ? 'p.product_price' : ''} ${sortOrder}`;
+      }
+
+      productQuery += ` LIMIT ${limit} OFFSET ${offset}`
+
+      const [resultProductQuery, resultCountQuery] = await Promise.all([
+        query(productQuery),
+        query(countQuery)
+      ])
+      const total = resultCountQuery[0].total
+
       res.status(200).json({
         message: 'Products fetched successfully',
-        products: resultProductQuery
+        products: resultProductQuery,
+        total: total
       })
     } catch (error) {
       handleServerError(error, next)
+      console.log(error)
     }
   },
   getProductDetail: async (req, res, next) => {
     const { productName } = req.params;
     let storeId = req.query.storeId;
-
     const errors = validationResult(req);
 
     if (!storeId) {
@@ -51,7 +80,8 @@ module.exports = {
     }
 
     try {
-      console.log(storeId, productName)
+      handleValidationErrors(errors);
+
       const sqlProductQuery = `SELECT * FROM products WHERE product_name = ${db.escape(productName)}`;
       const productResult = await query(sqlProductQuery);
 
