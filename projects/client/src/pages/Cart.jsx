@@ -16,6 +16,7 @@ const Cart = () => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
+  const cartGlobal = useSelector((state) => state.cart.cart);
   const cartItemsGlobal = useSelector((state) => state.cart.cart.cart_items);
   const cartShippingOptionGlobal = useSelector((state) => state.cart.cart.shipping_option);
   const [subtotal, setSubtotal] = useState(0);
@@ -83,7 +84,13 @@ const Cart = () => {
 
                   <TableCaption className="pt-10">
                     <div className="flex flex-row justify-between">
-                      <Button bg="green.100" color="green.500">
+                      <Button
+                        bg="green.100"
+                        color="green.500"
+                        onClick={() => {
+                          nav("/products");
+                        }}
+                      >
                         ← Continue Shopping
                       </Button>
 
@@ -111,7 +118,16 @@ const Cart = () => {
                     </Box>
                     <Box className="flex justify-between">
                       <Heading size="sm">Shipping</Heading>
-                      {cartShippingOptionGlobal == null ? <div className="text-green-500 font-bold">⚠ Select shipping option</div> : <>{formatRupiah(cartShippingOptionGlobal.cost[0].value)}</>}
+                      <div className="text-right">
+                        {cartShippingOptionGlobal == null ? <div className="text-green-500 font-bold">⚠ Select shipping option</div> : <>{formatRupiah(cartShippingOptionGlobal.cost[0].value)}</>}
+                        {cartShippingOptionGlobal == null ? (
+                          <></>
+                        ) : (
+                          <div className="text-xs font-bold text-green-500 ">
+                            {cartGlobal.shipping_address.street} ( {cartGlobal.shipping_option.service} )
+                          </div>
+                        )}
+                      </div>
                     </Box>
                     <Box className="flex justify-between font-bold text-3xl">
                       <Text>Total</Text>
@@ -121,7 +137,7 @@ const Cart = () => {
                 </CardBody>
 
                 <CardFooter>
-                  <Button variant="solid" colorScheme="green" minW="100%">
+                  <Button variant="solid" colorScheme="green" minW="100%" isDisabled={cartItemsGlobal.length == 0 || cartShippingOptionGlobal == null ? true : false}>
                     Order
                   </Button>
                 </CardFooter>
@@ -130,9 +146,7 @@ const Cart = () => {
           </div>
 
           <div className="grid grid-cols-2 mt-5">
-            <div>
-              <Shipping />
-            </div>
+            <div>{cartItemsGlobal.length == 0 ? <></> : <Shipping />}</div>
             <div></div>
           </div>
         </>

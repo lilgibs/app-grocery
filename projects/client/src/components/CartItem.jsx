@@ -50,7 +50,8 @@ const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock
       <Td>
         {/* {cart_id}  */}
         {/* {product_id} */}
-        {product} - {weight}g
+        {/* {weight}g */}
+        {product}
       </Td>
       <Td>{formatRupiah(price)}</Td>
       <Td>

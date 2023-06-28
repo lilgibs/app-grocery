@@ -12,7 +12,8 @@ import axios from "axios";
 function Shipping() {
   const dispatch = useDispatch();
   const addressGlobal = useSelector((state) => state.address.address);
-  const cartItemsGlobal = useSelector((state) => state.cart.cart.cart_items);
+  const cartGlobal = useSelector((state) => state.cart.cart);
+  const cartItems = cartGlobal.cart_items;
   const shippingServicesGlobal = useSelector((state) => state.shipping.shipping);
   const services = shippingServicesGlobal.services;
   const nearestStore = useSelector((state) => state.location.location.nearestStore);
@@ -20,6 +21,8 @@ function Shipping() {
   const [selectedCourier, setSelectedCourier] = useState("");
   const [addressIndex, setAddressIndex] = useState();
   const [radioButton, setRadioButton] = useState(null);
+  const [prevCart, setPrevCart] = useState(cartItems);
+  const [cartChange, setCartChange] = useState("invisible");
 
   useEffect(() => {
     if (selectedAddress === "" || selectedCourier === "") {
@@ -29,6 +32,21 @@ function Shipping() {
       setRadioButton(null);
     }
   }, [selectedCourier, selectedAddress]);
+
+  useEffect(() => {
+    setPrevCart(cartItems);
+
+    if (services.length > 0 && prevCart != cartItems) {
+      setCartChange("");
+      dispatch(setShippingAddress(null));
+      dispatch(setShippingOption(null));
+      setRadioButton(null);
+    }
+
+    if (cartItems.length === 0) {
+      setCartChange("invisible");
+    }
+  }, [cartItems]); // reset shipping options if changes are made to cart
 
   const renderAddress = () => {
     return addressGlobal.map((p) => {
@@ -44,7 +62,7 @@ function Shipping() {
     return services.map((p) => {
       let index = services.indexOf(p);
       const regex = /[\d\-!@#$%^&*()_+=[\]{}|\\:;"'<>,.?/~`]+/g; // hanya print angka dan special characters saja
-      return (
+      return cartChange === "invisible" && cartItems.length > 0 ? (
         <Radio size="lg" mb="2" value={index}>
           <div className="grid grid-cols-2 gap-3">
             <div className="font-bold">{p.description} -</div>
@@ -52,6 +70,8 @@ function Shipping() {
           </div>
           <div className="text-sm text-green-600 font-bold">Delivery time: {p.cost[0].etd.match(regex).join("")} days</div>
         </Radio>
+      ) : (
+        <></>
       );
     });
   };
@@ -66,9 +86,6 @@ function Shipping() {
 
   const handleButtonClick = async () => {
     if (selectedAddress === "" || selectedCourier === "") {
-      // console.log("Selected address: " + selectedAddress);
-      // console.log("Selected courier: " + selectedCourier);
-
       alert("Select your address and preffered courier");
     } else {
       try {
@@ -81,7 +98,7 @@ function Shipping() {
 
         let totalWeight = 0;
 
-        cartItemsGlobal.forEach((x) => {
+        cartItems.forEach((x) => {
           totalWeight += x.weight;
         });
 
@@ -94,11 +111,10 @@ function Shipping() {
         let response = await axios.post("http://localhost:8000/api/cart/getshipping", form);
         let courier = response.data.rajaongkir.results[0].name;
         let services = response.data.rajaongkir.results[0].costs;
-        // console.log("kurir: " + courier);
-        // console.log("kode kurir: " + courier_method);
-        // console.log(services);
+
         dispatch(setShippingCourier(courier));
         dispatch(setShippingServices(services));
+        setCartChange("invisible");
       } catch (error) {
         console.log(error);
       }
@@ -107,11 +123,19 @@ function Shipping() {
 
   return (
     <Card>
-      <CardHeader>
-        <Heading size="md">Shipping option</Heading>
-        <Text className="mt-2">
-          Deliver from: <a className="font-bold text-green-500"> {nearestStore.store_name}</a>
-        </Text>
+      <CardHeader className="flex justify-between">
+        <div>
+          <Heading size="md">Shipping option</Heading>
+          <Text className="mt-2">
+            Deliver from: <a className="font-bold text-green-500"> {nearestStore.store_name}</a>
+          </Text>
+        </div>
+
+        <div className={cartChange}>
+          <Text className="text-sm text-right text-red-500 font-bold">⚠ There is changes in your cart</Text>
+          <Text className="text-xs text-right"> Update shipping options to get latest rates</Text>
+        </div>
+
         {/* {selectedAddress}
         {selectedCourier}
         {addressIndex} */}
@@ -133,7 +157,7 @@ function Shipping() {
 
           <div>
             <Button colorScheme="orange" onClick={handleButtonClick}>
-              See services
+              See options
             </Button>
           </div>
         </FormControl>
@@ -150,11 +174,6 @@ function Shipping() {
           </RadioGroup>
         </div>
       </CardBody>
-
-      {/* <CardFooter className="flex text-sm gap-1">
-        <Text>Estimated delivery time:</Text>
-        <Text className="text-green-500 font-bold">X Days</Text>
-      </CardFooter> */}
     </Card>
   );
 }
