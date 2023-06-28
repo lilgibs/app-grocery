@@ -26,15 +26,15 @@ function Products() {
   const [isFilterVisible, setFilterVisible] = useState(false);
 
   // const { isOpen, onOpen, onClose } = useDisclosure()
-  const navigate = useNavigate()
-  const { store_id, store_name } = useSelector(state => state.location.location.nearestStore)
+  const navigate = useNavigate();
+  const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
   const totalPages = Math.ceil(totalProducts / limit);
 
   const sortOptions = [
-    { value: 'price_asc', label: 'Lowest price' },
-    { value: 'price_desc', label: 'Highest price' },
-    // { value: 'stock_asc', label: 'Lowest Stock' },
-    // { value: 'stock_desc', label: 'Highest stock' },
+    { value: "price_asc", label: "Lowest price" },
+    { value: "price_desc", label: "Highest price" },
+    // { value: "stock_asc", label: "Lowest Stock" },
+    // { value: "stock_desc", label: "Highest stock" },
   ];
 
   const handleSortChange = (selectedOption) => {
@@ -59,17 +59,6 @@ function Products() {
     return productName.replace(/\s+/g, '-').toLowerCase();
   }
 
-  const handleSetCategory = (category) => {
-    setSelectedCategory(category)
-    setSearchParams({ category: category })
-  }
-
-  const handlePageClick = (data) => {
-    let selected = data.selected + 1; // react-paginate mulai dari 0
-    searchParams.set('page', selected);
-    setSearchParams(new URLSearchParams(searchParams.toString()));
-  }
-
   // useEffect(() => {
   //   const pageParam = Number(searchParams.get('page'));
   //   setPage(pageParam || 1);
@@ -88,24 +77,26 @@ function Products() {
       const sortOrderParam = searchParams.get('sort_order')
       const pageParam = Number(searchParams.get('page'));
       setPage(pageParam || 1);
-      const result = await fetchProducts(store_id, categoryParam, page, limit, sortTypeParam, sortOrderParam)
+      const result = await fetchProducts(store_id, categoryParam, page, limit, sortTypeParam, sortOrderParam);
       setProducts(result.products)
-      setTotalProducts(result.total)
-    }
-    getProducts()
+      setTotalProducts(result.total);
+    };
+    getProducts();
     getCategories();
 
-  }, [store_id, searchParams, page]);
+  }, [store_idsearchParams, page]);
 
   return (
-    <div className='flex flex-col gap-5'>
-      <div className='h-60 bg-sky-300'></div>
-      <div className='md:w-[95%] xl:max-w-screen-xl mx-auto'>
-        <div className='flex gap-5 min-h-screen'>
+    <div className="flex flex-col gap-5">
+      <div className="h-60 bg-sky-300"></div>
+      <div className="md:w-[95%] xl:max-w-screen-xl mx-auto">
+        <div className="flex gap-5 min-h-screen">
           {/* Sidebar - START */}
-          <div className='hidden lg:flex flex-col w-[20%] gap-5'>
-            <div className='text-xl '>
-              <p className='font-semibold'>Store: <span className='text-green-500'>{store_name}</span></p>
+          <div className="hidden lg:flex flex-col w-[20%] gap-5">
+            <div className="text-xl ">
+              <p className="font-semibold">
+                Store: <span className="text-green-500">{store_name}</span>
+              </p>
             </div>
             <div className='flex flex-col gap-5'>
               <div className='flex flex-col gap-2 '>
@@ -206,8 +197,7 @@ function Products() {
                   <CardBody padding={'2'}>
                     <Text className='font-semibold'>{formatRupiah(product.product_price)}</Text>
                   </CardBody>
-                  <CardFooter>
-                  </CardFooter>
+                  <CardFooter></CardFooter>
                 </Card>
               ))}
             </div>
@@ -247,4 +237,4 @@ function Products() {
   )
 }
 
-export default Products
+export default Products;

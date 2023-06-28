@@ -9,6 +9,8 @@ const adminProductController = require("./admin/adminProductController");
 const adminProductImageController = require("./admin/adminProductImageController");
 const productController = require("./productController");
 const profileController = require("./profileController");
+const cartController = require("./cartController");
+const shippingController = require("./shippingController");
 
 module.exports = {
   authController,
@@ -22,4 +24,6 @@ module.exports = {
   provinceController,
   productController,
   profileController,
+  cartController,
+  shippingController,
 };

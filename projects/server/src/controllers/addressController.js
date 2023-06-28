@@ -1,8 +1,15 @@
 const { db, query } = require("../config/db");
+const { validationResult } = require("express-validator");
+const {
+  handleValidationErrors,
+  handleServerError,
+} = require("../utils/errorHandlers");
 
 module.exports = {
   addAddress: async (req, res, next) => {
     try {
+      const errors = validationResult(req);
+      handleValidationErrors(errors);
       const { user_id, street, city, province, longitude, latitude } = req.body;
       let city_id = 0;
       let province_id = 0;
@@ -33,7 +40,7 @@ module.exports = {
         message: "Address added successfully!",
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   getAddress: async (req, res, next) => {
@@ -53,7 +60,7 @@ module.exports = {
         message: "Retrieve User's data successfully!",
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   softDeleteAddress: async (req, res, next) => {
@@ -68,11 +75,13 @@ module.exports = {
 
       return res.status(200).send({ message: "Address deleted!" });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   editAddress: async (req, res, next) => {
     try {
+      const errors = validationResult(req);
+      handleValidationErrors(errors);
       const { street, city, province, longitude, latitude } = req.body;
       const { address_id } = req.params;
       let city_id = 0;
@@ -127,7 +136,7 @@ module.exports = {
         message: "Address edited successfully!",
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
 };
