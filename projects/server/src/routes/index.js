@@ -8,6 +8,7 @@ const provinceRoutes = require("./provinceRoutes");
 const adminProductRoutes = require("./admin/adminProductRoutes");
 const productRoutes = require("./productRoutes");
 const profileRoutes = require("./profileRoutes");
+const cartRoutes = require("./cartRoutes");
 
 module.exports = {
   authRoutes,
@@ -20,4 +21,5 @@ module.exports = {
   provinceRoutes,
   productRoutes,
   profileRoutes,
+  cartRoutes,
 };
