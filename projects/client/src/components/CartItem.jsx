@@ -7,7 +7,7 @@ import { formatRupiah } from "../utils/formatRupiah";
 import { fetchCart } from "../features/cartSlice";
 import axios from "axios";
 
-const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtotal }) => {
+const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock, subtotal }) => {
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
 
@@ -50,7 +50,7 @@ const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtot
       <Td>
         {/* {cart_id}  */}
         {/* {product_id} */}
-        {product}
+        {product} - {weight}g
       </Td>
       <Td>{formatRupiah(price)}</Td>
       <Td>

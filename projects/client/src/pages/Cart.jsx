@@ -48,6 +48,7 @@ const Cart = () => {
           product_id={p.product_id}
           product={p.product_name}
           price={p.product_price}
+          weight={p.weight}
           quantity={p.quantity}
           stock={p.quantity_in_stock}
           subtotal={p.subtotal}

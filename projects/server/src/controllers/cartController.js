@@ -9,7 +9,7 @@ module.exports = {
 
     try {
       const cartQuery = `
-      SELECT c.cart_id, si.product_id, p.product_name, p.product_price, c.quantity, si.quantity_in_stock, (p.product_price * c.quantity) AS subtotal
+      SELECT c.cart_id, si.product_id, p.product_name, p.product_price, (p.product_weight * c.quantity) AS weight, c.quantity, si.quantity_in_stock, (p.product_price * c.quantity) AS subtotal
       FROM cart c
       JOIN store_inventory si ON c.store_inventory_id = si.store_inventory_id
       JOIN products p ON si.product_id = p.product_id 

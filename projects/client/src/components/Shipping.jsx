@@ -12,6 +12,7 @@ import axios from "axios";
 function Shipping() {
   const dispatch = useDispatch();
   const addressGlobal = useSelector((state) => state.address.address);
+  const cartItemsGlobal = useSelector((state) => state.cart.cart.cart_items);
   const shippingServicesGlobal = useSelector((state) => state.shipping.shipping);
   const services = shippingServicesGlobal.services;
   const nearestStore = useSelector((state) => state.location.location.nearestStore);
@@ -75,24 +76,27 @@ function Shipping() {
           return x.address_id == selectedAddress;
         });
         setAddressIndex(i);
+
         let destinationId = addressGlobal[i].city_id;
+
+        let totalWeight = 0;
+
+        cartItemsGlobal.forEach((x) => {
+          totalWeight += x.weight;
+        });
 
         let form = {
           origin: nearestStore.store_location,
           destination: destinationId,
-          weight: 100,
+          weight: totalWeight,
           courier: selectedCourier,
         };
-
         let response = await axios.post("http://localhost:8000/api/cart/getshipping", form);
-
         let courier = response.data.rajaongkir.results[0].name;
         let services = response.data.rajaongkir.results[0].costs;
-
         // console.log("kurir: " + courier);
         // console.log("kode kurir: " + courier_method);
         // console.log(services);
-
         dispatch(setShippingCourier(courier));
         dispatch(setShippingServices(services));
       } catch (error) {
