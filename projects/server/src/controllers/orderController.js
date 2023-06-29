@@ -72,8 +72,6 @@ module.exports = {
         const resultDeleteCartQuery = await query(deleteCartQuery);
       });
 
-      //---------------------------------------------------
-
       res.status(200).send({
         message: "Order recorded, please proceed to payment. Thank you!",
         order: resultAddOrderQuery,
