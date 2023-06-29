@@ -5,7 +5,7 @@ import { Radio, RadioGroup } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setShippingCourier, setShippingServices, resetShipping } from "../features/shippingSlice";
-import { setShippingOption, setShippingAddress } from "../features/cartSlice";
+import { setShippingCourierCart, setShippingOption, setShippingAddress } from "../features/cartSlice";
 import { formatRupiah } from "../utils/formatRupiah";
 import axios from "axios";
 
@@ -26,6 +26,7 @@ function Shipping() {
 
   useEffect(() => {
     if (selectedAddress === "" || selectedCourier === "") {
+      dispatch(setShippingCourierCart(null));
       dispatch(setShippingAddress(null));
       dispatch(setShippingOption(null));
       dispatch(resetShipping());
@@ -165,6 +166,7 @@ function Shipping() {
           <RadioGroup
             onChange={(value) => {
               setRadioButton(Number(value));
+              dispatch(setShippingCourierCart(selectedCourier));
               dispatch(setShippingAddress(addressGlobal[addressIndex]));
               dispatch(setShippingOption(services[value]));
             }}
