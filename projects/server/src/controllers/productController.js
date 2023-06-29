@@ -5,6 +5,7 @@ const { handleServerError, handleValidationErrors } = require("../utils/errorHan
 module.exports = {
   getProducts: async (req, res, next) => {
     let storeId = req.query.storeId
+    const search = req.query.search
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
     const offset = (page - 1) * limit
@@ -40,6 +41,11 @@ module.exports = {
         JOIN store_inventory si on p.product_id = si.product_id
         JOIN product_categories pc ON p.product_category_id = pc.product_category_id
         WHERE si.store_id = ${db.escape(storeId)}`
+
+      if(search){
+        productQuery += ` AND product_name LIKE ${db.escape('%' + search + '%')}` 
+        countQuery += ` AND product_name LIKE ${db.escape('%' + search + '%')}` 
+      }
 
       if (productCategory) {
         productQuery += ` AND product_category_name LIKE ${db.escape('%' + productCategory + '%')}`

@@ -59,7 +59,8 @@ function Products() {
 
   const handleSetCategory = (category) => {
     setSelectedCategory(category)
-    setSearchParams({ category: category })
+    searchParams.set('category', category);
+    setSearchParams(new URLSearchParams(searchParams.toString()));
   }
 
   const handlePageClick = (data) => {
@@ -80,20 +81,21 @@ function Products() {
     };
 
     const getProducts = async () => {
+      const searchParam = searchParams.get('search')
       const categoryParam = searchParams.get('category')
-      setSelectedCategory(categoryParam)
+      // setSelectedCategory(categoryParam)
       const sortTypeParam = searchParams.get('sort_type')
       const sortOrderParam = searchParams.get('sort_order')
       const pageParam = Number(searchParams.get('page'));
       setPage(pageParam || 1);
-      const result = await fetchProducts(store_id, categoryParam, page, limit, sortTypeParam, sortOrderParam)
+      const result = await fetchProducts(store_id, searchParam, categoryParam, pageParam, limit, sortTypeParam, sortOrderParam)
       setProducts(result.products)
       setTotalProducts(result.total)
     }
     getProducts()
     getCategories();
 
-  }, [store_id, searchParams, page]);
+  }, [store_id, searchParams]);
 
   return (
     <div className='flex flex-col gap-5'>

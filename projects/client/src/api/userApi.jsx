@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export async function fetchProducts(storeId, category, page, limit, sortType, sortOrder) {
+export async function fetchProducts(storeId, search, category, page, limit, sortType, sortOrder) {
   const params = {
     page: page,
     limit: limit
@@ -8,6 +8,10 @@ export async function fetchProducts(storeId, category, page, limit, sortType, so
 
   if (storeId) {
     params.storeId = storeId;
+  }
+
+  if(search){
+    params.search = search
   }
 
   if (category) {
