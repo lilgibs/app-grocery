@@ -60,8 +60,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   };
 
   const handleCancel = async () => {
+    // console.log(order_id);
     try {
-      // console.log(cart);
       const response = await axios.put(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
       dispatch(fetchOrder(userGlobal.user_id));
       alert(response.data.message);
@@ -73,116 +73,110 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
 
   return (
     <>
-      {order_status != "Canceled" ? (
-        <>
-          <Card>
-            <CardHeader className="flex flex-row justify-between">
-              <div className="flex gap-3">
-                <Heading size="md" mb="2">
-                  Order #{order_id}
-                </Heading>
-                <Text className="text-gray-400 font-bold">{order_status}</Text>
-              </div>
+      <Card>
+        <CardHeader className="flex flex-row justify-between">
+          <div className="flex gap-3">
+            <Heading size="md" mb="2">
+              Order #{order_id}
+            </Heading>
+            <Text className="text-gray-400 font-bold">{order_status}</Text>
+          </div>
 
-              <Text className="text-sm text-gray-400">Order made: {Date(order_date).toLocaleString("id-ID")}</Text>
-            </CardHeader>
+          <Text className="text-sm text-gray-400">Order made: {Date(order_date).toLocaleString("id-ID")}</Text>
+        </CardHeader>
 
-            <CardBody>
-              <Stack divider={<StackDivider />} spacing="4">
-                <Box className="flex justify-between">
-                  <Heading size="sm">Subtotal</Heading>
-                  {formatRupiah(total_price - shipping_price)}
-                </Box>
+        <CardBody>
+          <Stack divider={<StackDivider />} spacing="4">
+            <Box className="flex justify-between">
+              <Heading size="sm">Subtotal</Heading>
+              {formatRupiah(total_price - shipping_price)}
+            </Box>
 
-                <Box className="flex justify-between">
-                  <Heading size="sm">Shipping</Heading>
-                  <div>
-                    {formatRupiah(shipping_price)}
-                    <div className="text-xs font-bold text-green-500 ">
-                      {shipping_courier.toUpperCase()} - {shipping_type}
-                    </div>
-                  </div>
-                </Box>
-
-                <Box className="flex justify-between font-bold text-lg">
-                  <Heading size="md">Total</Heading>
-                  <Text>{formatRupiah(total_price)}</Text>
-                </Box>
-              </Stack>
-            </CardBody>
-
-            <CardFooter className="flex gap-3">
-              {order_status === "Waiting for payment" ? (
-                <>
-                  <Button variant="solid" colorScheme="orange" onClick={onOpen}>
-                    Upload Payment Proof
-                  </Button>
-                  <Button variant="ghost" colorScheme="red" onClick={handleCancel}>
-                    Cancel Order
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <div>Waiting for shipment by admin</div>
-                </>
-              )}
-            </CardFooter>
-          </Card>
-
-          <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
-            <ModalOverlay />
-            <ModalContent>
-              <ModalHeader>Upload payment proof</ModalHeader>
-              {/* <ModalCloseButton /> */}
-
-              <ModalBody>
-                <div>
-                  <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
-                    Payment proof
-                  </label>
-                  <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                    {previewImage ? (
-                      <img src={previewImage} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded" />
-                    ) : (
-                      <div className="text-center">
-                        {/* <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" /> */}
-                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                          <label
-                            htmlFor="file-upload"
-                            className="relative cursor-pointer rounded-md bg-white font-semibold text-green-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                          >
-                            <span>Upload a file</span>
-                            <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleImageUpload} />
-                          </label>
-                          <p className="pl-1">or drag and drop</p>
-                        </div>
-                        <p className="text-xs leading-5 text-gray-600">JPEG, JPG, PNG up to 1MB</p>
-                      </div>
-                    )}
-                  </div>
+            <Box className="flex justify-between">
+              <Heading size="sm">Shipping</Heading>
+              <div>
+                {formatRupiah(shipping_price)}
+                <div className="text-xs font-bold text-green-500 ">
+                  {shipping_courier.toUpperCase()} - {shipping_type}
                 </div>
-              </ModalBody>
+              </div>
+            </Box>
 
-              <ModalFooter>
-                <Button colorScheme="orange" mr={3} onClick={handleUploadButton}>
-                  Upload
-                </Button>
-                <Button
-                  variant="ghost"
-                  onClick={() => {
-                    onClose();
-                    setPreviewImage(null);
-                  }}
-                >
-                  Cancel
-                </Button>
-              </ModalFooter>
-            </ModalContent>
-          </Modal>
-        </>
-      ) : (
-        <></>
-      )}
+            <Box className="flex justify-between font-bold text-lg">
+              <Heading size="md">Total</Heading>
+              <Text>{formatRupiah(total_price)}</Text>
+            </Box>
+          </Stack>
+        </CardBody>
+
+        <CardFooter className="flex gap-3">
+          {order_status === "Waiting for payment" ? (
+            <>
+              <Button variant="solid" colorScheme="orange" onClick={onOpen}>
+                Upload Payment Proof
+              </Button>
+              <Button variant="ghost" colorScheme="red" onClick={handleCancel}>
+                Cancel Order
+              </Button>
+            </>
+          ) : (
+            <>
+              <div>Waiting for shipment by admin</div>
+            </>
+          )}
+        </CardFooter>
+      </Card>
+
+      <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Upload payment proof</ModalHeader>
+          {/* <ModalCloseButton /> */}
+
+          <ModalBody>
+            <div>
+              <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
+                Payment proof
+              </label>
+              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                {previewImage ? (
+                  <img src={previewImage} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded" />
+                ) : (
+                  <div className="text-center">
+                    {/* <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" /> */}
+                    <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                      <label
+                        htmlFor="file-upload"
+                        className="relative cursor-pointer rounded-md bg-white font-semibold text-green-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                      >
+                        <span>Upload a file</span>
+                        <input id="file-upload" name="file-upload" type="file" className="sr-only" onChange={handleImageUpload} />
+                      </label>
+                      <p className="pl-1">or drag and drop</p>
+                    </div>
+                    <p className="text-xs leading-5 text-gray-600">JPEG, JPG, PNG up to 1MB</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button colorScheme="orange" mr={3} onClick={handleUploadButton}>
+              Upload
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={() => {
+                onClose();
+                setPreviewImage(null);
+              }}
+            >
+              Cancel
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
