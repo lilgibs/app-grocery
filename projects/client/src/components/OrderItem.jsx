@@ -84,7 +84,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             <Text className="text-gray-400 font-bold">{order_status}</Text>
           </div>
 
-          <Text className="text-sm text-gray-400">Order made: {order_date.toLocaleString("id-ID")}</Text>
+          <Text className="text-sm text-gray-400">Order made: {Date(order_date).toLocaleString("id-ID")}</Text>
         </CardHeader>
 
         <CardBody>
