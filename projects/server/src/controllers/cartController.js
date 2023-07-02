@@ -5,7 +5,7 @@ const { response } = require("express");
 
 module.exports = {
   getCart: async (req, res, next) => {
-    let userId = req.body.user_id;
+    let userId = req.query.userId;
 
     try {
       const cartQuery = `

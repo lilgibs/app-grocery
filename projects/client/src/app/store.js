@@ -6,6 +6,7 @@ import addressReducer from "../features/addressSlice";
 import productReducer from "../features/productSlice";
 import cartReducer from "../features/cartSlice";
 import shippingReducer from "../features/shippingSlice";
+import orderReducer from "../features/orderSlice";
 
 export default configureStore({
   reducer: {
@@ -16,5 +17,6 @@ export default configureStore({
     product: productReducer,
     cart: cartReducer,
     shipping: shippingReducer,
+    order: orderReducer,
   },
 });

@@ -25,6 +25,7 @@ import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import Product from "./pages/Product";
 import { fetchCart } from "./features/cartSlice";
+import { fetchOrder } from "./features/orderSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -47,9 +48,15 @@ function App() {
 
   useEffect(() => {
     if (userToken) {
-      dispatch(fetchCart(userGlobal));
+      dispatch(fetchOrder(userGlobal.user_id));
     }
-  });
+  }); // get cart if user is logged in
+
+  useEffect(() => {
+    if (userToken) {
+      dispatch(fetchCart(userGlobal.user_id));
+    }
+  }); // get orders if user is logged in
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(function (position) {

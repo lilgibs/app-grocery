@@ -3,7 +3,7 @@ const { cartController } = require("../controllers");
 const { shippingController } = require("../controllers");
 const router = express.Router();
 
-router.post("/", cartController.getCart);
+router.get("/", cartController.getCart);
 router.post("/addtocart", cartController.addToCart);
 router.delete("/deletefromcart", cartController.deleteFromCart);
 router.post("/getshipping", shippingController.getShipping);
