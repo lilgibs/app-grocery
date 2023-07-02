@@ -16,9 +16,11 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
 
   // image upload and preview
   const [previewImage, setPreviewImage] = useState(null);
+  const [paymetProof, setPaymentProof] = useState(null);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
+    setPaymentProof(file);
 
     if (!["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
       alert("Only JPEG/JPG/PNG files are supported");
@@ -37,6 +39,23 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
         setPreviewImage(reader.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleUploadButton = async () => {
+    try {
+      const formData = new FormData();
+      formData.append("payment_proof", paymetProof);
+
+      let response = await axios.put(`http://localhost:8000/api/order/upload-payment-proof/?orderId=${order_id}`, formData);
+
+      if (response) {
+        alert(response.data.message);
+        dispatch(fetchOrder(userGlobal.user_id));
+        onClose();
+      }
+    } catch (error) {
+      alert(error.response.data);
     }
   };
 
@@ -93,7 +112,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             </CardBody>
 
             <CardFooter className="flex gap-3">
-              {payment_proof === null ? (
+              {order_status === "Waiting for payment" ? (
                 <>
                   <Button variant="solid" colorScheme="orange" onClick={onOpen}>
                     Upload Payment Proof
@@ -145,7 +164,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
               </ModalBody>
 
               <ModalFooter>
-                <Button colorScheme="orange" mr={3}>
+                <Button colorScheme="orange" mr={3} onClick={handleUploadButton}>
                   Upload
                 </Button>
                 <Button
