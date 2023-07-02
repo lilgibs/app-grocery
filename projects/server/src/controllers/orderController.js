@@ -131,7 +131,7 @@ module.exports = {
         `UPDATE orders
         SET
           payment_proof = ${db.escape(payment_proof)},
-          order_status = "To be delivered"
+          order_status = "Waiting for confirmation"
         WHERE
           order_id = ${db.escape(orderId)}`
       );

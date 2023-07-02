@@ -4,6 +4,7 @@ import { Card, CardHeader, CardBody, CardFooter, Text, Heading, Box, StackDivide
 import { Button, Stack } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
+import { AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, AlertDialogCloseButton } from "@chakra-ui/react";
 import { formatRupiah } from "../utils/formatRupiah";
 import axios from "axios";
 import { fetchOrder } from "../features/orderSlice";
@@ -12,9 +13,9 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const nav = useNavigate();
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  // image upload and preview
+  const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
+  const { isOpen: isCancelOpen, onOpen: onCancelOpen, onClose: onCancelClose } = useDisclosure();
+  const cancelRef = React.useRef();
   const [previewImage, setPreviewImage] = useState(null);
   const [paymetProof, setPaymentProof] = useState(null);
 
@@ -52,7 +53,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       if (response) {
         alert(response.data.message);
         dispatch(fetchOrder(userGlobal.user_id));
-        onClose();
+        onUploadClose();
       }
     } catch (error) {
       alert(error.response.data);
@@ -65,6 +66,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       const response = await axios.put(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
       dispatch(fetchOrder(userGlobal.user_id));
       alert(response.data.message);
+      onCancelClose();
       // console.log(response.data);
     } catch (error) {
       console.error("Failed to cancel order: ", error);
@@ -82,7 +84,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             <Text className="text-gray-400 font-bold">{order_status}</Text>
           </div>
 
-          <Text className="text-sm text-gray-400">Order made: {Date(order_date).toLocaleString("id-ID")}</Text>
+          <Text className="text-sm text-gray-400">Order made: {order_date.toLocaleString("id-ID")}</Text>
         </CardHeader>
 
         <CardBody>
@@ -112,26 +114,46 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
         <CardFooter className="flex gap-3">
           {order_status === "Waiting for payment" ? (
             <>
-              <Button variant="solid" colorScheme="orange" onClick={onOpen}>
+              <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
                 Upload Payment Proof
               </Button>
-              <Button variant="ghost" colorScheme="red" onClick={handleCancel}>
+              <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
                 Cancel Order
               </Button>
             </>
           ) : (
-            <>
-              <div>Waiting for shipment by admin</div>
-            </>
+            <></>
           )}
         </CardFooter>
       </Card>
 
-      <Modal closeOnOverlayClick={false} isOpen={isOpen} onClose={onClose}>
+      {/* alert */}
+      <AlertDialog isOpen={isCancelOpen} leastDestructiveRef={cancelRef} onClose={onCancelClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Cancel order
+            </AlertDialogHeader>
+
+            <AlertDialogBody>Are you sure? You can't undo this action afterwards.</AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onCancelClose}>
+                Back
+              </Button>
+              <Button colorScheme="red" onClick={handleCancel} ml={3}>
+                Cancel order
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
+      {/* modal */}
+      <Modal closeOnOverlayClick={false} isOpen={isUploadOpen} onClose={onUploadClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Upload payment proof</ModalHeader>
-          {/* <ModalCloseButton /> */}
 
           <ModalBody>
             <div>
@@ -168,11 +190,11 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             <Button
               variant="ghost"
               onClick={() => {
-                onClose();
+                onUploadClose();
                 setPreviewImage(null);
               }}
             >
-              Cancel
+              Back
             </Button>
           </ModalFooter>
         </ModalContent>
