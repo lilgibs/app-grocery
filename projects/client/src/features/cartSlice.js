@@ -54,7 +54,7 @@ export function fetchCart(user) {
   return async (dispatch) => {
     try {
       //console.log(user);
-      const response = await Axios.post("http://localhost:8000/api/cart", user);
+      const response = await Axios.get(`http://localhost:8000/api/cart/?userId=${user}`);
       let cartItems = response.data.cart;
       // console.log(cartItems);
 

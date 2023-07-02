@@ -65,7 +65,7 @@ const Cart = () => {
       const response = await axios.post("http://localhost:8000/api/order/addorder", order);
 
       alert(response.data.message);
-      dispatch(fetchCart());
+      dispatch(fetchCart(userGlobal.user_id));
     } catch (error) {
       alert(`Add order fails.`);
     }

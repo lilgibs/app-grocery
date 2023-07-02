@@ -1,4 +1,4 @@
-const { validationResult } = require("express-validator");
+ const { validationResult } = require("express-validator");
 const { db, query } = require("../config/db");
 const { handleServerError, handleValidationErrors } = require("../utils/errorHandlers");
 
