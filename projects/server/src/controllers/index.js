@@ -1,5 +1,6 @@
 const adminAuthController = require("./admin/adminAuthController");
 const adminCategoryController = require("./admin/adminCategoryController");
+const adminDashboardController = require("./admin/adminDashboardController");
 const authController = require("./authController");
 const storeController = require("./storeController");
 const addressController = require("./addressController");
@@ -19,6 +20,7 @@ module.exports = {
   adminCategoryController,
   adminProductController,
   adminProductImageController,
+  adminDashboardController,
   storeController,
   addressController,
   cityController,
