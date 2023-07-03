@@ -1,59 +1,74 @@
 import React, { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, Center } from "@chakra-ui/react";
-import { Button, ButtonGroup } from "@chakra-ui/react";
-import { NumberInput, NumberInputField, NumberInputStepper, NumberIncrementStepper, NumberDecrementStepper } from "@chakra-ui/react";
-import { Card, CardHeader, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
-import { Icon, Select } from "@chakra-ui/react";
-import { GrUpdate } from "react-icons/gr";
+import { Button } from "@chakra-ui/react";
+import { Card, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
 import { fetchCart } from "../features/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { formatRupiah } from "../utils/formatRupiah";
 import CartItem from "../components/CartItem";
 import Shipping from "../components/Shipping";
+import axios from "axios";
 
 const Cart = () => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
-  const cartItemsGlobal = useSelector((state) => state.cart.cart.cart_items);
-  const cartShippingOptionGlobal = useSelector((state) => state.cart.cart.shipping_option);
+  const locationGlobal = useSelector((state) => state.location.location);
+  const cartGlobal = useSelector((state) => state.cart.cart);
+  const cartItems = cartGlobal.cart_items;
+  const cartShippingOption = cartGlobal.shipping_option;
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
 
-  const updateCart = () => {
-    // console.log("get cart items");
-    dispatch(fetchCart(userGlobal));
-  };
-
   useEffect(() => {
     let sumSubtotal = 0;
-    cartItemsGlobal.forEach((x) => {
+    cartItems.forEach((x) => {
       sumSubtotal += Number(x.subtotal);
       setSubtotal(sumSubtotal); // get subtotal
     });
 
-    let sumTotal = cartItemsGlobal.length == 0 ? 0 : cartShippingOptionGlobal == null ? subtotal : subtotal + cartShippingOptionGlobal.cost[0].value;
+    let sumTotal = cartItems.length == 0 ? 0 : cartShippingOption == null ? subtotal : subtotal + cartShippingOption.cost[0].value;
 
     setTotal(sumTotal); //get total
   });
 
   const renderCartItems = () => {
-    return cartItemsGlobal.map((p, index) => {
-      return (
-        <CartItem
-          //
-          key={index}
-          cart_id={p.cart_id}
-          product_id={p.product_id}
-          product={p.product_name}
-          price={p.product_price}
-          quantity={p.quantity}
-          stock={p.quantity_in_stock}
-          subtotal={p.subtotal}
-        />
-      );
+    return cartItems.map((p, index) => {
+      return <CartItem key={index} cart_id={p.cart_id} product_id={p.product_id} product={p.product_name} price={p.product_price} weight={p.weight} quantity={p.quantity} stock={p.quantity_in_stock} subtotal={p.subtotal} />;
     });
+  };
+
+  const handleOrder = async () => {
+    try {
+      let order = {
+        user_id: userGlobal.user_id,
+        store_id: locationGlobal.nearestStore.store_id,
+        order_date: new Date().toISOString().slice(0, 19).replace("T", " "),
+        shipping_courier: cartGlobal.shipping_courier_cart,
+        shipping_type: cartGlobal.shipping_option.service,
+        shipping_price: cartGlobal.shipping_option.cost[0].value,
+        total_price: total,
+        order_status: "Waiting for payment",
+        address_id: cartGlobal.shipping_address.address_id,
+        order_details: cartItems,
+      };
+
+      // console.log(order);
+
+      // let order_details = cartItems;
+
+      // order_details.forEach((x) => {
+      //   console.log(x);
+      // });
+
+      const response = await axios.post("http://localhost:8000/api/order/addorder", order);
+
+      alert(response.data.message);
+      dispatch(fetchCart(userGlobal.user_id));
+    } catch (error) {
+      alert(`Add order fails.`);
+    }
   };
 
   return (
@@ -82,14 +97,15 @@ const Cart = () => {
 
                   <TableCaption className="pt-10">
                     <div className="flex flex-row justify-between">
-                      <Button bg="green.100" color="green.500">
+                      <Button
+                        bg="green.100"
+                        color="green.500"
+                        onClick={() => {
+                          nav("/products");
+                        }}
+                      >
                         ← Continue Shopping
                       </Button>
-
-                      {/* <Button bg="orange.400" color="white" onClick={updateCart}>
-                        <Icon as={GrUpdate} mr="2" />
-                        Update cart
-                      </Button> */}
                     </div>
                   </TableCaption>
                 </Table>
@@ -102,7 +118,7 @@ const Cart = () => {
                   <Stack divider={<StackDivider />} spacing="4">
                     <Box className="flex justify-between">
                       <Heading size="sm">Subtotal</Heading>
-                      {cartItemsGlobal.length == 0 ? <>Your cart is empty</> : <>{formatRupiah(subtotal)}</>}
+                      {cartItems.length == 0 ? <>Your cart is empty</> : <>{formatRupiah(subtotal)}</>}
                     </Box>
                     <Box className="flex justify-between">
                       <Heading size="sm">Discount</Heading>
@@ -110,7 +126,16 @@ const Cart = () => {
                     </Box>
                     <Box className="flex justify-between">
                       <Heading size="sm">Shipping</Heading>
-                      {cartShippingOptionGlobal == null ? <div className="text-green-500 font-bold">⚠ Select shipping option</div> : <>{formatRupiah(cartShippingOptionGlobal.cost[0].value)}</>}
+                      <div className="text-right">
+                        {cartShippingOption == null ? <div className="text-green-500 font-bold">⚠ Select shipping option</div> : <>{formatRupiah(cartShippingOption.cost[0].value)}</>}
+                        {cartShippingOption == null ? (
+                          <></>
+                        ) : (
+                          <div className="text-xs font-bold text-green-500 ">
+                            {cartGlobal.shipping_address.street} ( {cartGlobal.shipping_option.service} )
+                          </div>
+                        )}
+                      </div>
                     </Box>
                     <Box className="flex justify-between font-bold text-3xl">
                       <Text>Total</Text>
@@ -120,7 +145,7 @@ const Cart = () => {
                 </CardBody>
 
                 <CardFooter>
-                  <Button variant="solid" colorScheme="green" minW="100%">
+                  <Button variant="solid" colorScheme="green" minW="100%" isDisabled={cartItems.length == 0 || cartShippingOption == null ? true : false} onClick={handleOrder}>
                     Order
                   </Button>
                 </CardFooter>
@@ -129,9 +154,7 @@ const Cart = () => {
           </div>
 
           <div className="grid grid-cols-2 mt-5">
-            <div>
-              <Shipping />
-            </div>
+            <div>{cartItems.length == 0 ? <></> : <Shipping />}</div>
             <div></div>
           </div>
         </>

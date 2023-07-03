@@ -7,7 +7,7 @@ import { formatRupiah } from "../utils/formatRupiah";
 import { fetchCart } from "../features/cartSlice";
 import axios from "axios";
 
-const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtotal }) => {
+const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock, subtotal }) => {
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
 
@@ -21,7 +21,7 @@ const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtot
 
       // console.log(cart);
       const response = await axios.delete("http://localhost:8000/api/cart/deletefromcart", { data: cart });
-      dispatch(fetchCart(userGlobal));
+      dispatch(fetchCart(userGlobal.user_id));
       alert(response.data.message);
       // console.log(response.data);
     } catch (error) {
@@ -39,7 +39,7 @@ const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtot
       };
 
       const response = await axios.post("http://localhost:8000/api/cart/updatecart", cart);
-      dispatch(fetchCart(userGlobal));
+      dispatch(fetchCart(userGlobal.user_id));
     } catch (error) {
       method == "add" ? alert("Not enough stock for this product") : alert("Minimum quantity in cart is 1");
     }
@@ -50,6 +50,7 @@ const CartItem = ({ cart_id, product_id, product, price, quantity, stock, subtot
       <Td>
         {/* {cart_id}  */}
         {/* {product_id} */}
+        {/* {weight}g */}
         {product}
       </Td>
       <Td>{formatRupiah(price)}</Td>

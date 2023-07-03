@@ -11,6 +11,7 @@ const productController = require("./productController");
 const profileController = require("./profileController");
 const cartController = require("./cartController");
 const shippingController = require("./shippingController");
+const orderController = require("./orderController");
 
 module.exports = {
   authController,
@@ -26,4 +27,5 @@ module.exports = {
   profileController,
   cartController,
   shippingController,
+  orderController,
 };

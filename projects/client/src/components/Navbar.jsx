@@ -1,4 +1,4 @@
-import React, { Fragment } from "react";
+import React, { Fragment, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -22,10 +22,21 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 const Navbar = () => {
+  const [searchValue, setSearchValue] = useState('');
+
   const nav = useNavigate();
   const locationGlobal = useSelector((state) => state.location.location);
   const userGlobal = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
+
+  const handleSearchChange = (e) => {
+    setSearchValue(e.target.value);
+  };
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    nav(`/products?search=${searchValue}`);
+  };
 
   return (
     <Disclosure as="nav" className="bg-white color-gray sticky top-0 z-50 drop-shadow-md">
@@ -59,14 +70,22 @@ const Navbar = () => {
               </div>
 
               <div className="absolute inset-y-0 right-0 flex gap-2 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 md:gap-3 lg:gap-4">
-                <div>
+                <form onSubmit={handleSearchSubmit}>
                   <InputGroup>
                     <InputLeftElement pointerEvents="none">
                       <SearchIcon />
                     </InputLeftElement>
-                    <Input placeholder="Search product" size="sm" w={{ base: "95px", md: "150px", lg: "700px" }} rounded="lg" />
+                    <Input
+                      placeholder="Search product"
+                      size="sm"
+                      w={{ base: "95px", md: "150px", lg: "700px" }}
+                      rounded="lg"
+                      value={searchValue}
+                      onChange={handleSearchChange}
+                    />
                   </InputGroup>
-                </div>
+                  <button type="submit" style={{ display: 'none' }} />
+                </form>
 
                 <div>
                   <Menu>
