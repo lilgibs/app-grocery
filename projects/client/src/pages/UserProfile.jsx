@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../components/Sidebar";
 import Biodata from "../components/Biodata";
@@ -9,6 +9,7 @@ import Address from "../components/Address";
 function UserProfile() {
   const navigate = useNavigate();
   const userGlobal = useSelector((state) => state.user.user);
+  const userGlobalIsLoaded = useSelector((state) => state.user.isLoaded);
   const [selectedComponent, setSelectedComponent] = useState("Biodata");
 
   useEffect(() => {
@@ -34,6 +35,10 @@ function UserProfile() {
       clearInterval(userGlobalUpdateListener);
     };
   }, [userGlobal.user_id]);
+
+  if (!userGlobalIsLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex">

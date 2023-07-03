@@ -26,6 +26,7 @@ import Products from "./pages/Products";
 import Product from "./pages/Product";
 import { fetchCart } from "./features/cartSlice";
 import { fetchOrder } from "./features/orderSlice";
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
   const dispatch = useDispatch();
@@ -69,7 +70,9 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/greetings`
+      );
       setMessage(data?.message || "");
     })();
   }, []);
@@ -92,11 +95,23 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route path="/admin/settings/users" element={<UserManagementSettings />} />
-            <Route path="/admin/products/categories" element={<AdminCategories />} />
+            <Route
+              path="/admin/settings/users"
+              element={<UserManagementSettings />}
+            />
+            <Route
+              path="/admin/products/categories"
+              element={<AdminCategories />}
+            />
             <Route path="/admin/products/" element={<AdminProducts />} />
-            <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
-            <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
+            <Route
+              path="/admin/products/add-product"
+              element={<AdminAddProduct />}
+            />
+            <Route
+              path="/admin/products/:productId"
+              element={<AdminEditProduct />}
+            />
           </>
         ) : (
           //when admin is logged out
@@ -111,6 +126,7 @@ function App() {
             <Route path="/orders" element={<Orders />} />
             <Route path="/products" element={<Products />} />
             <Route path="/products/:productName" element={<Product />} />
+            <Route path="/change-password" element={<ChangePassword />} />
           </>
         ) : (
           //when user is logged out
