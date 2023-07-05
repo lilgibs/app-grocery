@@ -13,18 +13,20 @@ const ChangePassword = () => {
 
   const changePasswordSchema = Yup.object().shape({
     oldPassword: Yup.string()
-      .min(3, "Password must be 3 characters or longer")
-      .required("Please input your password"),
+      .min(8, "Password must be 8 characters or longer")
+      .required("Please input your password")
+      .matches(/[0-9]/, "Password requires a number")
+      .matches(/[a-z]/, "Password requires a lowercase letter")
+      .matches(/[A-Z]/, "Password requires an uppercase letter"),
     newPassword: Yup.string()
-      .min(3, "Password must be 3 characters or longer")
-      .required("Please input your password"),
-    repeatNewPassword: Yup.string().test(
-      "match",
-      "Password do not match",
-      function (value) {
-        return value === this.parent.newPassword;
-      }
-    ),
+      .min(8, "Password must be 8 characters or longer")
+      .required("Please input your password")
+      .matches(/[0-9]/, "Password requires a number")
+      .matches(/[a-z]/, "Password requires a lowercase letter")
+      .matches(/[A-Z]/, "Password requires an uppercase letter"),
+    repeatNewPassword: Yup.string()
+      .required("Please re-type your password")
+      .oneOf([Yup.ref("newPassword")], "Passwords does not match"),
   });
 
   return (
