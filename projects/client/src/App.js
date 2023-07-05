@@ -28,6 +28,7 @@ import { checkLoginAdmin } from "./features/adminSlice";
 import { fetchCart } from "./features/cartSlice";
 import { fetchOrder } from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
+import { getAddress } from "./features/addressSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -36,6 +37,7 @@ function App() {
   const adminToken = localStorage.getItem("admin_token");
   const userGlobal = useSelector((state) => state.user.user);
   const adminGlobal = useSelector((state) => state.admin.admin);
+
   useEffect(() => {
     if (userToken) {
       dispatch(checkLogin(userToken));
@@ -68,6 +70,12 @@ function App() {
       dispatch(getCityStore(latitude, longitude));
     });
   }, []);
+
+  useEffect(() => {
+    if (userGlobal.user_id !== null) {
+      dispatch(getAddress(userGlobal.user_id, userToken));
+    }
+  }, [userGlobal, userToken]);
 
   useEffect(() => {
     (async () => {

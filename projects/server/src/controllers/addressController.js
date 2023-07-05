@@ -14,6 +14,12 @@ module.exports = {
       let city_id = 0;
       let province_id = 0;
 
+      const checkExistingAddressQuery = await query(
+        `SELECT * FROM addresses WHERE user_id=${db.escape(
+          user_id
+        )} AND is_deleted=false`
+      );
+
       const getProvinceQuery = await query(
         `SELECT province_id FROM provinces WHERE province_name=${db.escape(
           province
@@ -32,10 +38,14 @@ module.exports = {
           province_id
         )}, ${db.escape(city_id)}, ${db.escape(street)}, ${db.escape(
           longitude
-        )}, ${db.escape(latitude)}, false, false)`
+        )}, ${db.escape(latitude)}, ${
+          checkExistingAddressQuery.length === 0
+            ? db.escape(true)
+            : db.escape(false)
+        }, false)`
       );
 
-      return res.status(200).send({
+      return res.status(201).send({
         data: addAddressQuery,
         message: "Address added successfully!",
       });
@@ -87,37 +97,18 @@ module.exports = {
       let city_id = 0;
       let province_id = 0;
 
-      const isProvinceExist = await query(
+      const getProvinceQuery = await query(
         `SELECT province_id FROM provinces WHERE province_name=${db.escape(
-          province.toUpperCase()
+          province
         )}`
       );
 
-      const isCityExist = await query(
-        `SELECT city_id FROM cities WHERE city_name=${db.escape(
-          city.toUpperCase()
-        )}`
+      const getCityQuery = await query(
+        `SELECT city_id FROM cities WHERE city_name=${db.escape(city)}`
       );
 
-      if (isProvinceExist.length == 0) {
-        const addProvinceQuery = await query(
-          `INSERT INTO provinces VALUES(null, ${db.escape(
-            province.toUpperCase()
-          )})`
-        );
-        province_id = addProvinceQuery.insertId;
-      } else {
-        province_id = isProvinceExist[0].province_id;
-      }
-
-      if (isCityExist.length == 0) {
-        const addCityQuery = await query(
-          `INSERT INTO cities VALUES(null, ${db.escape(city.toUpperCase())})`
-        );
-        city_id = addCityQuery.insertId;
-      } else {
-        city_id = isCityExist[0].city_id;
-      }
+      city_id = getCityQuery[0].city_id;
+      province_id = getProvinceQuery[0].province_id;
 
       const editAddressQuery = await query(
         `UPDATE addresses
@@ -135,6 +126,31 @@ module.exports = {
         data: editAddressQuery,
         message: "Address edited successfully!",
       });
+    } catch (error) {
+      handleServerError(error, next);
+    }
+  },
+  setMainAddress: async (req, res, next) => {
+    try {
+      const { user_id, address_id } = req.params;
+
+      const setAllToDefaultQuery = await query(
+        `UPDATE addresses
+        SET
+          first_address = false
+        WHERE
+          user_id = ${db.escape(user_id)}`
+      );
+
+      const setMainQuery = await query(
+        `UPDATE addresses
+        SET
+          first_address = true
+        WHERE
+          address_id = ${db.escape(address_id)}`
+      );
+
+      return res.status(200).send({ message: "Address set as main." });
     } catch (error) {
       handleServerError(error, next);
     }
