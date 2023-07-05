@@ -9,6 +9,7 @@ import { fetchCart } from "../features/cartSlice";
 function Product() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [selectedImage, setSelectedImage] = useState()
 
   const { productName } = useParams();
   const dispatch = useDispatch();
@@ -19,6 +20,12 @@ function Product() {
   const { isLoading } = useSelector((state) => state.product);
   const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
   const userGlobal = useSelector((state) => state.user.user);
+
+
+  //Fungsi untuk menampilkan gambar
+  const handleSelectedImage = (image) => {
+
+  }
 
   // fungsi untuk menambah quantity
   const increaseQuantity = () => {
@@ -76,42 +83,58 @@ function Product() {
     fetchData();
   }, [productName, store_id]);
 
+  useEffect(() => {
+    if (product && product.product_images && product.product_images.length > 0) {
+      setSelectedImage(`http://localhost:8000/${product.product_images[0].image_url}`);
+    }
+  }, [product]);
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col gap-5 mt-10">
-      <div className="md:w-[95%] xl:max-w-screen-lg mx-auto border rounded-md p-5 shadow-md">
-        <div className="flex gap-5 h-auto">
+    <div className="flex flex-col gap-5 lg:mt-10">
+      <div className="md:w-[95%] xl:max-w-screen-lg mx-auto lg:border rounded-md p-5 ">
+        <div className="flex flex-col sm:flex-row gap-5 h-auto">
           {/*  */}
-          <div className=" w-[40%] flex gap-2">
-            <div className="w-1/5 flex flex-col gap-2">
-              <img className="w-full" src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png" alt="" />
-              <img className="w-full" src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png" alt="" />
-              <img className="w-full" src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png" alt="" />
+          <div className=" md:w-[40%] flex flex-col-reverse lg:flex-row gap-3 justify-end">
+            {/* Image List - START */}
+            <div className="lg:w-1/5 flex flex-row lg:flex-col gap-2">
+              {product.product_images.map((image, index) => (
+                <div
+                  key={index}
+                  onClick={() => { setSelectedImage(`http://localhost:8000/${image.image_url}`) }}
+                  className={`rounded-md w-1/5 lg:w-full ${selectedImage === `http://localhost:8000/${image.image_url}` ? 'outline outline-offset-2 outline-1 outline-green-500' : ''}`}
+                >
+                  <img className="w-full" src={`http://localhost:8000/${image.image_url}`} alt="" />
+                </div>
+              ))}
             </div>
-            <div className="w-4/5">
-              <img className="w-full" src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png" alt="" />
+            {/* Image List - END */}
+
+            {/* Preview */}
+            <div className="w-full lg:w-4/5">
+              <img className="w-full" src={selectedImage} alt="" />
             </div>
           </div>
 
           {/*  */}
-          <div className="w-[60%] flex flex-col gap-5">
-            <h2 className="font-semibold text-3xl">{product.product_name}</h2>
-            <p className="font-semibold text-4xl bg-neutral-50 rounded-md p-3 text-red-500">{formatRupiah(product.product_price)}</p>
+          <div className="md:w-[60%] flex flex-col gap-5">
+            <h2 className="font-semibold text-xl md:text-3xl">{product.product_name}</h2>
+            <p className="font-semibold text-2xl md:text-4xl bg-neutral-100 rounded-md p-3 text-rose-500">{formatRupiah(product.product_price)}</p>
             <div>
-              <p className="text-lg font-semibold">Description</p>
-              <p className=" text-lg">
+              <p className="md:text-lg font-semibold">Description</p>
+              <p className=" md:text-lg">
                 Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente, illo accusantium officia esse in id voluptas atque architecto quas distinctio magni facilis culpa sed iusto pariatur, itaque quo eligendi voluptatum!
               </p>
             </div>
             <div className="flex flex-col gap-2">
-              <p className="text-lg font-semibold">Quantity</p>
-              <div className="flex gap-2">
+              <p className="md:text-lg font-semibold">Quantity</p>
+              <div className="flex flex-col lg:flex-row gap-2">
                 <div className="flex flex-row px-4 py-2 rounded-md border justify-between font-semibold">
                   <button onClick={decreaseQuantity}>-</button>
-                  <input type="number" className="text-center" value={quantity} onChange={handleInputChange} />
+                  <input type="number" className="text-center mx-2" value={quantity} onChange={handleInputChange} />
                   <button onClick={increaseQuantity}>+</button>
                 </div>
                 <button
@@ -124,7 +147,7 @@ function Product() {
                   Add To Cart
                 </button>
               </div>
-              <div>Stock: {product.quantity_in_stock}</div>
+              <div className="text-neutral-400">Stock: {product.quantity_in_stock}</div>
             </div>
           </div>
         </div>
