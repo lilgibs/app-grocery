@@ -1,13 +1,14 @@
 const express = require('express')
-const { adminProductController, adminProductImageController } = require('../../controllers')
+const { adminProductController, adminProductImageController, adminProductStockController } = require('../../controllers')
 const { check } = require('express-validator')
 const upload = require('../../middleware/uploadMiddleware')
 const { adminVerifyToken } = require('../../middleware/adminAuth')
 const router = express.Router()
 
+// Router product CRUD
 router.get('/', adminProductController.getProducts)
 router.get('/inventory', adminVerifyToken, adminProductController.getStoreProducts)
-router.get('/:productId', adminProductController.getProductById)
+router.get('/:productId', adminVerifyToken, adminProductController.getProductById)
 router.post('/add-product', adminVerifyToken,
   upload.array('product_images', 3),
   check('store_id').notEmpty().withMessage('Store id is required'),
@@ -23,6 +24,7 @@ router.put('/:productId',
 router.delete('/:productId', adminVerifyToken, adminProductController.deleteProduct)
 router.delete('/:productId/permanently', adminProductController.hardDeleteProduct)
 
+// Router Product Image
 router.post('/image', adminVerifyToken,
   upload.single('product_image'),
   check('product_id').notEmpty().withMessage('Product id is required'),
@@ -33,5 +35,13 @@ router.put('/image/:productImageId', adminVerifyToken,
   adminProductImageController.updateProductImage)
 router.delete('/image/:productImageId', adminVerifyToken, adminProductImageController.deleteProductImage)
 router.delete('/image/:productImageId/permanently', adminVerifyToken, adminProductImageController.hardDeleteProductImage)
+
+// Router Product Stock
+router.post('/:productId/increase-stock', adminVerifyToken,
+  check('product_stock').isInt({ min: 1 }).withMessage('Product stock quantity is required and must be at least 1'),
+  adminProductStockController.increaseStock)
+router.post('/:productId/decrease-stock', adminVerifyToken,
+  check('product_stock').notEmpty().withMessage('Product stock quantity is required'),
+  adminProductStockController.decreaseStock)
 
 module.exports = router

@@ -26,7 +26,7 @@ export const productSlice = createSlice({
       product_price: null,
       product_images: [],
     },
-    isLoading: false
+    isLoading: true
   },
   reducers: {
     setProduct: (state, action) => {
@@ -41,17 +41,18 @@ export const productSlice = createSlice({
   }
 })
 
-export const { setProduct, resetProduct } = productSlice.actions
+export const { setProduct, resetProduct, setLoading } = productSlice.actions
 export default productSlice.reducer
 
 export function fetchProduct(productId) {
   return async (dispatch) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/admin/products/${productId}`);
-      console.log(response.data.product)
+      const response = await axios.get(`http://localhost:8000/api/admin/products/${productId}`, getConfig());
       dispatch(setProduct(response.data.product));
+      dispatch(setLoading(false))
     } catch (error) {
       console.error(error);
+      dispatch(setLoading(false))
     }
   };
 }

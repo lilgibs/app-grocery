@@ -86,11 +86,13 @@ module.exports = {
   },
   getProductById: async (req, res, next) => {
     const { productId } = req.params;
+    const storeId = req.admin.adminStoreId
+
     try {
       const sqlProductQuery = `SELECT * FROM products WHERE product_id = ${db.escape(productId)}`;
       const productResult = await query(sqlProductQuery);
 
-      const sqlStoreInventory = `SELECT quantity_in_stock FROM store_inventory WHERE product_id = ${db.escape(productId)}`;
+      const sqlStoreInventory = `SELECT * FROM store_inventory WHERE product_id = ${db.escape(productId)} AND store_id = ${db.escape(storeId)}`;
       const storeInventoryResult = await query(sqlStoreInventory);
 
       if (productResult.length > 0) {
@@ -103,7 +105,10 @@ module.exports = {
           product_name: productResult[0].product_name,
           product_description: productResult[0].product_description,
           product_price: productResult[0].product_price,
+          product_weight: productResult[0].product_weight,
+          store_inventory_id: storeInventoryResult[0].store_inventory_id,
           quantity_in_stock: storeInventoryResult[0].quantity_in_stock,
+          store_id: storeInventoryResult[0].store_id,
           product_images: imageResult,
         };
 
@@ -237,7 +242,7 @@ module.exports = {
     }
   },
   updateProduct: async (req, res, next) => {
-    const { product_category_id, product_name, product_description, product_price } = req.body;
+    const { product_category_id, product_name, product_description, product_price, product_weight } = req.body;
     const { productId } = req.params;
     const errors = validationResult(req);
 
@@ -251,7 +256,8 @@ module.exports = {
           product_category_id = ${db.escape(product_category_id)},
           product_name = ${db.escape(product_name)},
           product_description = ${db.escape(product_description)},
-          product_price = ${db.escape(product_price)}
+          product_price = ${db.escape(product_price)},
+          product_weight = ${db.escape(product_weight)}
         WHERE 
           product_id = ${db.escape(productId)}
       `;
