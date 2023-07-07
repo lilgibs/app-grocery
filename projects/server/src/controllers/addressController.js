@@ -14,6 +14,7 @@ module.exports = {
       let city_id = 0;
       let province_id = 0;
 
+      //Check if this is the first inserted address
       const checkExistingAddressQuery = await query(
         `SELECT * FROM addresses WHERE user_id=${db.escape(
           user_id

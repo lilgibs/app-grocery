@@ -70,7 +70,9 @@ function UserProfile() {
                 {address.street}, {address.city_name}, {address.province_name}
               </p>
               {address.first_address ? (
-                <p className="rounded">Main Address</p>
+                <p className="inline-block w-auto border border-green-500 rounded p-1 my-1 text-green-500 text-sm">
+                  Main Address
+                </p>
               ) : null}
             </div>
           </div>
