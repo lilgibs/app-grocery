@@ -79,9 +79,7 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/greetings`
-      );
+      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
       setMessage(data?.message || "");
     })();
   }, []);
@@ -112,23 +110,12 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route
-              path="/admin/settings/users"
-              element={<UserManagementSettings />}
-            />
-            <Route
-              path="/admin/products/categories"
-              element={<AdminCategories />}
-            />
+            {adminGlobal.role === 99 ? <Route path="/admin/settings/users" element={<UserManagementSettings />} /> : <> </>}
+
+            <Route path="/admin/products/categories" element={<AdminCategories />} />
             <Route path="/admin/products/" element={<AdminProducts />} />
-            <Route
-              path="/admin/products/add-product"
-              element={<AdminAddProduct />}
-            />
-            <Route
-              path="/admin/products/:productId"
-              element={<AdminEditProduct />}
-            />
+            <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
+            <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
           </>
         ) : (
           //when admin is logged out
