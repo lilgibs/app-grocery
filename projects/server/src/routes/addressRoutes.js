@@ -27,5 +27,10 @@ router.put(
   ],
   addressController.editAddress
 );
+router.put(
+  "/main-address/:user_id/:address_id",
+  verifyToken,
+  addressController.setMainAddress
+);
 
 module.exports = router;

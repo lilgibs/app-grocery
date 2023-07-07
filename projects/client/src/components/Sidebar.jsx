@@ -8,7 +8,7 @@ function Sidebar({ setSelectedComponent, menuItems }) {
   const dispatch = useDispatch();
 
   return (
-    <div className="bg-teal-500 text-white font-semibold min-h-screen h-full p-4 flex flex-col justify-between w-60">
+    <div className="bg-teal-500 text-white font-semibold min-h-screen h-full p-4 my-5 ml-5 flex flex-col justify-between w-60 rounded">
       <div>
         <ul className="space-y-2">
           {menuItems.map((item) => (

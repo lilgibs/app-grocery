@@ -197,9 +197,9 @@ function Biodata() {
   };
 
   return (
-    <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mt-5">
-      <div className="p-4 bg-white border shadow-md rounded">
-        <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-8">
+    <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto my-5">
+      <div className="px-8 py-4 bg-white border shadow-md rounded">
+        <div className="w-full bg-slate-100 text-center py-4 rounded-md mb-8">
           <p className="font-semibold text-green-500 text-lg">Biodata</p>
         </div>
         <div className="flex gap-10 items-center">

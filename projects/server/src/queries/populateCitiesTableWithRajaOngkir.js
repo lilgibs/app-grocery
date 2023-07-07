@@ -14,6 +14,7 @@ const insertDataToDatabase = async () => {
   const formattedData = results.map((result) => [
     result.city_id,
     result.city_name,
+    result.province_id,
   ]);
 
   //   console.log(formattedData);
