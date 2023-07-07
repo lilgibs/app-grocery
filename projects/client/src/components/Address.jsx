@@ -122,6 +122,7 @@ function UserProfile() {
     const [streetError, setStreetError] = useState("");
     const [cityError, setCityError] = useState("");
     const [provinceError, setProvinceError] = useState("");
+    const [selectedProvinceId, setSelectedProvinceId] = useState("");
 
     const handleSubmit = async () => {
       let isValid = true;
@@ -177,38 +178,21 @@ function UserProfile() {
           <ModalHeader>Add Address</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl isInvalid={streetError !== ""}>
-              <FormLabel>Street</FormLabel>
-              <Input
-                ref={initialRef}
-                placeholder="Enter Street"
-                value={addressStreet}
-                onChange={(e) => setaddressStreet(e.target.value)}
-              />
-              <FormErrorMessage>{streetError}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={cityError !== ""}>
-              <FormLabel>City</FormLabel>
-              <Select
-                placeholder="Select City"
-                value={addressCity}
-                onChange={(e) => setaddressCity(e.target.value)}
-                isRequired={true}
-              >
-                {cityOptions.map((city) => (
-                  <option key={city.city_id} value={city.city_name}>
-                    {city.city_name}
-                  </option>
-                ))}
-              </Select>
-              <FormErrorMessage>{cityError}</FormErrorMessage>
-            </FormControl>
             <FormControl isInvalid={provinceError !== ""}>
               <FormLabel>Province</FormLabel>
               <Select
+                ref={initialRef}
                 placeholder="Select Province"
                 value={addressProvince}
-                onChange={(e) => setaddressProvince(e.target.value)}
+                onChange={(e) => {
+                  const selectedProvince = e.target.value;
+                  setaddressProvince(selectedProvince);
+                  const province = provinceOptions.find(
+                    (province) => province.province_name === selectedProvince
+                  );
+                  setSelectedProvinceId(province ? province.province_id : "");
+                  setaddressCity("");
+                }}
               >
                 {provinceOptions.map((province) => (
                   <option
@@ -221,8 +205,34 @@ function UserProfile() {
               </Select>
               <FormErrorMessage>{provinceError}</FormErrorMessage>
             </FormControl>
+            <FormControl isInvalid={cityError !== ""}>
+              <FormLabel>City</FormLabel>
+              <Select
+                placeholder="Select City"
+                value={addressCity}
+                onChange={(e) => setaddressCity(e.target.value)}
+                isRequired={true}
+              >
+                {cityOptions
+                  .filter((city) => city.province_id === selectedProvinceId)
+                  .map((city) => (
+                    <option key={city.city_id} value={city.city_name}>
+                      {city.city_name}
+                    </option>
+                  ))}
+              </Select>
+              <FormErrorMessage>{cityError}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={streetError !== ""}>
+              <FormLabel>Street</FormLabel>
+              <Input
+                placeholder="Enter Street"
+                value={addressStreet}
+                onChange={(e) => setaddressStreet(e.target.value)}
+              />
+              <FormErrorMessage>{streetError}</FormErrorMessage>
+            </FormControl>
           </ModalBody>
-
           <ModalFooter>
             <Button colorScheme="green" mr={3} onClick={handleSubmit}>
               Save
@@ -243,6 +253,7 @@ function UserProfile() {
     const [streetError, setStreetError] = useState("");
     const [cityError, setCityError] = useState("");
     const [provinceError, setProvinceError] = useState("");
+    const [selectedProvinceId, setSelectedProvinceId] = useState("");
 
     const handleSubmit = async () => {
       let isValid = true;
@@ -291,6 +302,7 @@ function UserProfile() {
         setaddressStreet(selectedAddress.street);
         setaddressCity(selectedAddress.city_name);
         setaddressProvince(selectedAddress.province_name);
+        setSelectedProvinceId(selectedAddress.province_id);
       }
     }, [selectedAddress]);
 
@@ -305,37 +317,20 @@ function UserProfile() {
           <ModalHeader>Edit Address</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
-            <FormControl isInvalid={streetError !== ""}>
-              <FormLabel>Street</FormLabel>
-              <Input
-                ref={initialRef}
-                placeholder="Enter Street"
-                value={addressStreet}
-                onChange={(e) => setaddressStreet(e.target.value)}
-              />
-              <FormErrorMessage>{streetError}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={cityError !== ""}>
-              <FormLabel>City</FormLabel>
-              <Select
-                placeholder="Select City"
-                value={addressCity}
-                onChange={(e) => setaddressCity(e.target.value)}
-              >
-                {cityOptions.map((city) => (
-                  <option key={city.city_id} value={city.city_name}>
-                    {city.city_name}
-                  </option>
-                ))}
-              </Select>
-              <FormErrorMessage>{cityError}</FormErrorMessage>
-            </FormControl>
             <FormControl isInvalid={provinceError !== ""}>
               <FormLabel>Province</FormLabel>
               <Select
                 placeholder="Select Province"
                 value={addressProvince}
-                onChange={(e) => setaddressProvince(e.target.value)}
+                onChange={(e) => {
+                  const selectedProvince = e.target.value;
+                  setaddressProvince(selectedProvince);
+                  const province = provinceOptions.find(
+                    (province) => province.province_name === selectedProvince
+                  );
+                  setSelectedProvinceId(province ? province.province_id : "");
+                  setaddressCity("");
+                }}
               >
                 {provinceOptions.map((province) => (
                   <option
@@ -347,6 +342,34 @@ function UserProfile() {
                 ))}
               </Select>
               <FormErrorMessage>{provinceError}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={cityError !== ""}>
+              <FormLabel>City</FormLabel>
+              <Select
+                placeholder="Select City"
+                value={addressCity}
+                onChange={(e) => setaddressCity(e.target.value)}
+                isRequired={true}
+              >
+                {cityOptions
+                  .filter((city) => city.province_id === selectedProvinceId)
+                  .map((city) => (
+                    <option key={city.city_id} value={city.city_name}>
+                      {city.city_name}
+                    </option>
+                  ))}
+              </Select>
+              <FormErrorMessage>{cityError}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={streetError !== ""}>
+              <FormLabel>Street</FormLabel>
+              <Input
+                ref={initialRef}
+                placeholder="Enter Street"
+                value={addressStreet}
+                onChange={(e) => setaddressStreet(e.target.value)}
+              />
+              <FormErrorMessage>{streetError}</FormErrorMessage>
             </FormControl>
           </ModalBody>
 
