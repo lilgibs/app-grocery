@@ -36,8 +36,11 @@ const Register = () => {
       .email("Invalid email format")
       .required("Please input your email"),
     password: Yup.string()
-      .min(3, "Password must be 3 characters or longer")
-      .required("Please input your password"),
+      .min(8, "Password must be 8 characters or longer")
+      .required("Please input your password")
+      .matches(/[0-9]/, "Password requires a number")
+      .matches(/[a-z]/, "Password requires a lowercase letter")
+      .matches(/[A-Z]/, "Password requires an uppercase letter"),
     phone: Yup.string().required("Phone number is required"),
   });
 

@@ -5,7 +5,16 @@ import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { Button, Stack } from "@chakra-ui/react";
 import { Input, InputGroup, InputLeftElement } from "@chakra-ui/react";
 import { Icon, SearchIcon } from "@chakra-ui/icons";
-import { Menu, MenuButton, MenuList, MenuItem, MenuItemOption, MenuGroup, MenuOptionGroup, MenuDivider } from "@chakra-ui/react";
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+  MenuItemOption,
+  MenuGroup,
+  MenuOptionGroup,
+  MenuDivider,
+} from "@chakra-ui/react";
 import { BsFillCartFill } from "react-icons/bs";
 import { GrLocation } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
@@ -22,11 +31,15 @@ function classNames(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 const Navbar = () => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState("");
 
   const nav = useNavigate();
   const locationGlobal = useSelector((state) => state.location.location);
   const userGlobal = useSelector((state) => state.user.user);
+  const userAddresses = useSelector((state) => state.address.address);
+  const mainAddress = userAddresses.find(
+    (address) => address.first_address === 1
+  );
   const dispatch = useDispatch();
 
   const handleSearchChange = (e) => {
@@ -39,7 +52,10 @@ const Navbar = () => {
   };
 
   return (
-    <Disclosure as="nav" className="bg-white color-gray sticky top-0 z-50 drop-shadow-md">
+    <Disclosure
+      as="nav"
+      className="bg-white color-gray sticky top-0 z-50 drop-shadow-md"
+    >
       {({ open }) => (
         <>
           <div className="mx-auto max-w-7xl">
@@ -48,7 +64,11 @@ const Navbar = () => {
                 {/* Mobile menu button*/}
                 <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 hover:text-white">
                   <span className="sr-only">Open main menu</span>
-                  {open ? <XMarkIcon className="block h-6 w-6" aria-hidden="true" /> : <Bars3Icon className="block h-6 w-6" aria-hidden="true" />}
+                  {open ? (
+                    <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                  ) : (
+                    <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                  )}
                 </Disclosure.Button>
               </div>
 
@@ -59,7 +79,12 @@ const Navbar = () => {
                       <a
                         key={item.name}
                         href={item.href}
-                        className={classNames(window.location.pathname == item.href ? "text-green-500 hover:text-gray-300" : "hover:text-gray-300", "px-3 py-2 text-sm font-medium")}
+                        className={classNames(
+                          window.location.pathname == item.href
+                            ? "text-green-500 hover:text-gray-300"
+                            : "hover:text-gray-300",
+                          "px-3 py-2 text-sm font-medium"
+                        )}
                         aria-current={item.current ? "page" : undefined}
                       >
                         {item.name}
@@ -84,15 +109,25 @@ const Navbar = () => {
                       onChange={handleSearchChange}
                     />
                   </InputGroup>
-                  <button type="submit" style={{ display: 'none' }} />
+                  <button type="submit" style={{ display: "none" }} />
                 </form>
 
                 <div>
                   <Menu>
-                    <MenuButton as={Button} size="sm" variant="ghost" colorScheme="green" rounded="full" border="1px">
+                    <MenuButton
+                      as={Button}
+                      size="sm"
+                      variant="ghost"
+                      colorScheme="green"
+                      rounded="full"
+                      border="1px"
+                    >
                       <Icon as={GrLocation} pb="1" mr="0.5" />
-                      <span />
-                      {locationGlobal.city}
+                      {mainAddress ? (
+                        <span> {mainAddress.city_name} </span>
+                      ) : (
+                        <span> {locationGlobal.city} </span>
+                      )}
                     </MenuButton>
                     <MenuList>
                       <MenuItem>Change address</MenuItem>
@@ -115,7 +150,14 @@ const Navbar = () => {
                     //when user is logged in
                     <>
                       <Menu>
-                        <MenuButton as={Button} size="sm" variant="solid" bg="green.400" color="white" maxW="100px">
+                        <MenuButton
+                          as={Button}
+                          size="sm"
+                          variant="solid"
+                          bg="green.400"
+                          color="white"
+                          maxW="100px"
+                        >
                           {/* <Icon as={GrUser} mr="1" color="white" /> */}
                           <span />
                           Hi, {userGlobal.name}!
@@ -181,7 +223,12 @@ const Navbar = () => {
                   key={item.name}
                   as="a"
                   href={item.href}
-                  className={classNames(item.current ? "text-green-500" : "text-gray-300 hover:text-green-300", "block px-3 py-2 text-base font-medium")}
+                  className={classNames(
+                    item.current
+                      ? "text-green-500"
+                      : "text-gray-300 hover:text-green-300",
+                    "block px-3 py-2 text-base font-medium"
+                  )}
                   aria-current={item.current ? "page" : undefined}
                 >
                   {item.name}
@@ -192,7 +239,12 @@ const Navbar = () => {
                   //when user is logged in
                   <>
                     <Menu>
-                      <MenuButton as={Button} size="sm" variant="solid" colorScheme="green">
+                      <MenuButton
+                        as={Button}
+                        size="sm"
+                        variant="solid"
+                        colorScheme="green"
+                      >
                         {/* <Icon as={GrUser} mr="1" color="white" /> */}
                         <span />
                         Hi, {userGlobal.name}!

@@ -26,8 +26,14 @@ router.post(
   [
     check("email").isEmail().withMessage("Must be a valid e-mail address."),
     check("password")
-      .isLength(3)
-      .withMessage("Password must be longer than 2 characters."),
+      .isLength(8)
+      .withMessage("Password must be at least 8 characters.")
+      .matches(/[0-9]/)
+      .withMessage("Password must contain at least one digit")
+      .matches(/[a-z]/)
+      .withMessage("Password must contain at least one lowercase character")
+      .matches(/[A-Z]/)
+      .withMessage("Password must contain at least one uppercase character"),
     check("name").notEmpty().withMessage("Name cannot be empty."),
     check("phone").isNumeric().withMessage("Phone number must be a number."),
   ],
@@ -51,11 +57,23 @@ router.put(
   verifyToken,
   [
     check("oldPassword")
-      .isLength(3)
-      .withMessage("Password must be longer than 2 characters."),
+      .isLength(8)
+      .withMessage("Password must be at least 8 characters.")
+      .matches(/[0-9]/)
+      .withMessage("Password must contain at least one digit")
+      .matches(/[a-z]/)
+      .withMessage("Password must contain at least one lowercase character")
+      .matches(/[A-Z]/)
+      .withMessage("Password must contain at least one uppercase character"),
     check("newPassword")
-      .isLength(3)
-      .withMessage("Password must be longer than 2 characters."),
+      .isLength(8)
+      .withMessage("Password must be at least 8 characters.")
+      .matches(/[0-9]/)
+      .withMessage("Password must contain at least one digit")
+      .matches(/[a-z]/)
+      .withMessage("Password must contain at least one lowercase character")
+      .matches(/[A-Z]/)
+      .withMessage("Password must contain at least one uppercase character"),
   ],
   authController.changePassword
 );
