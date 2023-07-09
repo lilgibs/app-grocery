@@ -87,6 +87,17 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
     }
   };
 
+  const handleReject = async () => {
+    try {
+      const response = await axios.patch(`http://localhost:8000/api/admin/order/rejectorder/?orderId=${order_id}`);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
+      alert(response.data.message);
+      onProofClose();
+    } catch (error) {
+      alert(`Order status change failed`);
+    }
+  };
+
   const handleSendOrder = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/admin/order/sendorder/?orderId=${order_id}`);
@@ -152,9 +163,6 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                 <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
                   Upload Payment Proof
                 </Button>
-                {/* <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
-                  Cancel Order
-                </Button> */}
               </>
             ) : (
               <></>
@@ -279,7 +287,15 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
           </ModalBody>
 
           <ModalFooter>
-            <Button variant="ghost" mr={3} colorScheme="red">
+            <Button
+              variant="ghost"
+              mr={3}
+              colorScheme="red"
+              onClick={() => {
+                handleReject();
+                onProofClose();
+              }}
+            >
               Reject
             </Button>
             <Button
