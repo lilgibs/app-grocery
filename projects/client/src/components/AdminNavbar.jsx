@@ -72,7 +72,18 @@ const AdminNavbar = () => {
                     {adminGlobal.name}
                   </MenuButton>
                   <MenuList>
-                    <MenuItem>Profile</MenuItem>
+                    {adminGlobal.role === 99 ? (
+                      <MenuItem
+                        onClick={() => {
+                          nav("/admin/settings/users");
+                        }}
+                      >
+                        Add branch admin
+                      </MenuItem>
+                    ) : (
+                      <></>
+                    )}
+
                     <MenuItem
                       onClick={() => {
                         alert("logging out");
