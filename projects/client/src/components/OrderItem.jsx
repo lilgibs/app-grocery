@@ -168,9 +168,6 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                 <Button variant="solid" colorScheme="orange" onClick={onProofOpen}>
                   See payment proof
                 </Button>
-                {/* <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
-                  Cancel order
-                </Button> */}
               </>
             ) : order_status === "Processed" ? (
               <Button
@@ -229,7 +226,6 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                   <img src={previewImage} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded" />
                 ) : (
                   <div className="text-center">
-                    {/* <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" /> */}
                     <div className="mt-4 flex text-sm leading-6 text-gray-600">
                       <label
                         htmlFor="file-upload"
