@@ -54,3 +54,18 @@ export function fetchStoreOrder(store) {
     }
   };
 }
+
+export function fetchAllOrder() {
+  return async (dispatch) => {
+    try {
+      const response = await Axios.get(`http://localhost:8000/api/admin/order/getallorders`);
+      let orderItems = response.data;
+
+      // console.log(orderItems);
+      dispatch(setOrderItems(orderItems));
+      //   dispatch(updateCartCount());
+    } catch (error) {
+      console.error(error);
+    }
+  };
+}

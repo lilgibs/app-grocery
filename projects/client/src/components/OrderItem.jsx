@@ -138,7 +138,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
               {formatRupiah(total_price - shipping_price)}
             </Box>
 
-            <Box className="flex justify-between">
+            <Box className="flex justify-between text-right">
               <Heading size="sm">Shipping</Heading>
               <div>
                 {formatRupiah(shipping_price)}

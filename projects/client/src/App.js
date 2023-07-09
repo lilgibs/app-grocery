@@ -27,7 +27,7 @@ import NotFound from "./pages/NotFound";
 import { checkLogin } from "./features/userSlice";
 import { checkLoginAdmin } from "./features/adminSlice";
 import { fetchCart } from "./features/cartSlice";
-import { fetchOrder, fetchStoreOrder } from "./features/orderSlice";
+import { fetchOrder, fetchStoreOrder, fetchAllOrder } from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
 import { getAddress } from "./features/addressSlice";
 
@@ -59,8 +59,9 @@ function App() {
 
   useEffect(() => {
     if (adminToken) {
-      dispatch(fetchStoreOrder(adminGlobal.store_id));
-      console.log(adminGlobal.store_id);
+      {
+        adminGlobal.role === 99 ? dispatch(fetchAllOrder()) : dispatch(fetchStoreOrder(adminGlobal.store_id));
+      }
     }
   }); // get store order if admin is logged in
 
