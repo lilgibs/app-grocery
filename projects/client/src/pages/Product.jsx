@@ -9,7 +9,7 @@ import { fetchCart } from "../features/cartSlice";
 function Product() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState()
+  const [selectedImage, setSelectedImage] = useState();
 
   const { productName } = useParams();
   const dispatch = useDispatch();
@@ -21,11 +21,8 @@ function Product() {
   const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
   const userGlobal = useSelector((state) => state.user.user);
 
-
   //Fungsi untuk menampilkan gambar
-  const handleSelectedImage = (image) => {
-
-  }
+  const handleSelectedImage = (image) => {};
 
   // fungsi untuk menambah quantity
   const increaseQuantity = () => {
@@ -89,7 +86,7 @@ function Product() {
     }
   }, [product]);
 
-  if (isLoading) {
+  if (!isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -104,8 +101,10 @@ function Product() {
               {product.product_images.map((image, index) => (
                 <div
                   key={index}
-                  onClick={() => { setSelectedImage(`http://localhost:8000/${image.image_url}`) }}
-                  className={`rounded-md w-1/5 lg:w-full ${selectedImage === `http://localhost:8000/${image.image_url}` ? 'outline outline-offset-2 outline-1 outline-green-500' : ''}`}
+                  onClick={() => {
+                    setSelectedImage(`http://localhost:8000/${image.image_url}`);
+                  }}
+                  className={`rounded-md w-1/5 lg:w-full ${selectedImage === `http://localhost:8000/${image.image_url}` ? "outline outline-offset-2 outline-1 outline-green-500" : ""}`}
                 >
                   <img className="w-full" src={`http://localhost:8000/${image.image_url}`} alt="" />
                 </div>
