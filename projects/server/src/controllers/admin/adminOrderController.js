@@ -20,7 +20,7 @@ module.exports = {
     try {
       let orderId = req.query.orderId;
 
-      const sendOrderQuery = await query(`
+      const confirmOrderQuery = await query(`
         UPDATE orders
         SET
             order_status = "Processed"
@@ -30,7 +30,28 @@ module.exports = {
 
       res.status(200).send({
         message: "Order confirmed",
-        data: sendOrderQuery,
+        data: confirmOrderQuery,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  rejectOrder: async (req, res, next) => {
+    try {
+      let orderId = req.query.orderId;
+
+      const rejectOrderQuery = await query(`
+        UPDATE orders
+        SET
+            payment_proof = "REJECTED",
+            order_status = "Waiting for payment"
+        WHERE
+            order_id = ${db.escape(orderId)}
+        `);
+
+      res.status(200).send({
+        message: "Order rejected",
+        data: rejectOrderQuery,
       });
     } catch (error) {
       next(error);

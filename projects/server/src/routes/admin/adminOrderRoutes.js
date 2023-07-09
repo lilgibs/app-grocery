@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/", adminOrderController.getStoreOrders);
 router.patch("/confirmorder", adminOrderController.confirmOrder);
+router.patch("/rejectorder", adminOrderController.rejectOrder);
 router.patch("/sendorder", adminOrderController.sendOrder);
 
 module.exports = router;
