@@ -8,6 +8,6 @@ router.get("/", orderController.getOrders);
 router.post("/addorder", orderController.addOrder);
 router.put("/cancelorder", orderController.cancelOrder);
 router.put("/upload-payment-proof", upload.single("payment_proof"), orderController.uploadPaymentProof);
-// router.put("/upload-payment-proof", orderController.uploadPaymentProof);
+router.patch("/orderreceived", orderController.orderReceived);
 
 module.exports = router;

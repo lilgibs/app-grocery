@@ -63,15 +63,24 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   };
 
   const handleCancel = async () => {
-    // console.log(order_id);
     try {
       const response = await axios.patch(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
       dispatch(fetchOrder(userGlobal.user_id));
       alert(response.data.message);
       onCancelClose();
-      // console.log(response.data);
     } catch (error) {
       console.error("Failed to cancel order: ", error);
+    }
+  };
+
+  const handleOrderReceived = async () => {
+    try {
+      const response = await axios.patch(`http://localhost:8000/api/order/orderreceived/?orderId=${order_id}`);
+      dispatch(fetchOrder(userGlobal.user_id));
+      alert(response.data.message);
+      onCancelClose();
+    } catch (error) {
+      console.error("Failed to confirm order delivery: ", error);
     }
   };
 
@@ -121,10 +130,16 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
           </div>
           <div className="flex gap-3">
             <Text className="text-sm text-gray-400 mt-1">Order made: {order_date.toLocaleString("id-ID").slice(0, 10)}</Text>
-            {order_status === "Waiting for payment" || order_status === "Waiting for confirmation" ? (
-              <Button variant="solid" colorScheme="red" onClick={onCancelOpen} size="xs">
-                Cancel order
-              </Button>
+            {adminGlobal.id != null ? (
+              <>
+                {order_status === "Waiting for payment" || order_status === "Waiting for confirmation" || order_status === "Processed" ? (
+                  <Button variant="solid" colorScheme="red" onClick={onCancelOpen} size="xs">
+                    Cancel order
+                  </Button>
+                ) : (
+                  <></>
+                )}
+              </>
             ) : (
               <></>
             )}
@@ -154,7 +169,6 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             </Box>
           </Stack>
         </CardBody>
-
         {userGlobal.user_id != null ? (
           // user view
           <CardFooter className="flex gap-3">
@@ -163,7 +177,20 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                 <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
                   Upload Payment Proof
                 </Button>
+                <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
+                  Cancel order
+                </Button>
               </>
+            ) : order_status === "Out for delivery" ? (
+              <Button
+                variant="solid"
+                colorScheme="green"
+                onClick={() => {
+                  handleOrderReceived();
+                }}
+              >
+                Order received
+              </Button>
             ) : (
               <></>
             )}
