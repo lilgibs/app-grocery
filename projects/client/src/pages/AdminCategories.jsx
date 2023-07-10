@@ -1,91 +1,52 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { FaPen, FaPlus, FaTrash } from 'react-icons/fa';
-import { useDisclosure } from '@chakra-ui/react';
+import { FaPen, FaPlus, FaSearch, FaTrash } from 'react-icons/fa';
+import { Input, useDisclosure } from '@chakra-ui/react';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
 import { checkLoginAdmin } from '../features/adminSlice';
 import AdminAddCategoryModal from '../components/AdminAddCategoryModal';
 import AdminEditCategoryModal from '../components/AdminEditCategoryModal';
+import { fetchCategories } from '../api/CategoryApi';
+import AdminCategoryCard from '../components/AdminCategoryCard';
 
 function AdminCategories() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [totalCategories, setTotalCategories] = useState(null)
+  const [searchCategory, setSearchCategory] = useState("");
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(8)
 
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
-  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
 
+  const resetPage = () => setPage(1);
   const role = useSelector(state => state.admin.admin.role);
   const dispatch = useDispatch()
   const navigate = useNavigate()
 
-  const fetchCategories = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/admin/products/categories/');
-      setCategories(response.data.data);
-    } catch (error) {
-      console.error(error);
+  const getCategories = async (categoryName, page, limit) => {
+    const result = await fetchCategories(categoryName, page, limit);
+    setCategories(result.formattedCategories);
+    setTotalCategories(result.categoriesTotal[0].total)
+  };
+
+  const handleSearchCategory = (e) => {
+    e.preventDefault()
+    setPage(1); // reset to page 1 when a new search is made
+    getCategories(searchCategory, page, limit)
+  }
+
+  const handleNextPage = () => {
+    if (page < Math.ceil(totalCategories / limit)) {
+      setPage(page => page + 1);
     }
   };
 
-  const handleDeleteCategory = async (id) => {
-    try {
-      const response = await axios.delete(
-        `http://localhost:8000/api/admin/products/categories/${id}`
-      );
-      console.log(response.data);
-      alert(response.data.message);
-      fetchCategories();
-    } catch (error) {
-      console.error(error);
+  const handlePrevPage = () => {
+    if (page > 1) {
+      setPage(page => page - 1);
     }
-  };
-
-  const handleEditCategory = (category) => {
-    setSelectedCategory(category);
-    onEditOpen();
-  };
-
-  const renderCategories = () => {
-    return categories.map((category) => (
-      <div
-        key={category.id}
-        className="w-full md:w-[48%] lg:w-[49%] p-2 border border-pink-500 rounded-md  shadow-md"
-      >
-        <div className="flex">
-          <div className="flex flex-row items-center border-gray-200 rounded overflow-hidden w-1/2 gap-2 px-1">
-            <img
-              className="w-16 h-16 rounded-md"
-              src={"http://localhost:8000/" + category.product_category_image}
-              alt=""
-            />
-            <div>
-              <p className="text-lg font-semibold text-pink-500 ">Kategori:</p>
-              <p className="text-md font-medium">
-                {category.product_category_name}
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col justify-center gap-1 items-center w-1/2 border-l-2">
-            <div
-              className="px-2 py-1 rounded bg-teal-500 hover:bg-teal-600 font-semibold text-white w-1/2 flex items-center justify-center gap-1 cursor-pointer"
-              onClick={() => handleEditCategory(category)}
-            >
-              <FaPen size={15} />
-              <p>Edit</p>
-            </div>
-            <div
-              className="px-2 py-1 rounded bg-rose-500 hover:bg-rose-600 font-semibold text-white w-1/2 flex items-center justify-center gap-1 cursor-pointer"
-              onClick={() => handleDeleteCategory(category.product_category_id)}
-            >
-              <FaTrash size={15} />
-              <p>Delete</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    ));
   };
 
   useEffect(() => {
@@ -109,9 +70,9 @@ function AdminCategories() {
     if (!loading && role !== 99) {
       navigate('/');
     } else {
-      fetchCategories();
+      getCategories(searchCategory, page, limit);
     }
-  }, [role, navigate, loading]);
+  }, [role, navigate, loading, page, limit]);
 
 
   if (loading) {
@@ -126,21 +87,45 @@ function AdminCategories() {
             Categories Management
           </p>
         </div>
-        <div className="flex justify-end">
-          <button
+        <div className="flex justify-between mb-2">
+          <div className='flex gap-1'>
+            <form onSubmit={handleSearchCategory}>
+              <div className='flex'>
+                <input
+                  className='border-l border-b border-t rounded-s-md px-4 focus:border-pink-500 focus:outline-none'
+                  type="text"
+                  value={searchCategory}
+                  onChange={(e) => setSearchCategory(e.target.value)}
+                  placeholder="Search by category name..."
+                />
+                <button
+                  className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-3 px-4 rounded-e-md"
+                  type='submit'
+                >
+                  <FaSearch size={15} />
+                </button>
+              </div>
+            </form>
+          </div>
+          <div
             onClick={onAddOpen}
-            className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
+            className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-2 px-4 rounded-md flex items-center gap-2 cursor-pointer"
           >
-            <FaPlus size={15} className="mr-2" /> Add Category
-          </button>
+            <FaPlus size={15} className="" />
+            <p className='hidden sm:block'>Add Category</p>
+          </div>
+          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={getCategories} limit={limit} resetPage={resetPage}/>
         </div>
         <div className="flex flex-wrap justify-center gap-4">
-          {renderCategories()}
-          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={fetchCategories} />
-          <AdminEditCategoryModal isOpen={isEditOpen} onClose={onEditClose} fetchCategories={fetchCategories} selectedCategory={selectedCategory} />
+          <AdminCategoryCard categories={categories} getCategories={getCategories} limit={limit} resetPage={resetPage}/>
         </div>
       </div>
-    </div>
+      <div className='flex gap-2 justify-center'>
+        <button onClick={handlePrevPage}>Previous</button>
+        <p>{page} of {Math.ceil(totalCategories / limit)}</p>
+        <button onClick={handleNextPage}>Next</button>
+      </div>
+    </div >
   );
 }
 
