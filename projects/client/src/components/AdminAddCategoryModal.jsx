@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, ModalFooter, Button, Input } from '@chakra-ui/react';
 import axios from 'axios';
 import * as Yup from 'yup';
 import { ErrorMessage, Form, Formik, Field, setFieldValue } from 'formik';
 
-function AddCategoryModal({ isOpen, onClose, fetchCategories }) {
+function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage }) {
+  const [previewImage, setPreviewImage] = useState(null);
+
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     const adminToken = localStorage.getItem("admin_token");
 
@@ -25,12 +27,20 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories }) {
       );
       alert(response.data.message);
       onClose();
-      fetchCategories();
+      setPreviewImage(null);
+      resetPage();
+      fetchCategories("", 1, limit);
     } catch (error) {
       console.error(error);
+      alert(error.response.data)
     }
     resetForm();
     setSubmitting(false);
+  };
+
+  const handleClose = () => {
+    setPreviewImage(null);
+    onClose();
   };
 
   const validationSchema = Yup.object().shape({
@@ -49,7 +59,7 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories }) {
   })
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose}>
+    <Modal isOpen={isOpen} onClose={handleClose}>
       <ModalOverlay />
       <ModalContent>
         <Formik
@@ -82,8 +92,20 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories }) {
                     type="file"
                     onChange={(event) => {
                       setFieldValue("image", event.currentTarget.files[0]);
+
+                      if (event.currentTarget.files[0]) {
+                        const url = URL.createObjectURL(event.currentTarget.files[0]);
+                        setPreviewImage(url);
+                      } else {
+                        setPreviewImage(null);
+                      }// Generate a preview image URL
                     }}
                   />
+                  {previewImage &&
+                    <div className='flex border mt-2 rounded-md p-5 justify-center'>
+                      <img className='w-[25%]' src={previewImage} alt="Preview" />
+                    </div>
+                  }
                   <ErrorMessage name="image" component="div" className="text-red-500 text-xs italic" />
                 </FormControl>
               </ModalBody>

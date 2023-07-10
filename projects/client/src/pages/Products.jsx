@@ -1,6 +1,6 @@
 import { Box, Button, Card, CardBody, CardFooter, CardHeader, Divider, Heading, Image, Input, Radio, RadioGroup, Stack, Text, useDisclosure } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
-import { fetchCategories } from "../api/adminApi";
+import { fetchCategories } from "../api/CategoryApi";
 import Select from "react-select";
 import { fetchProducts } from "../api/userApi";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -77,7 +77,7 @@ function Products() {
   useEffect(() => {
     const getCategories = async () => {
       const result = await fetchCategories();
-      setCategories(result);
+      setCategories(result.formattedCategories);
     };
 
     const getProducts = async () => {
