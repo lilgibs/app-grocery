@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { formatRupiah } from "../utils/formatRupiah";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { fetchProducts } from "../api/userApi";
-import { fetchCategories } from "../api/adminApi";
+import { fetchCategories } from "../api/CategoryApi";
 
 const LandingPage = () => {
   const [products, setProducts] = useState([]);
@@ -29,7 +29,8 @@ const LandingPage = () => {
   useEffect(() => {
     const getCategories = async () => {
       const result = await fetchCategories();
-      setCategories(result);
+      setCategories(result.formattedCategories);
+      console.log(categories.slice(0, 8));
     };
 
     const getProducts = async () => {
@@ -126,7 +127,7 @@ const LandingPage = () => {
           </div>
 
           <div className="mt-8 grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-5">
-            {categories.slice(0, 8).map((category) => (
+            {categories.map((category) => (
               <Button bg={categories.indexOf(category) % 2 === 0 ? "green.200" : "pink.100"} color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
                 {category.label}
               </Button>
