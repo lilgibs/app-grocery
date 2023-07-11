@@ -65,8 +65,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const handleCancel = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
-      dispatch(fetchOrder(userGlobal.user_id));
       alert(response.data.message);
+      dispatch(fetchOrder(userGlobal.user_id));
       onCancelClose();
     } catch (error) {
       console.error("Failed to cancel order: ", error);
@@ -88,8 +88,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const handleConfirm = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/admin/order/confirmorder/?orderId=${order_id}`);
-      dispatch(fetchStoreOrder(adminGlobal.store_id));
       alert(response.data.message);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
     } catch (error) {
       alert(`Order status change failed`);
@@ -99,8 +99,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const handleReject = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/admin/order/rejectorder/?orderId=${order_id}`);
-      dispatch(fetchStoreOrder(adminGlobal.store_id));
       alert(response.data.message);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
     } catch (error) {
       alert(`Order status change failed`);
@@ -110,8 +110,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const handleSendOrder = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/admin/order/sendorder/?orderId=${order_id}`);
-      dispatch(fetchStoreOrder(adminGlobal.store_id));
       alert(response.data.message);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
     } catch (error) {
       alert(`Order status change failed`);
@@ -153,7 +153,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
               {formatRupiah(total_price - shipping_price)}
             </Box>
 
-            <Box className="flex justify-between">
+            <Box className="flex justify-between text-right">
               <Heading size="sm">Shipping</Heading>
               <div>
                 {formatRupiah(shipping_price)}

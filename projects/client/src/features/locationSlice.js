@@ -47,6 +47,8 @@ export function getCityStore(latitude, longitude) {
         dispatch(setLocation(location));
       }
 
+      //
+
       let stores = await Axios.get("http://localhost:8000/api/stores");
       if (stores) {
         let storeArray = stores.data.data;

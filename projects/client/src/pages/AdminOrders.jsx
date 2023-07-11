@@ -40,6 +40,7 @@ const AdminOrders = () => {
       <div className="grid grid-cols-5 m-10">
         <div cl>
           <h1 className="text-3xl pt-5 font-semibold tracking-tight text-pink-500 ">Orders</h1>
+          {adminGlobal.role == 99 ? <div className="my-2">All Stores</div> : <></>}
         </div>
         <div className="col-span-4 flex flex-col gap-6">{renderOrderItems()}</div>
       </div>
