@@ -66,8 +66,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
     // console.log(order_id);
     try {
       const response = await axios.patch(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
-      dispatch(fetchOrder(userGlobal.user_id));
       alert(response.data.message);
+      dispatch(fetchOrder(userGlobal.user_id));
       onCancelClose();
       // console.log(response.data);
     } catch (error) {
@@ -79,8 +79,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const handleConfirm = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/admin/order/confirmorder/?orderId=${order_id}`);
-      dispatch(fetchStoreOrder(adminGlobal.store_id));
       alert(response.data.message);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
     } catch (error) {
       alert(`Order status change failed`);
@@ -90,8 +90,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const handleReject = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/admin/order/rejectorder/?orderId=${order_id}`);
-      dispatch(fetchStoreOrder(adminGlobal.store_id));
       alert(response.data.message);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
     } catch (error) {
       alert(`Order status change failed`);
@@ -101,8 +101,8 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const handleSendOrder = async () => {
     try {
       const response = await axios.patch(`http://localhost:8000/api/admin/order/sendorder/?orderId=${order_id}`);
-      dispatch(fetchStoreOrder(adminGlobal.store_id));
       alert(response.data.message);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
     } catch (error) {
       alert(`Order status change failed`);
