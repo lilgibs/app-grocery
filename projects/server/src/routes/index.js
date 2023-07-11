@@ -2,6 +2,7 @@ const adminAuthRoutes = require("./admin/adminAuthRoutes");
 const adminCategoryRoutes = require("./admin/adminCategoryRoutes");
 const adminProductRoutes = require("./admin/adminProductRoutes");
 const adminDashboarRoutes = require("./admin/adminDashboardRoutes");
+const adminOrderRoutes = require("./admin/adminOrderRoutes");
 const authRoutes = require("./authRoutes");
 const storeRoutes = require("./storeRoutes");
 const addressRoutes = require("./addressRoutes");
@@ -28,6 +29,7 @@ module.exports = {
   profileRoutes,
   cartRoutes,
   orderRoutes,
+  adminOrderRoutes,
   discountRoutes,
   voucherRoutes,
 };

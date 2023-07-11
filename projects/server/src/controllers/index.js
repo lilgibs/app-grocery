@@ -14,6 +14,7 @@ const profileController = require("./profileController");
 const cartController = require("./cartController");
 const shippingController = require("./shippingController");
 const orderController = require("./orderController");
+const adminOrderController = require("./admin/adminOrderController");
 const discountController = require("./admin/discountController");
 const voucherController = require("./admin/voucherController");
 
@@ -34,6 +35,7 @@ module.exports = {
   cartController,
   shippingController,
   orderController,
+  adminOrderController,
   discountController,
   voucherController,
 };

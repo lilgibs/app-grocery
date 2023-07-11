@@ -7,17 +7,36 @@ const path = require('path');
 const fs = require('fs');
 
 module.exports = {
-  getCategory: async (req, res, next) => {
+  getCategories: async (req, res, next) => {
+    const categoryName = req.query.categoryName
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const offset = (page - 1) * limit;
+
     try {
-      const sqlQuery = `SELECT * FROM product_categories WHERE is_deleted = 0 OR is_deleted IS NULL`;
-      const result = await query(sqlQuery);
+      let categoriesQuery = `SELECT * FROM product_categories WHERE (is_deleted = 0 OR is_deleted IS NULL)`;
+      let categoriesCountQuery = `SELECT COUNT(*) as total FROM product_categories WHERE (is_deleted = 0 OR is_deleted IS NULL)`
+
+      if (categoryName) {
+        categoriesQuery += ` AND product_category_name LIKE ${db.escape('%' + categoryName + '%')}`
+        categoriesCountQuery += ` AND product_category_name LIKE ${db.escape('%' + categoryName + '%')}`
+      }
+
+      categoriesQuery += ` LIMIT ${limit} OFFSET ${offset}`;
+
+      const [resultCategoriesQuery, resultCategoriesCountQuery] = await Promise.all([
+        query(categoriesQuery),
+        query(categoriesCountQuery)
+      ])
 
       res.status(200).json({
         message: "Successfully fetched all product categories",
-        data: result
+        data: resultCategoriesQuery,
+        total: resultCategoriesCountQuery
       });
     } catch (error) {
       handleServerError(error, next);
+      console.log(error)
     }
   },
   createCategory: async (req, res, next) => {
@@ -30,11 +49,22 @@ module.exports = {
         throw {
           status_code: 403,
           message: "Access denied. You are not authorized to access this route.",
-          errors: errors.array(),
         };
       }
-
       handleValidationErrors(errors);
+
+      let getCategoryNameResult = await query(`
+        SELECT product_category_name 
+        FROM product_categories 
+        WHERE product_category_name = ${db.escape(product_category_name)}
+      `)
+
+      if (getCategoryNameResult.length > 0) {
+        throw {
+          status_code: 409,
+          message: "Product category already exists. Please choose a different name.",
+        };
+      }
 
       let product_category_image = "";
       if (req.file) {
@@ -43,7 +73,6 @@ module.exports = {
         throw {
           status_code: 400,
           message: "No file uploaded.",
-          errors: errors.array(),
         };
       }
 
@@ -69,7 +98,27 @@ module.exports = {
     const errors = validationResult(req);
 
     try {
+      const adminRole = req.admin.adminRole;
+      if (adminRole !== 99) {
+        throw {
+          status_code: 403,
+          message: "Access denied. You are not authorized to access this route.",
+        };
+      }
+
       handleValidationErrors(errors);
+
+      let getCategoryNameResult = await query(`
+      SELECT * FROM product_categories 
+      WHERE product_category_name = ${db.escape(product_category_name)}
+    `)
+
+      if (getCategoryNameResult.length > 0 && getCategoryNameResult[0].product_category_id != categoryId) {
+        throw {
+          status_code: 409,
+          message: "Product category already exists. Please choose a different name.",
+        };
+      }
 
       //Ambil lokasi file gambar
       const sqlQueryGetImage = `

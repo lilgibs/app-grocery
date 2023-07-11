@@ -21,12 +21,13 @@ import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Products from "./pages/Products";
 import Product from "./pages/Product";
+import AdminOrders from "./pages/AdminOrders";
 import ChangePassword from "./pages/ChangePassword";
 import NotFound from "./pages/NotFound";
 import { checkLogin } from "./features/userSlice";
 import { checkLoginAdmin } from "./features/adminSlice";
 import { fetchCart } from "./features/cartSlice";
-import { fetchOrder } from "./features/orderSlice";
+import { fetchOrder, fetchStoreOrder } from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
 import { getAddress } from "./features/addressSlice";
 import AdminDiscount from "./pages/AdminDiscount";
@@ -57,7 +58,14 @@ function App() {
     if (userToken) {
       dispatch(fetchOrder(userGlobal.user_id));
     }
-  }); // get cart if user is logged in
+  }); // get order if user is logged in
+
+  useEffect(() => {
+    if (adminToken) {
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
+      console.log(adminGlobal.store_id);
+    }
+  }); // get store order if admin is logged in
 
   useEffect(() => {
     if (userToken) {
@@ -127,10 +135,15 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            <Route
-              path="/admin/settings/users"
-              element={<UserManagementSettings />}
-            />
+            {adminGlobal.role === 99 ? (
+              <Route
+                path="/admin/settings/users"
+                element={<UserManagementSettings />}
+              />
+            ) : (
+              <> </>
+            )}
+
             <Route
               path="/admin/products/categories"
               element={<AdminCategories />}
@@ -144,6 +157,7 @@ function App() {
               path="/admin/products/:productId"
               element={<AdminEditProduct />}
             />
+            <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/discounts" element={<AdminDiscount />} />
           </>
         ) : (

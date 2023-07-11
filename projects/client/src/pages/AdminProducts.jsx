@@ -5,7 +5,7 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
 import { checkLoginAdmin } from '../features/adminSlice';
-import { fetchCategories } from '../api/adminApi';
+import { fetchCategories } from '../api/CategoryApi';
 import Select from 'react-select';
 import AdminProductCard from '../components/AdminProductCard';
 
@@ -30,8 +30,8 @@ function AdminProducts() {
 
   useEffect(() => {
     const loadData = async () => {
-      const categories = await fetchCategories();
-      setCategoryOptions(categories);
+      const result = await fetchCategories();
+      setCategoryOptions(result.formattedCategories);
     };
     loadData();
   }, []);
@@ -101,6 +101,7 @@ function AdminProducts() {
       options={categoryOptions}
       onChange={(selectedOption) => {
         setSelectedCategory(selectedOption);
+        console.log(selectedOption)
       }}
     />
   );

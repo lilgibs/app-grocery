@@ -44,7 +44,6 @@ module.exports = {
           `);
 
       // 2. kalau table order sdh bertambah, select order_id yg baru
-
       const orderIdQuery = `
         SELECT order_id FROM orders
         WHERE
@@ -94,11 +93,6 @@ module.exports = {
           ${db.escape(orderDate)},
           "deduct"
         )`);
-
-        // const resultAddOrderDetailsQuery = await query(addOrderDetailsQuery);
-        // const resultDeleteCartQuery = await query(deleteCartQuery);
-        // const resultUpdateInventoryStockQuery = await query(updateInventoryStockQuery);
-        // const resultQuantityChangeHistoryQuery = await query(quantityChangeHistoryQuery);
       });
 
       res.status(200).send({
@@ -191,6 +185,26 @@ module.exports = {
       res.status(200).send({
         message: `Order #${orderId} canceled.`,
         data: cancelOrderQuery,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  orderReceived: async (req, res, next) => {
+    try {
+      let orderId = req.query.orderId;
+
+      const orderReceivedQuery = await query(`
+        UPDATE orders
+        SET
+            order_status = "Delivered"
+        WHERE
+            order_id = ${db.escape(orderId)}
+        `);
+
+      res.status(200).send({
+        message: "Order delivered",
+        data: orderReceivedQuery,
       });
     } catch (error) {
       next(error);

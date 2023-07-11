@@ -1,20 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Card, CardHeader, CardBody, CardFooter, Text, Heading, Box, StackDivider } from "@chakra-ui/react";
-import { Button, Stack } from "@chakra-ui/react";
+import { Button, Stack, Image } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import { AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, AlertDialogCloseButton } from "@chakra-ui/react";
 import { formatRupiah } from "../utils/formatRupiah";
 import axios from "axios";
-import { fetchOrder } from "../features/orderSlice";
+import { fetchOrder, fetchStoreOrder } from "../features/orderSlice";
 
 const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, shipping_price, total_price, payment_proof, order_status }) => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
+  const adminGlobal = useSelector((state) => state.admin.admin);
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
   const { isOpen: isCancelOpen, onOpen: onCancelOpen, onClose: onCancelClose } = useDisclosure();
+  const { isOpen: isProofOpen, onOpen: onProofOpen, onClose: onProofClose } = useDisclosure();
   const cancelRef = React.useRef();
   const [previewImage, setPreviewImage] = useState(null);
   const [paymetProof, setPaymentProof] = useState(null);
@@ -61,15 +63,58 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   };
 
   const handleCancel = async () => {
-    // console.log(order_id);
     try {
-      const response = await axios.put(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
+      const response = await axios.patch(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
       dispatch(fetchOrder(userGlobal.user_id));
       alert(response.data.message);
       onCancelClose();
-      // console.log(response.data);
     } catch (error) {
       console.error("Failed to cancel order: ", error);
+    }
+  };
+
+  const handleOrderReceived = async () => {
+    try {
+      const response = await axios.patch(`http://localhost:8000/api/order/orderreceived/?orderId=${order_id}`);
+      dispatch(fetchOrder(userGlobal.user_id));
+      alert(response.data.message);
+      onCancelClose();
+    } catch (error) {
+      console.error("Failed to confirm order delivery: ", error);
+    }
+  };
+
+  //admin
+  const handleConfirm = async () => {
+    try {
+      const response = await axios.patch(`http://localhost:8000/api/admin/order/confirmorder/?orderId=${order_id}`);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
+      alert(response.data.message);
+      onProofClose();
+    } catch (error) {
+      alert(`Order status change failed`);
+    }
+  };
+
+  const handleReject = async () => {
+    try {
+      const response = await axios.patch(`http://localhost:8000/api/admin/order/rejectorder/?orderId=${order_id}`);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
+      alert(response.data.message);
+      onProofClose();
+    } catch (error) {
+      alert(`Order status change failed`);
+    }
+  };
+
+  const handleSendOrder = async () => {
+    try {
+      const response = await axios.patch(`http://localhost:8000/api/admin/order/sendorder/?orderId=${order_id}`);
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
+      alert(response.data.message);
+      onProofClose();
+    } catch (error) {
+      alert(`Order status change failed`);
     }
   };
 
@@ -83,8 +128,22 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             </Heading>
             <Text className="text-gray-400 font-bold">{order_status}</Text>
           </div>
-
-          <Text className="text-sm text-gray-400">Order made: {Date(order_date).toLocaleString("id-ID")}</Text>
+          <div className="flex gap-3">
+            <Text className="text-sm text-gray-400 mt-1">Order made: {order_date.toLocaleString("id-ID").slice(0, 10)}</Text>
+            {adminGlobal.id != null ? (
+              <>
+                {order_status === "Waiting for payment" || order_status === "Waiting for confirmation" || order_status === "Processed" ? (
+                  <Button variant="solid" colorScheme="red" onClick={onCancelOpen} size="xs">
+                    Cancel order
+                  </Button>
+                ) : (
+                  <></>
+                )}
+              </>
+            ) : (
+              <></>
+            )}
+          </div>
         </CardHeader>
 
         <CardBody>
@@ -110,21 +169,58 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             </Box>
           </Stack>
         </CardBody>
-
-        <CardFooter className="flex gap-3">
-          {order_status === "Waiting for payment" ? (
-            <>
-              <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
-                Upload Payment Proof
+        {userGlobal.user_id != null ? (
+          // user view
+          <CardFooter className="flex gap-3">
+            {order_status === "Waiting for payment" ? (
+              <>
+                <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
+                  Upload Payment Proof
+                </Button>
+                <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
+                  Cancel order
+                </Button>
+              </>
+            ) : order_status === "Out for delivery" ? (
+              <Button
+                variant="solid"
+                colorScheme="green"
+                onClick={() => {
+                  handleOrderReceived();
+                }}
+              >
+                Order received
               </Button>
-              <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
-                Cancel Order
+            ) : (
+              <></>
+            )}
+          </CardFooter>
+        ) : adminGlobal.id != null ? (
+          // admin view
+          <CardFooter className="flex gap-3">
+            {order_status === "Waiting for confirmation" ? (
+              <>
+                <Button variant="solid" colorScheme="orange" onClick={onProofOpen}>
+                  See payment proof
+                </Button>
+              </>
+            ) : order_status === "Processed" ? (
+              <Button
+                variant="solid"
+                colorScheme="green"
+                onClick={() => {
+                  handleSendOrder();
+                }}
+              >
+                Send order
               </Button>
-            </>
-          ) : (
-            <></>
-          )}
-        </CardFooter>
+            ) : (
+              <></>
+            )}
+          </CardFooter>
+        ) : (
+          <></>
+        )}
       </Card>
 
       {/* alert */}
@@ -149,7 +245,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
         </AlertDialogOverlay>
       </AlertDialog>
 
-      {/* modal */}
+      {/* upload proof modal */}
       <Modal closeOnOverlayClick={false} isOpen={isUploadOpen} onClose={onUploadClose}>
         <ModalOverlay />
         <ModalContent>
@@ -165,7 +261,6 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                   <img src={previewImage} alt="Preview" className="mx-auto h-32 w-32 object-cover rounded" />
                 ) : (
                   <div className="text-center">
-                    {/* <PhotoIcon className="mx-auto h-12 w-12 text-gray-300" aria-hidden="true" /> */}
                     <div className="mt-4 flex text-sm leading-6 text-gray-600">
                       <label
                         htmlFor="file-upload"
@@ -195,6 +290,50 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
               }}
             >
               Back
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* see proof modal */}
+      <Modal isOpen={isProofOpen} onClose={onProofClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>See payment proof</ModalHeader>
+
+          <ModalBody>
+            <div>
+              <label htmlFor="cover-photo" className="block text-sm font-medium leading-6 text-gray-900">
+                Payment proof
+              </label>
+
+              <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                <Image src={`http://localhost:8000/${payment_proof}`} alt="Payment proof" />
+              </div>
+            </div>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              variant="ghost"
+              mr={3}
+              colorScheme="red"
+              onClick={() => {
+                handleReject();
+                onProofClose();
+              }}
+            >
+              Reject
+            </Button>
+            <Button
+              variant="solid"
+              colorScheme="green"
+              onClick={() => {
+                handleConfirm();
+                onProofClose();
+              }}
+            >
+              Confirm
             </Button>
           </ModalFooter>
         </ModalContent>

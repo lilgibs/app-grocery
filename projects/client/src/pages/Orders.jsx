@@ -6,7 +6,6 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import OrderItem from "../components/OrderItem";
-import { fetchOrder } from "../features/orderSlice";
 
 const Orders = () => {
   const nav = useNavigate();
