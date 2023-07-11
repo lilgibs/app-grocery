@@ -17,6 +17,7 @@ const {
   orderRoutes,
   adminDashboarRoutes,
   discountRoutes,
+  voucherRoutes,
 } = require("./routes");
 const path = require("path");
 
@@ -57,6 +58,7 @@ app.use("/api/profiles", profileRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/order", orderRoutes);
 app.use("/api/admin/discounts", discountRoutes);
+app.use("/api/admin/vouchers", voucherRoutes);
 
 // ===========================
 

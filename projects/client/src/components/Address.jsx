@@ -28,7 +28,7 @@ import {
   setMainAddress,
 } from "../api/AddressApi";
 
-function UserProfile() {
+function Address() {
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
   const userAddress = useSelector((state) => state.address.address);
@@ -431,4 +431,4 @@ function UserProfile() {
   );
 }
 
-export default UserProfile;
+export default Address;

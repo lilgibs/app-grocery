@@ -9,7 +9,7 @@ import { fetchCart } from "../features/cartSlice";
 function Product() {
   const [quantity, setQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState()
+  const [selectedImage, setSelectedImage] = useState();
 
   const { productName } = useParams();
   const dispatch = useDispatch();
@@ -18,18 +18,21 @@ function Product() {
   const { user_id } = useSelector((state) => state.user.user);
   const product = useSelector((state) => state.product.product);
   const { isLoading } = useSelector((state) => state.product);
-  const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
+  const { store_id, store_name } = useSelector(
+    (state) => state.location.location.nearestStore
+  );
   const userGlobal = useSelector((state) => state.user.user);
 
-
   //Fungsi untuk menampilkan gambar
-  const handleSelectedImage = (image) => {
-
-  }
+  const handleSelectedImage = (image) => {};
 
   // fungsi untuk menambah quantity
   const increaseQuantity = () => {
-    setQuantity((prevQuantity) => (prevQuantity === product.quantity_in_stock ? prevQuantity : prevQuantity + 1));
+    setQuantity((prevQuantity) =>
+      prevQuantity === product.quantity_in_stock
+        ? prevQuantity
+        : prevQuantity + 1
+    );
   };
 
   // fungsi untuk mengurangi quantity
@@ -60,13 +63,18 @@ function Product() {
       };
 
       // console.log(object);
-      const response = await axios.post("http://localhost:8000/api/cart/addtocart", cart);
+      const response = await axios.post(
+        "http://localhost:8000/api/cart/addtocart",
+        cart
+      );
 
       dispatch(fetchCart(userGlobal.user_id));
       dispatch(fetchProductUser(productName, store_id));
       alert(response.data.message);
     } catch (error) {
-      alert(`Add to cart fails. Amount in cart (${quantity}) exceeds product's stock`);
+      alert(
+        `Add to cart fails. Amount in cart (${quantity}) exceeds product's stock`
+      );
     }
   };
 
@@ -84,12 +92,18 @@ function Product() {
   }, [productName, store_id]);
 
   useEffect(() => {
-    if (product && product.product_images && product.product_images.length > 0) {
-      setSelectedImage(`http://localhost:8000/${product.product_images[0].image_url}`);
+    if (
+      product &&
+      product.product_images &&
+      product.product_images.length > 0
+    ) {
+      setSelectedImage(
+        `http://localhost:8000/${product.product_images[0].image_url}`
+      );
     }
   }, [product]);
 
-  if (isLoading) {
+  if (!isLoading) {
     return <div>Loading...</div>;
   }
 
@@ -104,10 +118,22 @@ function Product() {
               {product.product_images.map((image, index) => (
                 <div
                   key={index}
-                  onClick={() => { setSelectedImage(`http://localhost:8000/${image.image_url}`) }}
-                  className={`rounded-md w-1/5 lg:w-full ${selectedImage === `http://localhost:8000/${image.image_url}` ? 'outline outline-offset-2 outline-1 outline-green-500' : ''}`}
+                  onClick={() => {
+                    setSelectedImage(
+                      `http://localhost:8000/${image.image_url}`
+                    );
+                  }}
+                  className={`rounded-md w-1/5 lg:w-full ${
+                    selectedImage === `http://localhost:8000/${image.image_url}`
+                      ? "outline outline-offset-2 outline-1 outline-green-500"
+                      : ""
+                  }`}
                 >
-                  <img className="w-full" src={`http://localhost:8000/${image.image_url}`} alt="" />
+                  <img
+                    className="w-full"
+                    src={`http://localhost:8000/${image.image_url}`}
+                    alt=""
+                  />
                 </div>
               ))}
             </div>
@@ -121,12 +147,19 @@ function Product() {
 
           {/*  */}
           <div className="md:w-[60%] flex flex-col gap-5">
-            <h2 className="font-semibold text-xl md:text-3xl">{product.product_name}</h2>
-            <p className="font-semibold text-2xl md:text-4xl bg-neutral-100 rounded-md p-3 text-rose-500">{formatRupiah(product.product_price)}</p>
+            <h2 className="font-semibold text-xl md:text-3xl">
+              {product.product_name}
+            </h2>
+            <p className="font-semibold text-2xl md:text-4xl bg-neutral-100 rounded-md p-3 text-rose-500">
+              {formatRupiah(product.product_price)}
+            </p>
             <div>
               <p className="md:text-lg font-semibold">Description</p>
               <p className=" md:text-lg">
-                Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente, illo accusantium officia esse in id voluptas atque architecto quas distinctio magni facilis culpa sed iusto pariatur, itaque quo eligendi voluptatum!
+                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+                Sapiente, illo accusantium officia esse in id voluptas atque
+                architecto quas distinctio magni facilis culpa sed iusto
+                pariatur, itaque quo eligendi voluptatum!
               </p>
             </div>
             <div className="flex flex-col gap-2">
@@ -134,7 +167,12 @@ function Product() {
               <div className="flex flex-col lg:flex-row gap-2">
                 <div className="flex flex-row px-4 py-2 rounded-md border justify-between font-semibold">
                   <button onClick={decreaseQuantity}>-</button>
-                  <input type="number" className="text-center mx-2" value={quantity} onChange={handleInputChange} />
+                  <input
+                    type="number"
+                    className="text-center mx-2"
+                    value={quantity}
+                    onChange={handleInputChange}
+                  />
                   <button onClick={increaseQuantity}>+</button>
                 </div>
                 <button
@@ -147,7 +185,9 @@ function Product() {
                   Add To Cart
                 </button>
               </div>
-              <div className="text-neutral-400">Stock: {product.quantity_in_stock}</div>
+              <div className="text-neutral-400">
+                Stock: {product.quantity_in_stock}
+              </div>
             </div>
           </div>
         </div>

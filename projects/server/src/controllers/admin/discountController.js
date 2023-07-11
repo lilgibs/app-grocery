@@ -6,20 +6,24 @@ const {
 } = require("../../utils/errorHandlers");
 
 module.exports = {
-  getDiscount: async (req, res, next) => {
+  getDiscounts: async (req, res, next) => {
     try {
+      const today = new Date();
+      const currentDate = today.toISOString().slice(0, 10);
       const { store_id } = req.params;
 
-      const getDiscountQuery = await query(
-        `SELECT * FROM discounts WHERE store_id=${db.escape(store_id)}`
+      const getDiscountsQuery = await query(
+        `SELECT * FROM discounts WHERE store_id=${db.escape(
+          store_id
+        )} AND end_date>=${db.escape(currentDate)} AND is_deleted=false`
       );
 
       return res.status(200).send({
-        data: getDiscountQuery,
+        data: getDiscountsQuery,
         message: "Discounts retrieve successfully!",
       });
     } catch (error) {
-      handleServerError(error, next);
+      next(error);
     }
   },
   addDiscount: async (req, res, next) => {
@@ -31,21 +35,33 @@ module.exports = {
         discount_type,
         discount_value_type,
         discount_value,
-        discount_additional_info,
         start_date,
         end_date,
+        store_id,
+        products,
       } = req.body;
-      const { store_id } = req.params;
 
       const addDiscountQuery = await query(
         `INSERT INTO discounts VALUES(null, ${db.escape(store_id)}, ${db.escape(
           discount_type
         )}, ${db.escape(discount_value_type)}, ${db.escape(
           discount_value
-        )}, ${db.escape(discount_additional_info)}, ${db.escape(
-          start_date
-        )}, ${db.escape(end_date)})`
+        )}, ${db.escape(start_date)}, ${db.escape(end_date)}, false)`
       );
+
+      products.forEach(async (product) => {
+        const getProductQuery = await query(
+          `SELECT si.store_inventory_id, p.product_price from store_inventory si
+            inner join products p on si.product_id = p.product_id
+            where p.product_name = ${db.escape(product)};`
+        );
+
+        const addProductDiscountQuery = await query(
+          `INSERT INTO product_discounts VALUES(null, ${db.escape(
+            getProductQuery[0].store_inventory_id
+          )}, ${db.escape(addDiscountQuery.insertId)})`
+        );
+      });
 
       return res.status(201).send({
         data: addDiscountQuery,
@@ -64,7 +80,6 @@ module.exports = {
         discount_type,
         discount_value_type,
         discount_value,
-        discount_additional_info,
         start_date,
         end_date,
       } = req.body;
@@ -76,7 +91,6 @@ module.exports = {
             discount_type = ${db.escape(discount_type)},
             discount_value_type = ${db.escape(discount_value_type)},
             discount_value = ${db.escape(discount_value)},
-            discount_additional_info = ${db.escape(discount_additional_info)},
             start_date = ${db.escape(start_date)},
             end_date = ${db.escape(end_date)}
         WHERE
@@ -95,7 +109,7 @@ module.exports = {
     try {
       const { discount_id } = req.params;
 
-      const softDeleteAddressQuery = await query(
+      const softDeleteDiscountQuery = await query(
         `UPDATE discounts SET is_deleted = true WHERE discount_id = ${db.escape(
           discount_id
         )}`

@@ -29,6 +29,9 @@ import { fetchCart } from "./features/cartSlice";
 import { fetchOrder } from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
 import { getAddress } from "./features/addressSlice";
+import AdminDiscount from "./pages/AdminDiscount";
+import { getDiscount } from "./features/discountSlice";
+import { getVoucher } from "./features/voucherSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -76,6 +79,18 @@ function App() {
       dispatch(getAddress(userGlobal.user_id, userToken));
     }
   }, [userGlobal, userToken]);
+
+  useEffect(() => {
+    if (adminGlobal.id !== null) {
+      dispatch(getDiscount(adminGlobal.store_id, adminToken));
+    }
+  }, [adminGlobal, adminToken]);
+
+  useEffect(() => {
+    if (adminGlobal.id !== null) {
+      dispatch(getVoucher(adminGlobal.store_id, adminToken));
+    }
+  }, [adminGlobal, adminToken]);
 
   useEffect(() => {
     (async () => {
@@ -129,6 +144,7 @@ function App() {
               path="/admin/products/:productId"
               element={<AdminEditProduct />}
             />
+            <Route path="/admin/discounts" element={<AdminDiscount />} />
           </>
         ) : (
           //when admin is logged out

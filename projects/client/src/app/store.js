@@ -7,6 +7,8 @@ import productReducer from "../features/productSlice";
 import cartReducer from "../features/cartSlice";
 import shippingReducer from "../features/shippingSlice";
 import orderReducer from "../features/orderSlice";
+import discountReducer from "../features/discountSlice";
+import voucherReducer from "../features/voucherSlice";
 
 export default configureStore({
   reducer: {
@@ -18,5 +20,7 @@ export default configureStore({
     cart: cartReducer,
     shipping: shippingReducer,
     order: orderReducer,
+    discount: discountReducer,
+    voucher: voucherReducer,
   },
 });
