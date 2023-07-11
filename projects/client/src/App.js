@@ -30,6 +30,9 @@ import { fetchCart } from "./features/cartSlice";
 import { fetchOrder, fetchStoreOrder } from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
 import { getAddress } from "./features/addressSlice";
+import AdminDiscount from "./pages/AdminDiscount";
+import { getDiscount } from "./features/discountSlice";
+import { getVoucher } from "./features/voucherSlice";
 
 function App() {
   const dispatch = useDispatch();
@@ -86,8 +89,22 @@ function App() {
   }, [userGlobal, userToken]);
 
   useEffect(() => {
+    if (adminGlobal.id !== null) {
+      dispatch(getDiscount(adminGlobal.store_id, adminToken));
+    }
+  }, [adminGlobal, adminToken]);
+
+  useEffect(() => {
+    if (adminGlobal.id !== null) {
+      dispatch(getVoucher(adminGlobal.store_id, adminToken));
+    }
+  }, [adminGlobal, adminToken]);
+
+  useEffect(() => {
     (async () => {
-      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/greetings`
+      );
       setMessage(data?.message || "");
     })();
   }, []);
@@ -118,14 +135,30 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            {adminGlobal.role === 99 ? <Route path="/admin/settings/users" element={<UserManagementSettings />} /> : <> </>}
+            {adminGlobal.role === 99 ? (
+              <Route
+                path="/admin/settings/users"
+                element={<UserManagementSettings />}
+              />
+            ) : (
+              <> </>
+            )}
 
-            <Route path="/admin/products/categories" element={<AdminCategories />} />
+            <Route
+              path="/admin/products/categories"
+              element={<AdminCategories />}
+            />
             <Route path="/admin/products/" element={<AdminProducts />} />
-            <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
-            <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
-
+            <Route
+              path="/admin/products/add-product"
+              element={<AdminAddProduct />}
+            />
+            <Route
+              path="/admin/products/:productId"
+              element={<AdminEditProduct />}
+            />
             <Route path="/admin/orders" element={<AdminOrders />} />
+            <Route path="/admin/discounts" element={<AdminDiscount />} />
           </>
         ) : (
           //when admin is logged out
