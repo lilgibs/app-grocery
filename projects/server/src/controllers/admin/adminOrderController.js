@@ -11,6 +11,8 @@ module.exports = {
           SELECT * FROM orders
           WHERE store_id = ${db.escape(storeId)}`);
 
+      orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
+
       res.status(200).send(orderQuery);
     } catch (error) {
       next(error);
@@ -20,6 +22,8 @@ module.exports = {
     try {
       const allOrderQuery = await query(`
           SELECT * FROM orders`);
+
+      allOrderQuery.sort((a, b) => b.order_id - a.order_id); // sort alll orders in descending order
 
       res.status(200).send(allOrderQuery);
     } catch (error) {

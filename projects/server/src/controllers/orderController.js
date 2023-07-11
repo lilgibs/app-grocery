@@ -11,6 +11,8 @@ module.exports = {
         SELECT * FROM orders
         WHERE user_id = ${db.escape(userId)}`);
 
+      orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
+
       res.status(200).send(orderQuery);
     } catch (error) {
       next(error);
