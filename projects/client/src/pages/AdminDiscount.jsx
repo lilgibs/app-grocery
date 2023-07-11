@@ -16,27 +16,14 @@ import {
   ModalFooter,
   RadioGroup,
   Radio,
-  Select,
-  FormErrorMessage,
-  VStack,
 } from "@chakra-ui/react";
-import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
-import { getAddress } from "../features/addressSlice";
-import { fetchCity } from "../api/CityApi";
-import { fetchProvince } from "../api/ProvinceApi";
-import { getCoordinates } from "../api/UtilApi";
-import {
-  addAddress,
-  deleteAddress,
-  editAddress,
-  setMainAddress,
-} from "../api/AddressApi";
 import { addDiscount, deleteDiscount, editDiscount } from "../api/discountApi";
 import { getDiscount } from "../features/discountSlice";
 import { fetchProducts } from "../api/userApi";
-import { fetchCategories } from "../api/adminApi";
+import { fetchCategories } from "../api/CategoryApi";
 import { addVoucher } from "../api/voucherApi";
 
 function UserProfile() {
@@ -46,8 +33,6 @@ function UserProfile() {
   const adminToken = localStorage.getItem("admin_token");
   const [discounts, setDiscounts] = useState(storeDiscounts);
   const [selectedDiscount, setselectedDiscount] = useState(null);
-  const [cityOptions, setCityOptions] = useState([]);
-  const [provinceOptions, setProvinceOptions] = useState([]);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
@@ -185,13 +170,6 @@ function UserProfile() {
         otherwise: () => Yup.array().nullable(),
       }),
     });
-
-    // useEffect(() => {
-    //   if (discounts) {
-    //     console.log(discounts);
-    //     discounts.sort((a, b) => a.start_date - b.start_date);
-    //   }
-    // }, [discounts]);
 
     return (
       <Modal
@@ -452,13 +430,6 @@ function UserProfile() {
       setIsBuyOneGetOne(value === "BUY_1_GET_1");
       console.log(isBuyOneGetOne);
     };
-
-    // useEffect(() => {
-    //   if (discounts) {
-    //     console.log(discounts);
-    //     discounts.sort((a, b) => a.start_date - b.start_date);
-    //   }
-    // }, [discounts]);
 
     return (
       <Modal

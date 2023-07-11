@@ -172,11 +172,18 @@ module.exports = {
   },
   resetPasswordEmail: async (req, res, next) => {
     try {
-      const { email, name } = req.body;
-      const { user_id } = req.params;
+      const { email } = req.body;
 
-      let payload = { user_id: user_id, email: email };
-      const token = jwt.sign(payload, "joe", { expiresIn: "5m" });
+      const getEmailQuery = `SELECT * FROM users WHERE email=${db.escape(
+        email
+      )}`;
+      const isEmailExist = await query(getEmailQuery);
+      if (isEmailExist.length == 0) {
+        throw { status_code: 400, message: "This email is not registered" };
+      }
+
+      let payload = { email: email };
+      const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
 
       const renderEmailTemplate = (templatePath, data) => {
         const filePath = path.join(__dirname, templatePath);
@@ -185,13 +192,13 @@ module.exports = {
 
       const template = await renderEmailTemplate(
         "../templates/resetPassword.ejs",
-        { name, token }
+        { token }
       );
 
       const mail = {
         from: `Admin <ichsannuriman12@gmail.com>`,
         to: `${email}`,
-        subject: `Acount Verification`,
+        subject: `Reset Password`,
         html: template,
       };
 
@@ -203,6 +210,33 @@ module.exports = {
       });
     } catch (error) {
       handleServerError(error, next);
+    }
+  },
+  resetPassword: async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      handleValidationErrors(errors);
+
+      const { email } = req.user;
+      const { newPassword } = req.body;
+
+      const salt = await bcrypt.genSalt(10);
+      const hashPassword = await bcrypt.hash(newPassword, salt);
+
+      const updatePasswordQuery = await query(
+        `UPDATE users
+        SET
+          password = ${db.escape(hashPassword)}
+        WHERE
+          email = ${db.escape(email)}`
+      );
+
+      return res
+        .status(200)
+        .send({ message: "Password changed successfully." });
+    } catch (error) {
+      next(error);
+      // handleServerError(error, next);
     }
   },
   changePassword: async (req, res, next) => {

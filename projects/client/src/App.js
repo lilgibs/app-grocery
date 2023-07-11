@@ -33,6 +33,8 @@ import { getAddress } from "./features/addressSlice";
 import AdminDiscount from "./pages/AdminDiscount";
 import { getDiscount } from "./features/discountSlice";
 import { getVoucher } from "./features/voucherSlice";
+import ResetPasswordEmailForm from "./pages/ResetPasswordEmailForm";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   const dispatch = useDispatch();
@@ -174,7 +176,13 @@ function App() {
           </>
         ) : (
           //when user is logged out
-          <></>
+          <>
+            <Route
+              path="/reset-password"
+              element={<ResetPasswordEmailForm />}
+            />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
+          </>
         )}
         <Route path="*" element={<NotFound />} />
       </Routes>

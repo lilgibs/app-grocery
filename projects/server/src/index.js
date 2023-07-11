@@ -16,6 +16,9 @@ const {
   cartRoutes,
   orderRoutes,
   adminDashboarRoutes,
+  adminOrderRoutes,
+  discountRoutes,
+  voucherRoutes,
 } = require("./routes");
 const path = require("path");
 
