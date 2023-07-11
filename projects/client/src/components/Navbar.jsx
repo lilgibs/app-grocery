@@ -20,6 +20,7 @@ import { GrLocation } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import { resetUser } from "../features/userSlice";
 import { resetCart } from "../features/cartSlice";
+import { resetAddress } from "../features/addressSlice";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
@@ -37,9 +38,12 @@ const Navbar = () => {
   const locationGlobal = useSelector((state) => state.location.location);
   const userGlobal = useSelector((state) => state.user.user);
   const userAddresses = useSelector((state) => state.address.address);
-  const mainAddress = userAddresses.find(
-    (address) => address.first_address === 1
-  );
+  let mainAddress;
+
+  if (userAddresses) {
+    mainAddress = userAddresses.find((address) => address.first_address === 1);
+  }
+
   const dispatch = useDispatch();
 
   const handleSearchChange = (e) => {
@@ -175,6 +179,7 @@ const Navbar = () => {
                               alert("logging out");
                               dispatch(resetUser());
                               dispatch(resetCart());
+                              dispatch(resetAddress());
                               nav("/");
                             }}
                           >
@@ -256,6 +261,7 @@ const Navbar = () => {
                             alert("logging out");
                             dispatch(resetUser());
                             dispatch(resetCart());
+                            dispatch(resetAddress());
                             nav("/");
                           }}
                         >

@@ -6,7 +6,7 @@ import { deleteImage, fetchProduct, updateProduct, uploadImage } from '../featur
 import { checkLoginAdmin } from '../features/adminSlice';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import * as Yup from 'yup';
-import { fetchCategories } from '../api/adminApi';
+import { fetchCategories } from '../api/CategoryApi';
 import Select from 'react-select';
 import {
   Modal,
@@ -93,7 +93,7 @@ function AdminEditProduct() {
   useEffect(() => {
     const getCategories = async () => {
       const result = await fetchCategories();
-      setCategories(result);
+      setCategories(result.formattedCategories);
     };
 
     getCategories();

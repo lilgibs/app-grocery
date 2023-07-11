@@ -212,4 +212,24 @@ module.exports = {
       next(error);
     }
   },
+  orderReceived: async (req, res, next) => {
+    try {
+      let orderId = req.query.orderId;
+
+      const orderReceivedQuery = await query(`
+        UPDATE orders
+        SET
+            order_status = "Delivered"
+        WHERE
+            order_id = ${db.escape(orderId)}
+        `);
+
+      res.status(200).send({
+        message: "Order delivered",
+        data: orderReceivedQuery,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

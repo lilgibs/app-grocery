@@ -5,18 +5,21 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
 import { checkLoginAdmin } from '../features/adminSlice';
-import { fetchCategories } from '../api/adminApi';
+import { fetchCategories } from '../api/CategoryApi';
 import Select from 'react-select';
 import AdminProductCard from '../components/AdminProductCard';
+import AdminProductFilterDrawer from '../components/AdminProductFilterDrawer';
+import { fetchProductsInventory } from '../api/AdminProductsApi';
 
 function AdminProducts() {
   const [loading, setLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1)
-  const [limit, setLimit] = useState(2)
+  const [limit, setLimit] = useState(8)
   const [totalProducts, setTotalProducts] = useState(null)
   const [categoryOptions, setCategoryOptions] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [selectedSortOption, setSelectedSortOption] = useState(null);
   const [searchText, setSearchText] = useState('');
   const [sortType, setSortType] = useState(null); // 'price' or 'stock'
   const [sortOrder, setSortOrder] = useState(null); // 'asc' or 'desc'
@@ -30,55 +33,27 @@ function AdminProducts() {
 
   useEffect(() => {
     const loadData = async () => {
-      const categories = await fetchCategories();
-      setCategoryOptions(categories);
+      const result = await fetchCategories();
+      setCategoryOptions(result.formattedCategories);
     };
     loadData();
   }, []);
 
-  const fetchProducts = async () => {
-    try {
-      let url = `http://localhost:8000/api/admin/products/inventory?page=${page}&limit=${limit}&search=${searchText}&category=${selectedCategory ? selectedCategory.value : ''}`;
-      if (sortType && sortOrder) {
-        url += `&sortType=${sortType}&sortOrder=${sortOrder}`;
-      }
-      const response = await axios.get(url,
-        {
-          headers: {
-            'Authorization': `Bearer ${adminToken}`
-          }
-        }
-      );
-      console.log(response)
-      setProducts(response.data.products);
-      setTotalProducts(response.data.total);
-    } catch (error) {
-      console.error(error);
+  const getProductsData = async () => {
+    const response = await fetchProductsInventory(adminToken, page, limit, searchText, selectedCategory, sortType, sortOrder);
+    console.log(response)
+    if (response) {
+      setProducts(response.products);
+      setTotalProducts(response.total);
     }
   };
 
-  const handleSearch = () => {
+  const handleSearch = (event) => {
+    event.preventDefault();
     setPage(1); // Reset the page to 1 when performing a new search
-    fetchProducts();
+    getProductsData();
   };
 
-  const handleDeleteProduct = async (id) => {
-    try {
-      const response = await axios.delete(
-        `http://localhost:8000/api/admin/products/${id}`,
-        {
-          headers: {
-            'Authorization': `Bearer ${adminToken}`
-          }
-        }
-      );
-      console.log(response.data);
-      alert(response.data.message);
-      fetchProducts();
-    } catch (error) {
-      console.error(error);
-    }
-  };
 
   const handleNextPage = () => {
     if (page < Math.ceil(totalProducts / limit)) {
@@ -113,6 +88,7 @@ function AdminProducts() {
   ];
 
   const handleSortChange = (selectedOption) => {
+    setSelectedSortOption(selectedOption);
     if (selectedOption) {
       const [sortType, sortOrder] = selectedOption.value.split('_');
       setSortType(sortType);
@@ -123,7 +99,7 @@ function AdminProducts() {
       setSortOrder(null);
     }
     // Then fetch the products
-    fetchProducts();
+    getProductsData();
   };
 
   useEffect(() => {
@@ -140,12 +116,13 @@ function AdminProducts() {
     if (!loading && (role !== 99 && role !== 1)) {
       navigate('/');
     } else {
-      fetchProducts();
+      // fetchProducts();
+      getProductsData()
     }
   }, [role, navigate, loading]);
 
   useEffect(() => {
-    fetchProducts();
+    getProductsData();
   }, [page, selectedCategory, sortType, sortOrder, categoryOptions])
 
   if (loading) {
@@ -168,20 +145,23 @@ function AdminProducts() {
           </button>
         </div>
         <div className="flex mb-2 justify-between w-full ">
-          <div className='flex gap-1'>
-            <Input
-              type="text"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              placeholder="Search by product name..."
-            />
-            <button
-              className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-3 px-4 rounded-md"
-              onClick={handleSearch}
-            >
-              <FaSearch size={15} />
-            </button>
-          </div>
+          <form onSubmit={handleSearch}>
+            <div className='flex'>
+              <input
+                className='border-l border-b border-t rounded-s-md px-4 focus:border-pink-500 focus:outline-none'
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search by product name..."
+              />
+              <button
+                className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-3 px-4 rounded-e-md"
+                type='submit'
+              >
+                <FaSearch size={15} />
+              </button>
+            </div>
+          </form>
           <div className='hidden flex-row justify-end gap-2 w-1/2 md:flex'>
             <div className='w-1/2'>
               {FilterComponent}
@@ -201,26 +181,16 @@ function AdminProducts() {
             <p className='font-semibold'>Filter</p>
           </div>
         </div>
-        <Drawer isOpen={isFilterVisible} placement="rigth" onClose={() => setFilterVisible(false)}>
-          <DrawerOverlay>
-            <DrawerContent>
-              <DrawerHeader borderBottomWidth="1px">Filter Products</DrawerHeader>
-              <DrawerBody>
-                {FilterComponent}
-                <Select
-                  className=''
-                  id="product_sort_id"
-                  name="product_sort_id"
-                  placeholder="Sort by"
-                  options={sortOptions}
-                  onChange={handleSortChange}
-                />
-              </DrawerBody>
-            </DrawerContent>
-          </DrawerOverlay>
-        </Drawer>
+        <AdminProductFilterDrawer
+          isOpen={isFilterVisible}
+          onClose={() => setFilterVisible(false)}
+          FilterComponent={FilterComponent}
+          sortOptions={sortOptions}
+          handleSortChange={handleSortChange}
+          selectedSortOption={selectedSortOption}
+        />
         <div className="flex flex-wrap justify-center gap-4">
-          <AdminProductCard products={products} handleDeleteProduct={handleDeleteProduct} />
+          <AdminProductCard products={products} getProductsData={getProductsData} page={page} setPage={setPage}/>
         </div>
       </div>
       <div className='flex gap-2 justify-center'>

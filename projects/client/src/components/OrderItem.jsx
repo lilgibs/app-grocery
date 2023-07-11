@@ -131,10 +131,16 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
           </div>
           <div className="flex gap-3">
             <Text className="text-sm text-gray-400 mt-1">Order made: {order_date.toLocaleString("id-ID").slice(0, 10)}</Text>
-            {order_status === "Waiting for payment" || order_status === "Waiting for confirmation" ? (
-              <Button variant="solid" colorScheme="red" onClick={onCancelOpen} size="xs">
-                Cancel order
-              </Button>
+            {adminGlobal.id != null ? (
+              <>
+                {order_status === "Waiting for payment" || order_status === "Waiting for confirmation" || order_status === "Processed" ? (
+                  <Button variant="solid" colorScheme="red" onClick={onCancelOpen} size="xs">
+                    Cancel order
+                  </Button>
+                ) : (
+                  <></>
+                )}
+              </>
             ) : (
               <></>
             )}
@@ -164,7 +170,6 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
             </Box>
           </Stack>
         </CardBody>
-
         {userGlobal.user_id != null ? (
           // user view
           <CardFooter className="flex gap-3">
@@ -172,6 +177,9 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
               <>
                 <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
                   Upload Payment Proof
+                </Button>
+                <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
+                  Cancel order
                 </Button>
               </>
             ) : order_status === "Out for delivery" ? (
