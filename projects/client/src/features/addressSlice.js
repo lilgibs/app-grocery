@@ -10,6 +10,9 @@ export const addressSlice = createSlice({
     setAddress: (state, action) => {
       state.address = action.payload;
     },
+    resetAddress: (state) => {
+      state.address = null;
+    },
   },
 });
 
