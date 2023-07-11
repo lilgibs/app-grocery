@@ -11,6 +11,8 @@ module.exports = {
         SELECT * FROM orders
         WHERE user_id = ${db.escape(userId)}`);
 
+      orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
+
       res.status(200).send(orderQuery);
     } catch (error) {
       next(error);
@@ -136,6 +138,26 @@ module.exports = {
       });
     } catch (error) {
       handleServerError(error, next);
+    }
+  },
+  confirmOrderDelivery: async (req, res, next) => {
+    try {
+      let orderId = req.query.orderId;
+
+      const sendOrderQuery = await query(`
+        UPDATE orders
+        SET
+            order_status = "Delivered"
+        WHERE
+            order_id = ${db.escape(orderId)}
+        `);
+
+      res.status(200).send({
+        message: "Order has been delivered",
+        data: sendOrderQuery,
+      });
+    } catch (error) {
+      next(error);
     }
   },
   cancelOrder: async (req, res, next) => {

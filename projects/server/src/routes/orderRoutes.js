@@ -5,9 +5,9 @@ const { verifyToken } = require("../middleware/auth");
 const router = express.Router();
 
 router.get("/", orderController.getOrders);
-router.post("/addorder", orderController.addOrder);
-router.put("/cancelorder", orderController.cancelOrder);
-router.put("/upload-payment-proof", upload.single("payment_proof"), orderController.uploadPaymentProof);
-router.patch("/orderreceived", orderController.orderReceived);
+router.post("/", orderController.addOrder);
+router.patch("/payment-proof", upload.single("payment_proof"), orderController.uploadPaymentProof);
+router.patch("/cancel", orderController.cancelOrder);
+router.patch("/delivered", orderController.confirmOrderDelivery);
 
 module.exports = router;
