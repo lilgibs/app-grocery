@@ -13,11 +13,6 @@ import { fetchCategories } from "../api/CategoryApi";
 const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(2);
-  const [totalProducts, setTotalProducts] = useState(null);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const userToken = localStorage.getItem("user_token");
 
   const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
@@ -34,20 +29,12 @@ const LandingPage = () => {
     };
 
     const getProducts = async () => {
-      const searchParam = searchParams.get("search");
-      const categoryParam = searchParams.get("category");
-      // setSelectedCategory(categoryParam)
-      const sortTypeParam = searchParams.get("sort_type");
-      const sortOrderParam = searchParams.get("sort_order");
-      const pageParam = Number(searchParams.get("page"));
-      setPage(pageParam || 1);
-      const result = await fetchProducts(store_id, searchParam, categoryParam, pageParam, limit, sortTypeParam, sortOrderParam);
+      const result = await fetchProducts(store_id);
       setProducts(result.products);
-      setTotalProducts(result.total);
     };
     getProducts();
     getCategories();
-  }, [store_id, searchParams]);
+  }, [store_id]);
 
   const formatProductName = (productName) => {
     return productName.replace(/\s+/g, "-").toLowerCase();
