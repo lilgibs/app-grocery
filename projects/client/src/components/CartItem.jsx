@@ -20,7 +20,7 @@ const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock
       };
 
       // console.log(cart);
-      const response = await axios.delete("http://localhost:8000/api/cart/deletefromcart", { data: cart });
+      const response = await axios.delete("http://localhost:8000/api/cart/", { data: cart });
       dispatch(fetchCart(userGlobal.user_id));
       alert(response.data.message);
       // console.log(response.data);
@@ -38,7 +38,7 @@ const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock
         method: method,
       };
 
-      const response = await axios.post("http://localhost:8000/api/cart/updatecart", cart);
+      const response = await axios.patch("http://localhost:8000/api/cart/", cart);
       dispatch(fetchCart(userGlobal.user_id));
     } catch (error) {
       method == "add" ? alert("Not enough stock for this product") : alert("Minimum quantity in cart is 1");

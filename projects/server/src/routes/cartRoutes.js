@@ -4,9 +4,9 @@ const { shippingController } = require("../controllers");
 const router = express.Router();
 
 router.get("/", cartController.getCart);
-router.post("/addtocart", cartController.addToCart);
-router.delete("/deletefromcart", cartController.deleteFromCart);
-router.post("/getshipping", shippingController.getShipping);
-router.post("/updatecart", cartController.updateCart);
+router.post("/", cartController.addToCart);
+router.delete("/", cartController.deleteFromCart);
+router.patch("/", cartController.updateCart);
+router.post("/shipping-fee", shippingController.getShipping);
 
 module.exports = router;

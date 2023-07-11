@@ -58,7 +58,7 @@ export function fetchStoreOrder(store) {
 export function fetchAllOrder() {
   return async (dispatch) => {
     try {
-      const response = await Axios.get(`http://localhost:8000/api/admin/order/getallorders`);
+      const response = await Axios.get(`http://localhost:8000/api/admin/order/all`);
       let orderItems = response.data;
 
       // console.log(orderItems);

@@ -57,7 +57,7 @@ function Product() {
       };
 
       // console.log(object);
-      const response = await axios.post("http://localhost:8000/api/cart/addtocart", cart);
+      const response = await axios.post("http://localhost:8000/api/cart/", cart);
 
       dispatch(fetchCart(userGlobal.user_id));
       dispatch(fetchProductUser(productName, store_id));

@@ -109,7 +109,7 @@ function Shipping() {
           weight: totalWeight,
           courier: selectedCourier,
         };
-        let response = await axios.post("http://localhost:8000/api/cart/getshipping", form);
+        let response = await axios.post("http://localhost:8000/api/cart/shipping-fee", form);
         let courier = response.data.rajaongkir.results[0].name;
         let services = response.data.rajaongkir.results[0].costs;
 

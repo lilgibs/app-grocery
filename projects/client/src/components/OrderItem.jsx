@@ -17,6 +17,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const { isOpen: isUploadOpen, onOpen: onUploadOpen, onClose: onUploadClose } = useDisclosure();
   const { isOpen: isCancelOpen, onOpen: onCancelOpen, onClose: onCancelClose } = useDisclosure();
   const { isOpen: isProofOpen, onOpen: onProofOpen, onClose: onProofClose } = useDisclosure();
+  const { isOpen: isReceivedOpen, onOpen: onReceivedOpen, onClose: onReceivedClose } = useDisclosure();
   const cancelRef = React.useRef();
   const [previewImage, setPreviewImage] = useState(null);
   const [paymetProof, setPaymentProof] = useState(null);
@@ -50,7 +51,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       const formData = new FormData();
       formData.append("payment_proof", paymetProof);
 
-      let response = await axios.put(`http://localhost:8000/api/order/upload-payment-proof/?orderId=${order_id}`, formData);
+      let response = await axios.patch(`http://localhost:8000/api/order/payment-proof/?orderId=${order_id}`, formData);
 
       if (response) {
         alert(response.data.message);
@@ -63,22 +64,31 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   };
 
   const handleCancel = async () => {
-    // console.log(order_id);
     try {
-      const response = await axios.patch(`http://localhost:8000/api/order/cancelorder/?orderId=${order_id}`);
+      const response = await axios.patch(`http://localhost:8000/api/order/cancel/?orderId=${order_id}`);
       alert(response.data.message);
       dispatch(fetchOrder(userGlobal.user_id));
       onCancelClose();
-      // console.log(response.data);
     } catch (error) {
       console.error("Failed to cancel order: ", error);
+    }
+  };
+
+  const handleOrderReceived = async () => {
+    try {
+      const response = await axios.patch(`http://localhost:8000/api/order/delivered/?orderId=${order_id}`);
+      alert(response.data.message);
+      dispatch(fetchOrder(userGlobal.user_id));
+      onReceivedClose();
+    } catch (error) {
+      console.error("Failed to confirm delivery: ", error);
     }
   };
 
   //admin
   const handleConfirm = async () => {
     try {
-      const response = await axios.patch(`http://localhost:8000/api/admin/order/confirmorder/?orderId=${order_id}`);
+      const response = await axios.patch(`http://localhost:8000/api/admin/order/confirm-payment/?orderId=${order_id}`);
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
@@ -89,7 +99,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
 
   const handleReject = async () => {
     try {
-      const response = await axios.patch(`http://localhost:8000/api/admin/order/rejectorder/?orderId=${order_id}`);
+      const response = await axios.patch(`http://localhost:8000/api/admin/order/reject-payment/?orderId=${order_id}`);
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
@@ -100,7 +110,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
 
   const handleSendOrder = async () => {
     try {
-      const response = await axios.patch(`http://localhost:8000/api/admin/order/sendorder/?orderId=${order_id}`);
+      const response = await axios.patch(`http://localhost:8000/api/admin/order/send/?orderId=${order_id}`);
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
@@ -164,6 +174,12 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                   Upload Payment Proof
                 </Button>
               </>
+            ) : order_status === "Out for delivery" ? (
+              <>
+                <Button variant="solid" colorScheme="green" onClick={onReceivedOpen}>
+                  Order received
+                </Button>
+              </>
             ) : (
               <></>
             )}
@@ -196,7 +212,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
         )}
       </Card>
 
-      {/* alert */}
+      {/* cancel alert */}
       <AlertDialog isOpen={isCancelOpen} leastDestructiveRef={cancelRef} onClose={onCancelClose}>
         <AlertDialogOverlay>
           <AlertDialogContent>
@@ -212,6 +228,28 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
               </Button>
               <Button colorScheme="red" onClick={handleCancel} ml={3}>
                 Cancel order
+              </Button>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogOverlay>
+      </AlertDialog>
+
+      {/* order received alert */}
+      <AlertDialog isOpen={isReceivedOpen} leastDestructiveRef={cancelRef} onClose={onReceivedClose}>
+        <AlertDialogOverlay>
+          <AlertDialogContent>
+            <AlertDialogHeader fontSize="lg" fontWeight="bold">
+              Order received
+            </AlertDialogHeader>
+
+            <AlertDialogBody>Please ensure that you have received all items in your order.</AlertDialogBody>
+
+            <AlertDialogFooter>
+              <Button ref={cancelRef} onClick={onReceivedClose}>
+                Back
+              </Button>
+              <Button colorScheme="green" onClick={handleOrderReceived} ml={3}>
+                Order received
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>
