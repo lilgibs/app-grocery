@@ -1,38 +1,27 @@
-import React, { useEffect } from "react";
+import React from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import { loginUser } from "../features/userSlice";
-import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { resetPassword } from "../api/AuthApi";
 
-const Login = () => {
-  const dispatch = useDispatch();
+const ResetPassword = () => {
+  let { token } = useParams();
   const nav = useNavigate();
 
-  const userGlobal = useSelector((state) => state.user.user);
-
-  const LoginSchema = Yup.object().shape({
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Please input your email"),
-    password: Yup.string()
-      .min(3, "Password must be 3 characters or longer")
-      .required("Please input your password"),
+  const ValidationSchema = Yup.object().shape({
+    newPassword: Yup.string()
+      .min(8, "Password must be 8 characters or longer")
+      .required("Please input your password")
+      .matches(/[0-9]/, "Password requires a number")
+      .matches(/[a-z]/, "Password requires a lowercase letter")
+      .matches(/[A-Z]/, "Password requires an uppercase letter"),
+    repeatNewPassword: Yup.string()
+      .required("Please re-type your password")
+      .oneOf([Yup.ref("newPassword")], "Passwords does not match"),
   });
-
-  useEffect(() => {
-    if (userGlobal.user_id > 0) nav("/");
-  }, [userGlobal]);
 
   return (
     <div className="flex flex-row items-start justify-around m-8">
-      <div className="flex-initial w-96 max-md:hidden">
-        <img
-          src="https://freepngimg.com/thumb/ecommerce/1-2-ecommerce-png.png"
-          alt=""
-          className=""
-        />
-      </div>
       <div className="flex flex-initial w-96 flex-col shadow-xl rounded-lg p-5">
         <div className="">
           <img
@@ -41,16 +30,19 @@ const Login = () => {
             alt="Your Company"
           />
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            User Login
+            Reset Password
           </h2>
         </div>
 
         <div className="mt-6">
           <Formik
-            initialValues={{ email: "", password: "" }}
-            validationSchema={LoginSchema}
-            onSubmit={(value) => {
-              dispatch(loginUser(value));
+            initialValues={{ newPassword: "", repeatNewPassword: "" }}
+            validationSchema={ValidationSchema}
+            onSubmit={async (value) => {
+              const result = await resetPassword(value, token);
+              if (result) {
+                nav("/login");
+              }
             }}
           >
             {(props) => {
@@ -58,19 +50,19 @@ const Login = () => {
                 <Form className="space-y-6">
                   <div>
                     <label
-                      htmlFor="email"
+                      htmlFor="newPassword"
                       className="block text-sm font-medium leading-6 text-gray-900"
                     >
-                      Email address
+                      New Password
                     </label>
                     <Field
-                      type="text"
-                      name="email"
+                      type="password"
+                      name="newPassword"
                       className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
                     <ErrorMessage
                       component="div"
-                      name="email"
+                      name="newPassword"
                       style={{ color: "red" }}
                     />
                     <div className="mt-2"></div>
@@ -79,29 +71,21 @@ const Login = () => {
                   <div>
                     <div className="flex items-center justify-between">
                       <label
-                        htmlFor="password"
+                        htmlFor="repeatNewPassword"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
-                        Password
+                        Confirm New Password
                       </label>
-                      <div className="text-sm">
-                        <a
-                          href="/reset-password"
-                          className="font-semibold text-indigo-600 hover:text-indigo-500"
-                        >
-                          Forgot password?
-                        </a>
-                      </div>
                     </div>
                     <div className="mt-2">
                       <Field
                         type="password"
-                        name="password"
+                        name="repeatNewPassword"
                         className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
                       <ErrorMessage
                         component="div"
-                        name="password"
+                        name="repeatNewPassword"
                         style={{ color: "red" }}
                       />
                     </div>
@@ -112,36 +96,17 @@ const Login = () => {
                       type="submit"
                       className="flex w-full justify-center rounded-md bg-green-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-green-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                     >
-                      Login
+                      Reset Password
                     </button>
                   </div>
                 </Form>
               );
             }}
           </Formik>
-
-          <p className="mt-8 text-center text-sm text-gray-500">
-            Haven't register yet?{" "}
-            <a
-              href="/register"
-              className="font-semibold leading-6 text-green-600 hover:text-green-500"
-            >
-              Register
-            </a>
-          </p>
-
-          <p className="mt-1 text-center text-sm text-gray-500">
-            <a
-              href="/adminLogin"
-              className="font-semibold leading-6 text-green-600 hover:text-green-500"
-            >
-              Login as an admin
-            </a>
-          </p>
         </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default ResetPassword;

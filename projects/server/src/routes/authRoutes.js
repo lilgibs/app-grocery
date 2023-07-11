@@ -51,7 +51,11 @@ router.post(
   authController.login
 );
 router.post("/check-login", verifyToken, authController.checkLogin);
-router.post("/reset-password", verifyToken, authController.resetPasswordEmail);
+router.post(
+  "/reset-password",
+  check("email").isEmail().withMessage("Must be a valid e-mail address."),
+  authController.resetPasswordEmail
+);
 router.put(
   "/change-password/:user_id",
   verifyToken,
@@ -76,6 +80,20 @@ router.put(
       .withMessage("Password must contain at least one uppercase character"),
   ],
   authController.changePassword
+);
+router.put(
+  "/reset-password",
+  verifyToken,
+  check("newPassword")
+    .isLength(8)
+    .withMessage("Password must be at least 8 characters.")
+    .matches(/[0-9]/)
+    .withMessage("Password must contain at least one digit")
+    .matches(/[a-z]/)
+    .withMessage("Password must contain at least one lowercase character")
+    .matches(/[A-Z]/)
+    .withMessage("Password must contain at least one uppercase character"),
+  authController.resetPassword
 );
 
 module.exports = router;
