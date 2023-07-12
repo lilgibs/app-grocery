@@ -25,7 +25,7 @@ const LandingPage = () => {
     const getCategories = async () => {
       const result = await fetchCategories();
       setCategories(result.formattedCategories);
-      console.log(categories.slice(0, 8));
+      console.log(categories.slice(0, 5));
     };
 
     const getProducts = async () => {
@@ -113,7 +113,7 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-5">
+          <div className="mt-8 flex gap-3 justify-center">
             {categories.map((category) => (
               <Button bg={categories.indexOf(category) % 2 === 0 ? "green.200" : "pink.100"} color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
                 {category.label}

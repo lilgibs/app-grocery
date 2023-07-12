@@ -50,7 +50,7 @@ const Navbar = () => {
     <Disclosure as="nav" className="bg-white color-gray sticky top-0 z-50 drop-shadow-md">
       {({ open }) => (
         <>
-          <div className="py-7 flex justify-center md:py-4">
+          <div className="py-7 flex justify-around md:py-4">
             <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
               {/* Mobile menu button*/}
               <Disclosure.Button className="inline-flex items-center justify-center rounded-md p-2 hover:text-white">
@@ -82,7 +82,7 @@ const Navbar = () => {
                   <InputLeftElement pointerEvents="none">
                     <SearchIcon />
                   </InputLeftElement>
-                  <Input placeholder="Search product" size="sm" w={{ base: "95px", md: "100px", lg: "500px" }} rounded="lg" value={searchValue} onChange={handleSearchChange} />
+                  <Input placeholder="Search product" size="sm" w={{ base: "95px", md: "100px", lg: "600px" }} rounded="lg" value={searchValue} onChange={handleSearchChange} />
                 </InputGroup>
                 <button type="submit" style={{ display: "none" }} />
               </form>
@@ -94,7 +94,13 @@ const Navbar = () => {
                     {mainAddress ? <span> {mainAddress.city_name} </span> : <span> {locationGlobal.city} </span>}
                   </MenuButton>
                   <MenuList>
-                    <MenuItem>Change address</MenuItem>
+                    <MenuItem
+                      onClick={() => {
+                        nav("/profile");
+                      }}
+                    >
+                      Change address
+                    </MenuItem>
                   </MenuList>
                 </Menu>
               </div>
