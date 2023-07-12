@@ -12,5 +12,6 @@ router.patch("/cancel", orderController.cancelOrder);
 router.patch("/delivered", orderController.confirmOrderDelivery);
 router.get("/by-status", orderFilterController.getOrdersByStatus);
 router.get("/by-invoice", orderFilterController.getOrdersByInvoice);
+router.get("/by-date", orderFilterController.getOrdersByDate);
 
 module.exports = router;

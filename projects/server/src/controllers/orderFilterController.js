@@ -63,4 +63,32 @@ module.exports = {
       next(error);
     }
   },
+  getOrdersByDate: async (req, res, next) => {
+    try {
+      const userId = req.query.userId;
+      const startDate = req.query.startDate;
+      const endDate = req.query.endDate;
+      const page = parseInt(req.query.page) || 1;
+      const limit = 3;
+
+      const orderQuery = await query(`
+        SELECT * FROM orders
+        WHERE user_id = ${db.escape(userId)} AND
+          order_date >= ${startDate} AND
+          order_date <= ${endDate}`);
+
+      orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
+
+      // pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const paginatedOrder = orderQuery.slice(startIndex, endIndex);
+
+      const maxPages = Math.ceil(orderQuery.length / limit);
+
+      res.status(200).send({ orders: paginatedOrder, maxPages: maxPages });
+    } catch (error) {
+      next(error);
+    }
+  },
 };

@@ -1,14 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Button, Stack } from "@chakra-ui/react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { Button, Stack, Input, Text, Select, Divider } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 import OrderItem from "../components/OrderItem";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import axios from "axios";
-import { setOrderItems, fetchOrder, setOrderPage, setMaxPage } from "../features/orderSlice";
-import DatePicker from "../components/DatePicker";
-import { Input, Text, Select, Divider } from "@chakra-ui/react";
-import ReactPaginate from "react-paginate";
+import { setOrderItems } from "../features/orderSlice";
 
 const Orders = () => {
   const nav = useNavigate();
@@ -16,10 +12,6 @@ const Orders = () => {
   const userGlobal = useSelector((state) => state.user.user);
   const orderGlobal = useSelector((state) => state.order.order);
   const orderItems = orderGlobal.order_items;
-  // const currentPage = orderGlobal.page;
-  // const maxPage = orderGlobal.max_page;
-  // const itemsPerPage = orderGlobal.max_page;
-  const { isOpen: isDateOpen, onOpen: onDateOpen, onClose: onDateClose } = useDisclosure();
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -93,7 +85,6 @@ const Orders = () => {
           console.log(response.data.max);
           dispatch(setOrderItems(response.data.orders));
           setTotalPages(response.data.maxPages);
-          // paginate().catch(console.error);
         }
       } else {
         let response = await axios.get(`http://localhost:8000/api/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${status}`);
@@ -102,7 +93,6 @@ const Orders = () => {
           console.log(response.data.max);
           dispatch(setOrderItems(response.data.orders));
           setTotalPages(response.data.maxPages);
-          // paginate().catch(console.error);
         }
       }
     } catch (error) {
@@ -111,11 +101,52 @@ const Orders = () => {
   };
 
   // date filter
-  // const [date, setDate] = React.useState("");
-  // const handleChange = (event) => {
-  //   setDate(event.target.date);
-  //   console.log(date);
-  // };
+  const [startValue, setStartValue] = useState("");
+  const [endValue, setEndValue] = useState("");
+  const [minEndDate, setMinEndDate] = useState("");
+
+  const handleStartChange = (e) => {
+    const selectedStartDate = e.target.value;
+    setStartValue(selectedStartDate);
+    setMinEndDate(selectedStartDate); // Set the minimum end date as the selected start date
+    if (endValue < selectedStartDate) {
+      setEndValue(selectedStartDate); // Reset the end date if it's earlier than the new start date
+    }
+  };
+
+  const handleEndChange = (e) => {
+    const selectedEndDate = e.target.value;
+    if (selectedEndDate >= startValue) {
+      setEndValue(selectedEndDate);
+    }
+  };
+
+  const formatDate = (dateString) => {
+    const dateObj = new Date(dateString);
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+    const day = String(dateObj.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }; //format date for sql
+
+  const handleDate = async () => {
+    try {
+      const startDate = formatDate(startValue);
+      const endDate = formatDate(endValue);
+
+      const response = await axios.get(`http://localhost:8000/api/order/by-date/?userId=${userGlobal.user_id}&page=${currentPage}&startDate="${startDate}"&endDate="${endDate}"`);
+
+      console.log(response.data);
+      if (response.data.orders.length == 0) {
+        alert("Orders not found");
+      }
+      dispatch(setOrderItems(response.data.orders));
+      setTotalPages(response.data.maxPages);
+      setSelectedStatus("All");
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
     console.log(currentPage);
@@ -125,10 +156,9 @@ const Orders = () => {
           let response = await axios.get(`http://localhost:8000/api/order/?userId=${userGlobal.user_id}&page=${currentPage}`);
           if (response) {
             console.log(response.data.orders);
-            // console.log(response.data.maxPages);
+
             dispatch(setOrderItems(response.data.orders));
             setTotalPages(response.data.maxPages);
-            // paginate().catch(console.error);
           }
         } else {
           let response = await axios.get(`http://localhost:8000/api/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${selectedStatus}&page=${currentPage}`);
@@ -137,7 +167,6 @@ const Orders = () => {
             console.log(response.data.maxPages);
             dispatch(setOrderItems(response.data.orders));
             setTotalPages(response.data.maxPages);
-            // paginate().catch(console.error);
           }
         }
       } catch (error) {
@@ -198,7 +227,7 @@ const Orders = () => {
                 {/* Filter starts */}
                 <Divider />
                 <Text className="font-semibold text-green-600">Sort and Filter</Text>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-3">
                   <div>
                     <Select placeholder="Sort by" size="sm" value={sortBy} onChange={handleSortChange}>
                       <option value="desc">Latest to oldest</option>
@@ -211,11 +240,29 @@ const Orders = () => {
                       Find
                     </Button>
                   </div>
-                  <Button onClick={onDateOpen} size="sm">
-                    Filter by Date
-                  </Button>
-                </div>
 
+                  <div className="flex flex-col gap-2">
+                    <div className="grid grid-cols-4">
+                      <Text>Start</Text>
+                      <Input className="col-span-3" placeholder="Select Date and Time" size="sm" type="datetime-local" value={startValue} onChange={handleStartChange} />
+                    </div>
+                    <div className="grid grid-cols-4">
+                      <Text>End</Text>
+                      <Input
+                        className="col-span-3"
+                        placeholder="Select Date and Time"
+                        size="sm"
+                        type="datetime-local"
+                        value={endValue}
+                        onChange={handleEndChange}
+                        min={minEndDate} // Set the minimum allowed value for the end date
+                      />
+                    </div>
+                    <Button size="sm" onClick={handleDate}>
+                      Find order by date
+                    </Button>
+                  </div>
+                </div>
                 {/* Filter ends */}
               </div>
             </div>
@@ -282,18 +329,6 @@ const Orders = () => {
           </div>
         </>
       )}
-
-      {/* Modal */}
-      <Modal size="5xl" isOpen={isDateOpen} onClose={onDateClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Filter by date</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            <DatePicker />
-          </ModalBody>
-        </ModalContent>
-      </Modal>
     </div>
   );
 };
