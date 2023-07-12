@@ -1,17 +1,92 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Card, CardHeader, CardBody, CardFooter, Text, Heading, Box, StackDivider } from "@chakra-ui/react";
+import React, { useState } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { Button, Stack } from "@chakra-ui/react";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
-import { useNavigate } from "react-router-dom";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import OrderItem from "../components/OrderItem";
+import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
+import axios from "axios";
+import { setOrderItems, fetchOrder } from "../features/orderSlice";
+import DatePicker from "../components/DatePicker";
+import { Input, Text, Select, Divider } from "@chakra-ui/react";
+import ReactPaginate from "react-paginate";
 
 const Orders = () => {
   const nav = useNavigate();
+  const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
   const orderGlobal = useSelector((state) => state.order.order);
   const orderItems = orderGlobal.order_items;
+  const { isOpen: isDateOpen, onOpen: onDateOpen, onClose: onDateClose } = useDisclosure();
+
+  // pagination
+  const [data, setData] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+
+  // sort by
+  const [sortBy, setSortBy] = useState("desc");
+
+  const handleSortChange = (event) => {
+    const selectedValue = event.target.value;
+    const orderItems = [...orderGlobal.order_items];
+
+    setSortBy(selectedValue);
+    if (selectedValue === "desc") {
+      const sortDesc = orderItems.sort((a, b) => b.order_id - a.order_id);
+      dispatch(setOrderItems(sortDesc));
+    } else if (selectedValue === "asc") {
+      const sortAsc = orderItems.sort((a, b) => a.order_id - b.order_id);
+      dispatch(setOrderItems(sortAsc));
+    }
+  };
+
+  // id filter
+  const [selectedId, setSelectedId] = React.useState("");
+  const handleIdChange = (event) => setSelectedId(event.target.value);
+
+  const handleId = async () => {
+    try {
+      console.log(selectedId);
+      let response = await axios.get(`http://localhost:8000/api/order/by-invoice/?userId=${userGlobal.user_id}&orderId=${selectedId}`);
+      if (response.data.data.length === 0) {
+        alert("Order not found");
+      } else {
+        dispatch(setOrderItems(response.data.data));
+        console.log(response.data.data[0].order_status);
+        setSelectedStatus(response.data.data[0].order_status);
+      }
+    } catch (error) {
+      alert(error.response.data);
+    }
+  };
+
+  // status filter
+  const [selectedStatus, setSelectedStatus] = useState("All");
+  const statuses = ["All", "Waiting for payment", "Waiting for confirmation", "Processed", "Out for delivery", "Delivered", "Canceled"];
+
+  const handleStatus = async (status) => {
+    try {
+      setSelectedStatus(status);
+
+      if (status === "All") {
+        dispatch(fetchOrder(userGlobal.user_id));
+      } else {
+        let response = await axios.get(`http://localhost:8000/api/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${status}`);
+        if (response) {
+          dispatch(setOrderItems(response.data));
+        }
+      }
+    } catch (error) {
+      alert(error.response.data);
+    }
+  };
+
+  // date filter
+  // const [date, setDate] = React.useState("");
+  // const handleChange = (event) => {
+  //   setDate(event.target.date);
+  //   console.log(date);
+  // };
 
   const renderOrderItems = () => {
     // return console.log(orderItems);
@@ -35,18 +110,70 @@ const Orders = () => {
 
   return (
     <div className="mx-20">
+      {/* <Input placeholder="Select Date and Time" size="md" type="datetime-local" value={date} onChange={handleChange} /> */}
+
       {userGlobal.user_id > 0 ? (
         <>
-          <div className="grid grid-cols-5 m-10">
-            <div cl>
-              <h1 className="text-3xl pt-5 font-semibold tracking-tight text-gray-900 ">Orders</h1>
+          <div className="grid grid-cols-5 m-10 gap-5">
+            <div className="flex flex-col gap-5">
+              <h1 className="text-3xl pt-5 font-semibold tracking-tight text-gray-900">Orders</h1>
+              <div className="flex flex-col gap-3">
+                {/* status starts */}
+                {statuses.map((x) => (
+                  <div
+                    className={`flex border px-4 py-2 rounded-md items-center cursor-pointer hover:translate-x-1 duration-100
+                    ${selectedStatus === x ? "font-semibold border-green-500 text-green-500" : ""}`}
+                    onClick={() => {
+                      handleStatus(x);
+                    }}
+                  >
+                    <p className="">{x}</p>
+                  </div>
+                ))}
+                {/* status ends */}
+                {/* Filter starts */}
+                <Divider />
+                <Text className="font-semibold text-green-600">Filter and Sort</Text>
+                <div className="flex flex-col gap-2">
+                  <div>
+                    <Select placeholder="Sort by" size="sm" value={sortBy} onChange={handleSortChange}>
+                      <option value="desc">Latest to oldest</option>
+                      <option value="asc">Oldest to latest</option>
+                    </Select>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    <Input className="col-span-2" type="number" value={selectedId} onChange={handleIdChange} placeholder="Find order by id" size="sm" />
+                    <Button className="col-span-1" size="sm" onClick={handleId}>
+                      Find
+                    </Button>
+                  </div>
+                  <Button onClick={onDateOpen} size="sm">
+                    Filter by Date
+                  </Button>
+                </div>
+
+                {/* Filter ends */}
+              </div>
             </div>
 
             {orderItems.length === 0 ? (
-              <div className="col-span-4 pt-7">You haven't made any orders yet</div>
+              <div className="col-span-4 pt-7">No orders found</div>
             ) : (
               <>
-                <div className="col-span-4 flex flex-col gap-6">{renderOrderItems()}</div>
+                {/* Pagination starts */}
+                <div className="col-span-4">
+                  <div className="flex gap-3 mb-2">
+                    <Button size="xs" onClick={() => setCurrentPage(currentPage === 1 ? currentPage : currentPage - 1)}>
+                      Prev
+                    </Button>
+                    <span>{currentPage}</span>
+                    <Button size="xs" onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                      Next
+                    </Button>
+                  </div>
+                  {/* Pagination ends */}
+                  <div className="flex flex-col gap-6">{renderOrderItems()}</div>
+                </div>
               </>
             )}
           </div>
@@ -87,6 +214,18 @@ const Orders = () => {
           </div>
         </>
       )}
+
+      {/* Modal */}
+      <Modal size="5xl" isOpen={isDateOpen} onClose={onDateClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Filter by date</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <DatePicker />
+          </ModalBody>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

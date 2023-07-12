@@ -6,6 +6,8 @@ export const orderSlice = createSlice({
   initialState: {
     order: {
       order_items: [],
+      date_filter_start: "",
+      date_filter_end: "",
     },
   },
   reducers: {
@@ -15,6 +17,8 @@ export const orderSlice = createSlice({
     resetOrder: (state) => {
       state.order = {
         order_items: [],
+        date_filter_start: "",
+        date_filter_end: "",
       };
     },
   },

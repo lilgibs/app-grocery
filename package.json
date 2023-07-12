@@ -19,5 +19,8 @@
   },
   "workspaces": [
     "projects/*"
-  ]
+  ],
+  "dependencies": {
+    "react-date-range": "^1.4.0"
+  }
 }
