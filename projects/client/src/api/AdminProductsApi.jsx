@@ -28,3 +28,24 @@ export const fetchProductsInventory = async (adminToken, page, limit, searchText
     console.error(error);
   }
 };
+
+export const fetchProducts = async (adminToken) => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/admin/products',
+      {
+        headers: {
+          'Authorization': `Bearer ${adminToken}`
+        }
+      }
+    );
+    const products = response.data.products;
+    const options = products.map((product) => ({
+      value: product.product_id,
+      label: product.product_name,
+    }));
+    return options
+    // setProductOptions(products.map(({ product_id, product_name }) => ({ value: product_id, label: product_name })));
+  } catch (error) {
+    console.error(error);
+  }
+};
