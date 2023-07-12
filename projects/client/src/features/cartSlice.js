@@ -56,7 +56,7 @@ export function fetchCart(user) {
       //console.log(user);
       const response = await Axios.get(`http://localhost:8000/api/cart/?userId=${user}`);
       let cartItems = response.data.cart;
-      // console.log(cartItems);
+      console.log(cartItems);
 
       dispatch(setCartItems(cartItems));
       dispatch(updateCartCount());

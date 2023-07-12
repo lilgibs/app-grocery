@@ -1,3 +1,4 @@
+const { response } = require("express");
 const { db, query } = require("../config/db");
 
 module.exports = {
@@ -16,8 +17,11 @@ module.exports = {
   },
   getOrdersByStatus: async (req, res, next) => {
     try {
-      let userId = req.query.userId;
-      let orderStatus = req.query.orderStatus.toString();
+      const userId = req.query.userId;
+      const orderStatus = req.query.orderStatus.toString();
+      const page = parseInt(req.query.page) || 1;
+      const limit = 3;
+
       const orderQuery = await query(`
         SELECT * FROM orders
         WHERE
@@ -26,7 +30,14 @@ module.exports = {
 
       orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
 
-      res.status(200).send(orderQuery);
+      // pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const paginatedOrder = orderQuery.slice(startIndex, endIndex);
+
+      const maxPages = Math.ceil(orderQuery.length / limit);
+
+      res.status(200).send({ orders: paginatedOrder, maxPages: maxPages });
     } catch (error) {
       next(error);
     }

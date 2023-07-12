@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button, Stack } from "@chakra-ui/react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import OrderItem from "../components/OrderItem";
 import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import axios from "axios";
-import { setOrderItems, fetchOrder } from "../features/orderSlice";
+import { setOrderItems, fetchOrder, setOrderPage, setMaxPage } from "../features/orderSlice";
 import DatePicker from "../components/DatePicker";
 import { Input, Text, Select, Divider } from "@chakra-ui/react";
 import ReactPaginate from "react-paginate";
@@ -16,12 +16,30 @@ const Orders = () => {
   const userGlobal = useSelector((state) => state.user.user);
   const orderGlobal = useSelector((state) => state.order.order);
   const orderItems = orderGlobal.order_items;
+  // const currentPage = orderGlobal.page;
+  // const maxPage = orderGlobal.max_page;
+  // const itemsPerPage = orderGlobal.max_page;
   const { isOpen: isDateOpen, onOpen: onDateOpen, onClose: onDateClose } = useDisclosure();
 
   // pagination
-  const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const handlePaginatePrev = () => {
+    if (currentPage === 1) {
+      setCurrentPage(currentPage);
+    } else {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handlePaginateNext = () => {
+    if (currentPage === totalPages) {
+      setCurrentPage(currentPage);
+    } else {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   // sort by
   const [sortBy, setSortBy] = useState("desc");
@@ -69,11 +87,22 @@ const Orders = () => {
       setSelectedStatus(status);
 
       if (status === "All") {
-        dispatch(fetchOrder(userGlobal.user_id));
+        let response = await axios.get(`http://localhost:8000/api/order/?userId=${userGlobal.user_id}`);
+        if (response) {
+          console.log(response.data.orders);
+          console.log(response.data.max);
+          dispatch(setOrderItems(response.data.orders));
+          setTotalPages(response.data.maxPages);
+          // paginate().catch(console.error);
+        }
       } else {
         let response = await axios.get(`http://localhost:8000/api/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${status}`);
         if (response) {
-          dispatch(setOrderItems(response.data));
+          console.log(response.data.orders);
+          console.log(response.data.max);
+          dispatch(setOrderItems(response.data.orders));
+          setTotalPages(response.data.maxPages);
+          // paginate().catch(console.error);
         }
       }
     } catch (error) {
@@ -87,6 +116,41 @@ const Orders = () => {
   //   setDate(event.target.date);
   //   console.log(date);
   // };
+
+  useEffect(() => {
+    console.log(currentPage);
+    const renderPaginate = async () => {
+      try {
+        if (selectedStatus === "All") {
+          let response = await axios.get(`http://localhost:8000/api/order/?userId=${userGlobal.user_id}&page=${currentPage}`);
+          if (response) {
+            console.log(response.data.orders);
+            // console.log(response.data.maxPages);
+            dispatch(setOrderItems(response.data.orders));
+            setTotalPages(response.data.maxPages);
+            // paginate().catch(console.error);
+          }
+        } else {
+          let response = await axios.get(`http://localhost:8000/api/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${selectedStatus}&page=${currentPage}`);
+          if (response) {
+            console.log(response.data.orders);
+            console.log(response.data.maxPages);
+            dispatch(setOrderItems(response.data.orders));
+            setTotalPages(response.data.maxPages);
+            // paginate().catch(console.error);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    renderPaginate();
+    setSortBy("desc");
+  }, [currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedStatus]);
 
   const renderOrderItems = () => {
     // return console.log(orderItems);
@@ -133,7 +197,7 @@ const Orders = () => {
                 {/* status ends */}
                 {/* Filter starts */}
                 <Divider />
-                <Text className="font-semibold text-green-600">Filter and Sort</Text>
+                <Text className="font-semibold text-green-600">Sort and Filter</Text>
                 <div className="flex flex-col gap-2">
                   <div>
                     <Select placeholder="Sort by" size="sm" value={sortBy} onChange={handleSortChange}>
@@ -160,17 +224,21 @@ const Orders = () => {
               <div className="col-span-4 pt-7">No orders found</div>
             ) : (
               <>
-                {/* Pagination starts */}
                 <div className="col-span-4">
+                  {/* Pagination starts */}
+
                   <div className="flex gap-3 mb-2">
-                    <Button size="xs" onClick={() => setCurrentPage(currentPage === 1 ? currentPage : currentPage - 1)}>
+                    <Button size="xs" onClick={handlePaginatePrev}>
                       Prev
                     </Button>
-                    <span>{currentPage}</span>
-                    <Button size="xs" onClick={() => setCurrentPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                    <span>
+                      {currentPage} out of {totalPages}
+                    </span>
+                    <Button size="xs" onClick={handlePaginateNext}>
                       Next
                     </Button>
                   </div>
+
                   {/* Pagination ends */}
                   <div className="flex flex-col gap-6">{renderOrderItems()}</div>
                 </div>

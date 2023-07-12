@@ -28,6 +28,7 @@ const Navbar = () => {
   const nav = useNavigate();
   const locationGlobal = useSelector((state) => state.location.location);
   const userGlobal = useSelector((state) => state.user.user);
+  const cartGlobal = useSelector((state) => state.cart.cart);
   const userAddresses = useSelector((state) => state.address.address);
   let mainAddress;
 
@@ -59,7 +60,7 @@ const Navbar = () => {
               </Disclosure.Button>
             </div>
 
-            <div className="absolute inset-y-0 right-0 flex gap-2 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 md:gap-3 lg:gap-4">
+            <div className="absolute inset-y-0 right-0 flex gap-2 items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0 md:gap-3 lg:gap-6">
               <div className="flex flex-1 gap-5 items-center justify-center sm:items-stretch sm:justify-start">
                 <div className="hidden sm:block">
                   <div className="flex space-x-4">
@@ -105,15 +106,19 @@ const Navbar = () => {
                 </Menu>
               </div>
 
-              <button
-                type="button"
-                className="pr-1 text-gray-500 hover:text-gray-300"
-                onClick={() => {
-                  nav("/cart");
-                }}
-              >
-                <Icon as={BsFillCartFill} />
-              </button>
+              <div className="flex">
+                {/* {cartGlobal.cart_count > 0 ? <p className="bg-red-500 text-white px-1 text-xs rounded-full mb-3">{cartGlobal.cart_count}</p> : <></>} */}
+
+                <button
+                  type="button"
+                  className="pr-1 text-gray-500 hover:text-gray-300"
+                  onClick={() => {
+                    nav("/cart");
+                  }}
+                >
+                  <Icon as={BsFillCartFill} />
+                </button>
+              </div>
 
               <div className="hidden md:block">
                 {userGlobal.user_id > 0 ? (
