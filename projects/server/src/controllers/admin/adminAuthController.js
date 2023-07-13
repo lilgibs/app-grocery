@@ -18,7 +18,9 @@ module.exports = {
 
       const { email, password } = req.body;
 
-      const isEmailExist = await query(`SELECT * FROM admins WHERE email=${db.escape(email)}`);
+      const isEmailExist = await query(
+        `SELECT * FROM admins WHERE email=${db.escape(email)}`
+      );
 
       if (isEmailExist.length == 0) {
         throw {
@@ -27,10 +29,10 @@ module.exports = {
         };
       }
 
-      let payload = { 
+      let payload = {
         adminId: isEmailExist[0].admin_id,
         adminRole: isEmailExist[0].role,
-        adminStoreId: isEmailExist[0].store_id 
+        adminStoreId: isEmailExist[0].store_id,
       };
 
       const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
@@ -55,7 +57,9 @@ module.exports = {
   },
   checkAdminLogin: async (req, res, next) => {
     try {
-      const admin = await query(`SELECT * FROM admins WHERE admin_id = ${db.escape(req.user.adminId)}`);
+      const admin = await query(
+        `SELECT * FROM admins WHERE admin_id = ${db.escape(req.user.adminId)}`
+      );
       if (admin[0].role == 99) {
         return res.status(200).send({
           message: "Super admin verified",
@@ -90,7 +94,16 @@ module.exports = {
     }
   },
   createBranchAdmin: async (req, res, next) => {
-    const { name, email, password, role, store_name, store_location, longitude, latitude } = req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+      store_name,
+      store_location,
+      longitude,
+      latitude,
+    } = req.body;
 
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -102,18 +115,21 @@ module.exports = {
       if (adminRole !== 99) {
         throw {
           status_code: 403,
-          message: "Access denied. You are not authorized to access this route.",
+          message:
+            "Access denied. You are not authorized to access this route.",
           errors: errors.array(),
         };
       }
 
-      const isEmailExist = await query(`select * from admins where email = ${db.escape(email)}`);
+      const isEmailExist = await query(
+        `select * from admins where email = ${db.escape(email)}`
+      );
 
       if (isEmailExist.length > 0) {
         next({ status_code: 409, message: "Email has been used" });
       }
 
-      const sqlQueryStore = `INSERT INTO Stores (store_name, store_location, latitude, longitude)
+      const sqlQueryStore = `INSERT INTO stores (store_name, store_location, latitude, longitude)
         VALUES(
           ${db.escape(store_name)}, 
           ${db.escape(store_location)}, 
@@ -126,7 +142,7 @@ module.exports = {
       const salt = await bcrypt.genSalt(10);
       const hashedPassword = await bcrypt.hash(password, salt);
 
-      const sqlQueryAdmin = `INSERT INTO Admins (name, email, password, role, store_id) 
+      const sqlQueryAdmin = `INSERT INTO admins (name, email, password, role, store_id) 
         VALUES (
           ${db.escape(name)}, 
           ${db.escape(email)}, 
@@ -138,7 +154,14 @@ module.exports = {
       const result = await query(sqlQueryAdmin);
       res.status(201).json({
         message: "Branch admin created",
-        data: { id: result.insertId, email, role, store_id, store_name, store_location },
+        data: {
+          id: result.insertId,
+          email,
+          role,
+          store_id,
+          store_name,
+          store_location,
+        },
       });
     } catch (error) {
       console.error(error);

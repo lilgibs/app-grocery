@@ -3,7 +3,7 @@ import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { changePassword } from "../api/AuthApi";
+import { changePassword } from "../api/authApi";
 
 const ChangePassword = () => {
   const nav = useNavigate();

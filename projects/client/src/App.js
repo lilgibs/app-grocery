@@ -35,6 +35,7 @@ import { getDiscount } from "./features/discountSlice";
 import { getVoucher } from "./features/voucherSlice";
 import ResetPasswordEmailForm from "./pages/ResetPasswordEmailForm";
 import ResetPassword from "./pages/ResetPassword";
+import AdminStockHistory from "./pages/AdminStockHistory";
 
 function App() {
   const dispatch = useDispatch();
@@ -43,6 +44,12 @@ function App() {
   const adminToken = localStorage.getItem("admin_token");
   const userGlobal = useSelector((state) => state.user.user);
   const adminGlobal = useSelector((state) => state.admin.admin);
+  const userAddresses = useSelector((state) => state.address.address);
+  let mainAddress;
+
+  if (userAddresses) {
+    mainAddress = userAddresses.find((address) => address.first_address === 1);
+  }
 
   useEffect(() => {
     if (userToken) {
@@ -76,13 +83,20 @@ function App() {
   }, []);
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(function (position) {
-      let latitude = position.coords.latitude;
-      let longitude = position.coords.longitude;
+    if (mainAddress) {
+      let latitude = mainAddress.latitude;
+      let longitude = mainAddress.longitude;
 
       dispatch(getCityStore(latitude, longitude));
-    });
-  }, []);
+    } else {
+      navigator.geolocation.getCurrentPosition(function (position) {
+        let latitude = position.coords.latitude;
+        let longitude = position.coords.longitude;
+
+        dispatch(getCityStore(latitude, longitude));
+      });
+    }
+  }, [mainAddress]);
 
   useEffect(() => {
     if (userGlobal.user_id !== null) {
@@ -161,6 +175,10 @@ function App() {
             />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/discounts" element={<AdminDiscount />} />
+            <Route
+              path="/admin/stock-history"
+              element={<AdminStockHistory />}
+            />
           </>
         ) : (
           //when admin is logged out
