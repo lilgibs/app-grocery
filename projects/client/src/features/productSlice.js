@@ -83,7 +83,6 @@ export function fetchProductUser(productName, storeId) {
 export function addProduct(product) {
   return async (dispatch) => {
     try {
-      console.log(product);
 
       let formData = new FormData();
       formData.append("store_id", product.store_id);
@@ -101,7 +100,7 @@ export function addProduct(product) {
       }
 
       let response = await axios.post(
-        "http://localhost:8000/api/admin/products/add-product",
+        "http://localhost:8000/api/admin/products",
         formData,
         getConfig(true)
       );
