@@ -33,7 +33,7 @@ module.exports = {
         adminStoreId: isEmailExist[0].store_id 
       };
 
-      const token = jwt.sign(payload, "joe", { expiresIn: "1h" });
+      const token = jwt.sign(payload, "joe", { expiresIn: "8h" });
 
       return res.status(200).send({
         message: "Admin login success",

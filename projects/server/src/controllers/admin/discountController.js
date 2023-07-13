@@ -53,7 +53,7 @@ module.exports = {
         const getProductQuery = await query(
           `SELECT si.store_inventory_id, p.product_price from store_inventory si
             inner join products p on si.product_id = p.product_id
-            where p.product_name = ${db.escape(product)};`
+            where p.product_name = ${db.escape(product)} AND si.store_id = ${db.escape(store_id)};`
         );
 
         const addProductDiscountQuery = await query(

@@ -1,4 +1,4 @@
- const { validationResult } = require("express-validator");
+const { validationResult } = require("express-validator");
 const { db, query } = require("../config/db");
 const { handleServerError, handleValidationErrors } = require("../utils/errorHandlers");
 
@@ -30,10 +30,19 @@ module.exports = {
           si.store_inventory_id,
           si.quantity_in_stock,
           si.store_id,
-          (SELECT image_url FROM product_images WHERE product_id = p.product_id LIMIT 1) as image_url
+          d.discount_value,
+          d.discount_value_type,
+          (SELECT image_url FROM product_images WHERE product_id = p.product_id LIMIT 1) as image_url,
+          CASE
+            WHEN d.discount_value_type = 'PERCENTAGE' THEN p.product_price * ((100-d.discount_value) / 100)
+            WHEN d.discount_value_type = 'NOMINAL' THEN p.product_price - d.discount_value
+            ELSE NULL
+          END as discounted_price
         FROM products p          
         JOIN store_inventory si on p.product_id = si.product_id
         JOIN product_categories pc ON p.product_category_id = pc.product_category_id
+        LEFT JOIN product_discounts pd ON si.store_inventory_id = pd.store_inventory_id
+        LEFT JOIN discounts d ON pd.discount_id = d.discount_id AND CURDATE() BETWEEN d.start_date AND d.end_date
         WHERE si.store_id = ${db.escape(storeId)}`
 
       let countQuery = `SELECT COUNT(*) as total
@@ -42,9 +51,9 @@ module.exports = {
         JOIN product_categories pc ON p.product_category_id = pc.product_category_id
         WHERE si.store_id = ${db.escape(storeId)}`
 
-      if(search){
-        productQuery += ` AND product_name LIKE ${db.escape('%' + search + '%')}` 
-        countQuery += ` AND product_name LIKE ${db.escape('%' + search + '%')}` 
+      if (search) {
+        productQuery += ` AND product_name LIKE ${db.escape('%' + search + '%')}`
+        countQuery += ` AND product_name LIKE ${db.escape('%' + search + '%')}`
       }
 
       if (productCategory) {
@@ -53,7 +62,7 @@ module.exports = {
       }
 
       if (sortType && sortOrder) {
-        productQuery += ` ORDER BY ${sortType === 'price' ? 'p.product_price' : ''} ${sortOrder}`;
+        productQuery += ` ORDER BY ${sortType === 'price' ? 'p.product_price' : 'p.product_name'} ${sortOrder}`;
       }
 
       productQuery += ` LIMIT ${limit} OFFSET ${offset}`
