@@ -2,7 +2,7 @@ import React from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useNavigate, useParams } from "react-router-dom";
-import { resetPassword } from "../api/AuthApi";
+import { resetPassword } from "../api/authApi";
 
 const ResetPassword = () => {
   let { token } = useParams();

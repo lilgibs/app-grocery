@@ -14,6 +14,7 @@ const cartRoutes = require("./cartRoutes");
 const orderRoutes = require("./orderRoutes");
 const discountRoutes = require("./admin/discountRoutes");
 const voucherRoutes = require("./admin/voucherRoutes");
+const stockHistoryRoutes = require("./admin/stockHistoryRoutes");
 
 module.exports = {
   authRoutes,
@@ -32,4 +33,5 @@ module.exports = {
   adminOrderRoutes,
   discountRoutes,
   voucherRoutes,
+  stockHistoryRoutes,
 };

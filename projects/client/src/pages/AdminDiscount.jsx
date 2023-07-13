@@ -169,6 +169,22 @@ function UserProfile() {
         then: () => Yup.array().min(1, "Discount Value Type is required"),
         otherwise: () => Yup.array().nullable(),
       }),
+      voucher_name: Yup.string().when("discount_type", {
+        is: (val) => val === "VOUCHER",
+        then: () =>
+          Yup.string()
+            .required("Voucher Name is required")
+            .matches(/^\S+$/, "Only one word is allowed"),
+        otherwise: () => Yup.string().nullable(),
+      }),
+      minimum_amount: Yup.number().when("discount_type", {
+        is: (val) => val === "VOUCHER",
+        then: () =>
+          Yup.number()
+            .required("Voucher Minimum Amount is required")
+            .typeError("It has to be a number"),
+        otherwise: () => Yup.number().nullable(),
+      }),
     });
 
     return (
