@@ -1,24 +1,21 @@
 const { db, query } = require("../../config/db");
 const { validationResult } = require("express-validator");
-const {
-  handleValidationErrors,
-  handleServerError,
-} = require("../../utils/errorHandlers");
-const path = require("path");
-const fs = require("fs");
+const { handleValidationErrors, handleServerError } = require("../../utils/errorHandlers");
+const path = require('path');
+const fs = require('fs');
 
 module.exports = {
   getProducts: async (req, res, next) => {
     try {
-      const sqlQuery = `SELECT * FROM products`;
-      const result = await query(sqlQuery);
+      const sqlQuery = `SELECT * FROM products`
+      const result = await query(sqlQuery)
 
       res.status(200).json({
-        message: "Products fetched successfully",
-        products: result,
+        message: 'Products fetched successfully',
+        products: result
       });
     } catch (error) {
-      console.log(error);
+      console.log(error)
       handleServerError(error, next);
     }
   },
@@ -27,7 +24,7 @@ module.exports = {
       const page = parseInt(req.query.page) || 1;
       const limit = parseInt(req.query.limit) || 10;
       const offset = (page - 1) * limit;
-      const searchText = req.query.search || "";
+      const searchText = req.query.search || '';
       const productCategoryId = req.query.category;
       const sortType = req.query.sortType; // 'price' or 'stock'
       const sortOrder = req.query.sortOrder; // 'asc' or 'desc'
@@ -37,26 +34,19 @@ module.exports = {
       let countSqlQuery = ` SELECT COUNT(*) as total
         FROM products p
         JOIN store_inventory si ON p.product_id = si.product_id
-        WHERE (si.is_deleted = 0 OR si.is_deleted IS NULL) AND si.store_id = ${db.escape(
-          adminStoreId
-        )}
+        WHERE (si.is_deleted = 0 OR si.is_deleted IS NULL) AND si.store_id = ${db.escape(adminStoreId)}
       `;
-      if (searchText !== "") {
-        countSqlQuery += ` AND p.product_name LIKE ${db.escape(
-          "%" + searchText + "%"
-        )}`;
+      if (searchText !== '') {
+        countSqlQuery += ` AND p.product_name LIKE ${db.escape('%' + searchText + '%')}`;
       }
       if (productCategoryId) {
-        countSqlQuery += ` AND p.product_category_id = ${db.escape(
-          productCategoryId
-        )}`;
+        countSqlQuery += ` AND p.product_category_id = ${db.escape(productCategoryId)}`;
       }
 
       const countResult = await query(countSqlQuery, [adminStoreId]);
       const total = countResult[0].total;
 
       // Menggabungkan tabel products, store_inventory, dan stores berdasarkan product_id dan store_id
-      // Menambahkan klausa WHERE untuk menentukan store_id
       let sqlQuery = `
         SELECT 
           si.store_inventory_id,
@@ -70,57 +60,44 @@ module.exports = {
         FROM products p
         JOIN product_categories pc ON p.product_category_id = pc.product_category_id
         JOIN store_inventory si ON p.product_id = si.product_id
-        WHERE (si.is_deleted = 0 OR si.is_deleted IS NULL) AND si.store_id = ${db.escape(
-          adminStoreId
-        )}
+        WHERE (si.is_deleted = 0 OR si.is_deleted IS NULL) AND si.store_id = ${db.escape(adminStoreId)}
       `;
-      if (searchText !== "") {
-        sqlQuery += ` AND p.product_name LIKE ${db.escape(
-          "%" + searchText + "%"
-        )}`;
+      if (searchText !== '') {
+        sqlQuery += ` AND p.product_name LIKE ${db.escape('%' + searchText + '%')}`;
       }
       if (productCategoryId) {
-        sqlQuery += ` AND p.product_category_id = ${db.escape(
-          productCategoryId
-        )}`;
+        sqlQuery += ` AND p.product_category_id = ${db.escape(productCategoryId)}`;
       }
       if (sortType && sortOrder) {
-        sqlQuery += ` ORDER BY ${
-          sortType === "price" ? "p.product_price" : "si.quantity_in_stock"
-        } ${sortOrder}`;
+        sqlQuery += ` ORDER BY ${sortType === 'price' ? 'p.product_price' : 'si.quantity_in_stock'} ${sortOrder}`;
       }
       sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
 
       const result = await query(sqlQuery, [adminStoreId]);
 
       res.status(200).json({
-        message: "Products fetched successfully",
+        message: 'Products fetched successfully',
         products: result,
-        total: total,
+        total: total
       });
     } catch (error) {
-      console.log(error);
+      console.log(error)
+      handleServerError(error, next);
     }
   },
   getProductById: async (req, res, next) => {
     const { productId } = req.params;
-    const storeId = req.admin.adminStoreId;
+    const storeId = req.admin.adminStoreId
 
     try {
-      const sqlProductQuery = `SELECT * FROM products WHERE product_id = ${db.escape(
-        productId
-      )}`;
+      const sqlProductQuery = `SELECT * FROM products WHERE product_id = ${db.escape(productId)}`;
       const productResult = await query(sqlProductQuery);
 
-      const sqlStoreInventory = `SELECT * FROM store_inventory WHERE product_id = ${db.escape(
-        productId
-      )} AND store_id = ${db.escape(storeId)}`;
+      const sqlStoreInventory = `SELECT * FROM store_inventory WHERE product_id = ${db.escape(productId)} AND store_id = ${db.escape(storeId)}`;
       const storeInventoryResult = await query(sqlStoreInventory);
 
       if (productResult.length > 0) {
-        const sqlImageQuery = `SELECT * FROM product_images WHERE product_id = ${db.escape(
-          productId
-        )}`;
+        const sqlImageQuery = `SELECT * FROM product_images WHERE product_id = ${db.escape(productId)}`;
         const imageResult = await query(sqlImageQuery);
 
         const product = {
@@ -137,30 +114,23 @@ module.exports = {
         };
 
         res.status(200).json({
-          message: "Product fetched successfully",
+          message: 'Product fetched successfully',
           product: product,
         });
       } else {
         res.status(404).json({
-          message: "Product not found",
+          message: 'Product not found',
         });
       }
     } catch (error) {
       console.log(error);
       res.status(500).json({
-        message: "Internal server error",
+        message: 'Internal server error',
       });
     }
   },
   addProduct: async (req, res, next) => {
-    const {
-      store_id,
-      product_category_id,
-      product_name,
-      product_description,
-      product_price,
-      quantity_in_stock,
-    } = req.body;
+    const { store_id, product_category_id, product_name, product_description, product_price, product_weight, quantity_in_stock } = req.body;
     const errors = validationResult(req);
 
     try {
@@ -169,33 +139,28 @@ module.exports = {
       // 1. Memeriksa gambar
       let product_images = [];
       if (req.files) {
-        product_images = req.files.map((file) => "uploads/" + file.filename);
+        product_images = req.files.map(file => 'uploads/' + file.filename);
       }
 
       // Mulai transaksi
-      await query("START TRANSACTION");
+      await query('START TRANSACTION');
 
       // Memeriksa apakah product_name sudah tersedia di db
-      const checkProductQuery = `SELECT * FROM products WHERE product_name = ${db.escape(
-        product_name
-      )}`;
+      const checkProductQuery = `SELECT * FROM products WHERE product_name = ${db.escape(product_name)}`
       const existingProduct = await query(checkProductQuery);
 
       // Jika product sudah ada, check apakah produk yang diinput sudah ada di inventory
       if (existingProduct.length > 0) {
-        const checkStoreInventory = `SELECT * FROM store_inventory WHERE store_id = ${db.escape(
-          store_id
-        )} AND product_id = ${db.escape(existingProduct[0].product_id)}`;
+        const checkStoreInventory = `SELECT * FROM store_inventory WHERE store_id = ${db.escape(store_id)} AND product_id = ${db.escape(existingProduct[0].product_id)}`
         const existingStoreInventory = await query(checkStoreInventory);
 
         // Jika pasangan store_id dan product_id sudah ada, lemparkan error
         if (existingStoreInventory.length > 0) {
           throw {
             status_code: 409,
-            message:
-              "Failed to add product. Store already has the chosen product.",
+            message: "Failed to add product. Store already has the chosen product.",
             errors: errors.array(),
-          };
+          }
         }
       }
 
@@ -215,19 +180,12 @@ module.exports = {
         )`;
         const resultStoreInventory = await query(sqlQueryStoreInventory);
 
-        const stockHistoryQuery = `INSERT INTO stock_history
-        VALUES(null, ${db.escape(resultStoreInventory.insertId)}, ${db.escape(
-          quantity_in_stock
-        )}, ${db.escape(currentDate)}, ${db.escape("add")})`;
-
-        const stockHistoryQueryResult = await query(stockHistoryQuery);
-
         // Commit transaksi jika semua operasi berhasil
-        await query("COMMIT");
+        await query('COMMIT');
 
         return res.status(201).json({
           message: "Product success to add",
-          data: resultStoreInventory,
+          data: resultStoreInventory
         });
       }
 
@@ -246,8 +204,8 @@ module.exports = {
           ${db.escape(product_price)},
           ${db.escape(product_weight)}
         )`;
-      const resultProduct = await query(sqlQueryProduct);
-      const productId = resultProduct.insertId;
+      const resultProduct = await query(sqlQueryProduct)
+      const productId = resultProduct.insertId
 
       // 3. Menginput gambar ke DB
       for (let product_image of product_images) {
@@ -256,7 +214,7 @@ module.exports = {
             ${db.escape(productId)},
             ${db.escape(product_image)}
           )`;
-        const resultProductImage = await query(sqlQueryProductImage);
+        const resultProductImage = await query(sqlQueryProductImage)
       }
 
       // 4. Menginput store inventory (store_id, stock)
@@ -270,42 +228,29 @@ module.exports = {
         ${db.escape(productId)},
         ${db.escape(quantity_in_stock)}
       )`;
-      const resultStoreInventory = await query(sqlQueryStoreInventory);
-
-      const stockHistoryQuery = `INSERT INTO stock_history
-        VALUES(null, ${db.escape(resultStoreInventory.insertId)}, ${db.escape(
-        quantity_in_stock
-      )}, ${db.escape(currentDate)}, ${db.escape("add")})`;
-
-      const stockHistoryQueryResult = await query(stockHistoryQuery);
+      const resultStoreInventory = await query(sqlQueryStoreInventory)
 
       // Commit transaksi jika semua operasi berhasil
-      await query("COMMIT");
+      await query('COMMIT');
 
       res.status(201).json({
         message: "Product success to add",
-        data: resultProduct,
+        data: resultProduct
       });
     } catch (error) {
       // Rollback transaksi jika terjadi kesalahan
-      await query("ROLLBACK");
+      await query('ROLLBACK');
       handleServerError(error, next);
-      console.log(error);
+      console.log(error)
     }
   },
   updateProduct: async (req, res, next) => {
-    const {
-      product_category_id,
-      product_name,
-      product_description,
-      product_price,
-      product_weight,
-    } = req.body;
+    const { product_category_id, product_name, product_description, product_price, product_weight } = req.body;
     const { productId } = req.params;
     const errors = validationResult(req);
 
     try {
-      console.log(`Update product id:${productId} `);
+      console.log(`Update product id:${productId} `)
       handleValidationErrors(errors);
 
       const sqlQuery = `
@@ -327,11 +272,11 @@ module.exports = {
       });
     } catch (error) {
       handleServerError(error, next);
-      console.log(error);
+      console.log(error)
     }
   },
   deleteProduct: async (req, res, next) => {
-    const { productId } = req.params;
+    const { productId } = req.params
     const adminStoreId = req.admin.adminStoreId;
 
     try {
@@ -348,21 +293,22 @@ module.exports = {
 
       res.status(200).json({
         message: "Product is deleted",
-        data: resultDeleteProduct,
+        data: resultDeleteProduct
       });
     } catch (error) {
-      console.log(error);
+      console.log(error)
+      handleServerError(error, next);
     }
   },
   hardDeleteProduct: async (req, res, next) => {
-    const { categoryId } = req.params;
+    const { categoryId } = req.params
+    const adminRole = req.admin.adminRole;
 
     try {
       if (adminRole !== 99) {
         throw {
           status_code: 403,
-          message:
-            "Access denied. You are not authorized to access this route.",
+          message: "Access denied. You are not authorized to access this route.",
         };
       }
 
@@ -374,7 +320,7 @@ module.exports = {
       `;
       const resultGetImage = await query(sqlQueryGetImage);
       const imagePath = resultGetImage[0]?.product_category_image;
-      console.log("img : ", imagePath);
+      console.log('img : ', imagePath)
 
       //Hapus data dari database
       const sqlQueryDeleteCategory = `
@@ -386,22 +332,17 @@ module.exports = {
 
       //Hapus file gambar
       if (imagePath) {
-        const absolutePath = path.resolve(
-          __dirname,
-          "..",
-          "..",
-          "uploads",
-          path.basename(imagePath)
-        );
+        const absolutePath = path.resolve(__dirname, '..', '..', 'uploads', path.basename(imagePath));
         fs.unlinkSync(absolutePath);
       }
 
       res.status(200).json({
         message: "Product category and its associated image are deleted",
-        data: resultDeleteCategory,
+        data: resultDeleteCategory
       });
     } catch (error) {
-      console.log(error);
+      console.log(error)
+      handleServerError(error, next);
     }
   },
-};
+}
