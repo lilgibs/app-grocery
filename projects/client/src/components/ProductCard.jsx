@@ -2,6 +2,7 @@ import React from 'react'
 import { Box, Card, CardBody, CardFooter, CardHeader, Heading, Image, Text } from "@chakra-ui/react";
 import { formatRupiah } from "../utils/formatRupiah";
 import { useNavigate } from "react-router-dom";
+import { Link } from 'react-router-dom';
 
 function ProductCard({ product }) {
   const navigate = useNavigate();
@@ -12,11 +13,12 @@ function ProductCard({ product }) {
 
   return (
     <div>
-        <Card
-          variant="elevated"
-          className="cursor-pointer"
-          onClick={() => navigate(`/products/${formatProductName(product.product_name)}`)}
-        >
+      <Card
+        variant="elevated"
+        className="cursor-pointer"
+      // onClick={() => navigate(`/products/${formatProductName(product.product_name)}`)}
+      >
+        <Link to={`/products/${formatProductName(product.product_name)}`}>
           <Image src={`http://localhost:8000/${product.image_url}`} alt="Green double couch with wooden legs" borderTopRadius="lg" />
           <Box className="h-36">
             <CardHeader py={"1"} px={"2"}>
@@ -47,7 +49,8 @@ function ProductCard({ product }) {
               {/* <Text className="text-xs font-semibold w-full text-end text-neutral-500">Terjual 0</Text> */}
             </CardFooter>
           </Box>
-        </Card>
+        </Link>
+      </Card>
     </div>
   )
 }
