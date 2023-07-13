@@ -70,6 +70,7 @@ export function fetchProductUser(productName, storeId) {
       console.log(response.data.product)
       dispatch(setProduct(response.data.product));
     } catch (error) {
+      console.log(error)
       throw error;
     }
   };
