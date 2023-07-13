@@ -6,10 +6,10 @@ const { adminVerifyToken } = require('../../middleware/adminAuth')
 const router = express.Router()
 
 // Router product CRUD
-router.get('/', adminProductController.getProducts)
+router.get('/', adminVerifyToken, adminProductController.getProducts)
 router.get('/inventory', adminVerifyToken, adminProductController.getStoreProducts)
 router.get('/:productId', adminVerifyToken, adminProductController.getProductById)
-router.post('/add-product', adminVerifyToken,
+router.post('/', adminVerifyToken,
   upload.array('product_images', 3),
   check('store_id').notEmpty().withMessage('Store id is required'),
   check('product_name').notEmpty().withMessage('Product name is required'),
@@ -19,10 +19,11 @@ router.put('/:productId',
   check('product_category_id').notEmpty().withMessage('Product category is required'),
   check('product_name').notEmpty().withMessage('Product name is required'),
   check('product_description').notEmpty().withMessage('Product description is required'),
+  check('product_weight').notEmpty().withMessage('Product weight is required'),
   check('product_price').notEmpty().withMessage('Product price is required'),
   adminProductController.updateProduct)
 router.delete('/:productId', adminVerifyToken, adminProductController.deleteProduct)
-router.delete('/:productId/permanently', adminProductController.hardDeleteProduct)
+router.delete('/:productId/permanently', adminVerifyToken, adminProductController.hardDeleteProduct)
 
 // Router Product Image
 router.post('/image', adminVerifyToken,

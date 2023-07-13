@@ -21,7 +21,7 @@ import {
 } from '@chakra-ui/react'
 import AdminIncreaseStockModal from '../components/AdminIncreaseStockModal';
 import AdminDecreaseStockModal from '../components/AdminDecreaseStockModal';
-import { FaSave } from 'react-icons/fa';
+import { FaSave, FaPen, FaTrash } from 'react-icons/fa';
 
 function AdminEditProduct() {
   const { productId } = useParams();
@@ -176,7 +176,7 @@ function AdminEditProduct() {
                           <div onClick={onIncreaseOpen} className='px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded cursor-pointer flex gap-2'>+ <span className='hidden sm:block'>Increase</span></div>
                           <AdminIncreaseStockModal isOpen={isIncreaseOpen} onClose={onIncreaseClose} productId={product.product_id} currStock={product.quantity_in_stock} />
                           <div onClick={onDecreaseOpen} className='px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded cursor-pointer flex gap-2'>-<span className='hidden sm:block'>Decrease</span></div>
-                          <AdminDecreaseStockModal isOpen={isDecreaseOpen} onClose={onDecreaseClose} productId={product.product_id} currStock={product.quantity_in_stock} storeInventoryId={product.store_inventory_id}/>
+                          <AdminDecreaseStockModal isOpen={isDecreaseOpen} onClose={onDecreaseClose} productId={product.product_id} currStock={product.quantity_in_stock} storeInventoryId={product.store_inventory_id} />
                         </div>
                       </CustomInput>
                     </div>
@@ -199,40 +199,44 @@ function AdminEditProduct() {
             {/* product image - START*/}
             <div>
               <h2 className='font-semibold text-pink-500 text-lg'>Product Image(s)</h2>
-              <div className='flex w-full justify-between'>
+              <div className='flex w-full p-4 gap-2 justify-between border rounded-md'>
                 {images.map((image, index) => (
                   image ? (
-                    <div key={index} className="card border shadow-md rounded">
-                      <img src={'http://localhost:8000/' + image.image_url} alt={`Product ${index + 1}`} className="w-full h-48 object-cover rounded-t" />
+                    <div key={index} className="card border shadow-md rounded w-1/3">
+                      <img src={'http://localhost:8000/' + image.image_url} alt={`Product ${index + 1}`} className="w-full object-cover rounded-t" />
                       <div className="p-4">
-                        <h3 className="font-semibold">Image {index + 1}</h3>
-                        <button className="mt-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                          onClick={() => dispatch(deleteImage(image.product_image_id, productId))}
-                        >
-                          Delete
-                        </button>
-                        <div>
-                          <button
-                            onClick={() => { document.getElementById(`fileInput-${index}`).click(); }}
-                            className="mt-2 bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                            Edit
-                          </button>
-                          <input
-                            id={`fileInput-${index}`}
-                            type="file"
-                            className="hidden"
-                            onChange={(event) => handleImageUpload(event, index)}
-                          />
+                        <parent className="font-semibold">Image {index + 1}</parent>
+                        <div className='flex flex-row gap-1 sm:gap-2 mt-2 justify-center'>
+                          <div className="w-1/2">
+                            <div
+                              onClick={() => { document.getElementById(`fileInput-${index}`).click(); }}
+                              className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-700 text-white font-semibold py-2 w-full rounded cursor-pointer">
+                              <FaPen size={15} />
+                              <p className='hidden md:block'>Edit</p>
+                            </div>
+                            <input
+                              id={`fileInput-${index}`}
+                              type="file"
+                              className="hidden"
+                              onChange={(event) => handleImageUpload(event, index)}
+                            />
+                          </div>
+                          <div className="flex justify-center items-center gap-2 w-1/2 bg-rose-500 hover:bg-rose-700 text-white font-semibold py-2 md:px-4 rounded cursor-pointer"
+                            onClick={() => dispatch(deleteImage(image.product_image_id, productId))}
+                          >
+                            <FaTrash size={15} />
+                            <p className='hidden md:block'>Delete</p>
+                          </div>
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="card border shadow-md rounded">
+                    <div className="card border shadow-md rounded w-1/3">
                       <div className="p-4">
                         <h3 className="font-semibold">Upload New Image</h3>
                         <input
                           type="file"
-                          className="mt-2 text-white font-bold py-2 px-4 rounded"
+                          className="mt-2 text-white font-bold rounded w-full"
                           onChange={(event) => handleImageUpload(event, index)}
                         />
                       </div>
