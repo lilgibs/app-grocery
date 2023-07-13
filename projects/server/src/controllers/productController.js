@@ -97,13 +97,26 @@ module.exports = {
     try {
       handleValidationErrors(errors);
 
-      const sqlProductQuery = `SELECT * FROM products WHERE product_name = ${db.escape(productName)}`;
+      const sqlProductQuery = `
+        SELECT 
+          p.*,
+          si.*,
+          d.discount_value,
+          d.discount_value_type,
+          CASE
+            WHEN d.discount_value_type = 'PERCENTAGE' THEN p.product_price * ((100-d.discount_value) / 100)
+            WHEN d.discount_value_type = 'NOMINAL' THEN p.product_price - d.discount_value
+            ELSE NULL
+          END as discounted_price
+        FROM products p          
+        JOIN store_inventory si on p.product_id = si.product_id
+        LEFT JOIN product_discounts pd ON si.store_inventory_id = pd.store_inventory_id
+        LEFT JOIN discounts d ON pd.discount_id = d.discount_id AND CURDATE() BETWEEN d.start_date AND d.end_date
+        WHERE product_name = ${db.escape(productName)} AND si.store_id = ${db.escape(storeId)}`;
+
       const productResult = await query(sqlProductQuery);
 
-      const sqlStoreInventory = `SELECT * FROM store_inventory WHERE product_id = ${db.escape(productResult[0].product_id)} AND store_id = ${db.escape(storeId)}`;
-      const storeInventoryResult = await query(sqlStoreInventory);
-
-      if (productResult.length > 0 && storeInventoryResult.length > 0) {
+      if (productResult.length > 0) {
         const sqlImageQuery = `SELECT * FROM product_images WHERE product_id = ${db.escape(productResult[0].product_id)}`;
         const imageResult = await query(sqlImageQuery);
 
@@ -113,10 +126,13 @@ module.exports = {
           product_name: productResult[0].product_name,
           product_description: productResult[0].product_description,
           product_price: productResult[0].product_price,
-          store_inventory_id: storeInventoryResult[0].store_inventory_id,
-          quantity_in_stock: storeInventoryResult[0].quantity_in_stock,
-          store_id: storeInventoryResult[0].store_id,
+          store_inventory_id: productResult[0].store_inventory_id,
+          quantity_in_stock: productResult[0].quantity_in_stock,
+          store_id: productResult[0].store_id,
           product_images: imageResult,
+          discount_value: productResult[0].discount_value,
+          discount_value_type: productResult[0].discount_value_type,
+          discounted_price: productResult[0].discounted_price
         };
 
         res.status(200).json({
