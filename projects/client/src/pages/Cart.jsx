@@ -22,6 +22,10 @@ const Cart = () => {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
+    dispatch(fetchCart(userGlobal.user_id));
+  }, []);
+
+  useEffect(() => {
     let sumSubtotal = 0;
     cartItems.forEach((x) => {
       sumSubtotal += Number(x.subtotal);

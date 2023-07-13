@@ -22,6 +22,10 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const [previewImage, setPreviewImage] = useState(null);
   const [paymetProof, setPaymentProof] = useState(null);
 
+  const handleRefresh = () => {
+    window.location.reload(); // Refresh the page
+  };
+
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     setPaymentProof(file);
@@ -57,6 +61,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
         alert(response.data.message);
         dispatch(fetchOrder(userGlobal.user_id));
         onUploadClose();
+        handleRefresh();
       }
     } catch (error) {
       alert(error.response.data);
@@ -69,6 +74,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchOrder(userGlobal.user_id));
       onCancelClose();
+      handleRefresh();
     } catch (error) {
       console.error("Failed to cancel order: ", error);
     }
@@ -80,6 +86,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchOrder(userGlobal.user_id));
       onReceivedClose();
+      handleRefresh();
     } catch (error) {
       console.error("Failed to confirm delivery: ", error);
     }
@@ -131,7 +138,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
           </div>
           <div className="flex gap-3">
             <Text className="text-sm text-gray-400 mt-1">Order made: {order_date.toLocaleString("id-ID").slice(0, 10)}</Text>
-            {adminGlobal.id != null ? (
+            {adminGlobal.id != null || userGlobal.user_id != null ? (
               <>
                 {order_status === "Waiting for payment" || order_status === "Waiting for confirmation" || order_status === "Processed" ? (
                   <Button variant="solid" colorScheme="red" onClick={onCancelOpen} size="xs">
@@ -178,9 +185,9 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                 <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
                   Upload Payment Proof
                 </Button>
-                <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
+                {/* <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
                   Cancel order
-                </Button>
+                </Button> */}
               </>
             ) : order_status === "Out for delivery" ? (
               <>
