@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Table,
   Thead,
@@ -37,10 +37,7 @@ function AdminStockHistory() {
   const adminToken = localStorage.getItem("admin_token");
   const adminData = useSelector((state) => state.admin.admin);
   const [stockHistories, setStockHistories] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [selectedCategory, setSelectedCategory] = useState(null);
   const [sortOrder, setSortOrder] = useState(null); // 'asc' or 'desc'
-  const [isClearable, setIsClearable] = useState(true);
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -49,12 +46,6 @@ function AdminStockHistory() {
   const [searchText, setSearchText] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const endDateRef = useRef(null);
-
-  const handleStartDateChange = (event) => {
-    setStartDate(event.target.value);
-    endDateRef.current.focus();
-  };
 
   const sortOptions = [
     { value: "desc", label: "Newest" },
@@ -63,8 +54,19 @@ function AdminStockHistory() {
 
   const totalPages = Math.ceil(TotalStockHistories / limit);
 
+  const handleSetDate = (event) => {
+    event.preventDefault();
+    console.log(startDate);
+    if (endDate < startDate) {
+      alert("End date can't be lower than start date");
+      return;
+    }
+    searchParams.set("start_date", startDate);
+    searchParams.set("end_date", endDate);
+    setSearchParams(new URLSearchParams(searchParams.toString()));
+  };
+
   const handleSortChange = (selectedOption) => {
-    console.log(selectedOption);
     if (selectedOption) {
       const sortOrder = selectedOption;
       setSortOrder(sortOrder);
@@ -77,22 +79,15 @@ function AdminStockHistory() {
     }
   };
 
-  const handleSetCategory = (category) => {
-    if (category) {
-      setSelectedCategory(category);
-      searchParams.set("product", category);
-      setSearchParams(new URLSearchParams(searchParams.toString()));
-    } else {
-      setSelectedCategory(null);
-      searchParams.delete("product");
-      setSearchParams(new URLSearchParams(searchParams.toString()));
-    }
-  };
-
-  const handleSetCategory1 = (event) => {
+  const handleSetProduct = (event) => {
     event.preventDefault();
     searchParams.set("product", searchText);
     setSearchParams(new URLSearchParams(searchParams.toString()));
+  };
+
+  const handleFilterSubmit = (event) => {
+    handleSetDate(event);
+    handleSetProduct(event);
   };
 
   const handlePageClick = (data) => {
@@ -119,15 +114,18 @@ function AdminStockHistory() {
         limit,
         sortOrderParam
       );
-      console.log(result);
       setStockHistories(result.data);
       setTotalStockHistories(result.total);
     };
     getStockHistory();
   }, [searchParams, adminToken, adminData]);
+
   return (
     <div className="flex flex-col md:w-[95%] xl:max-w-screen-xl mx-auto gap-5">
-      <h1 className="text-4xl pt-5 font-semibold tracking-tight text-pink-500 ">
+      <h1
+        className="text-4xl pt-5 font-semibold tracking-tight text-pink-500 cursor-pointer"
+        onClick={() => navigate("/admin/stock-history")}
+      >
         Stock History
       </h1>
       {/* Content - START */}
@@ -173,82 +171,111 @@ function AdminStockHistory() {
                       </Radio>
                     </Stack>
                   </RadioGroup>
-                  <Box>
-                    <Text className="font-semibold text-lg mt-5">Category</Text>
-                    <Divider mb={"2"} />
-                    <div className="flex flex-col gap-2 overflow-y-auto h-[300px] pr-2">
-                      {categories.map((category) => (
-                        <div
-                          className={`flex border px-4 py-1 rounded-md gap-5 items-center cursor-pointer hover:translate-x-1 duration-100 ${
-                            selectedCategory === category.label.toLowerCase()
-                              ? "font-semibold border-green-500 text-green-500"
-                              : ""
-                          }`}
-                          onClick={() =>
-                            handleSetCategory(category.label.toLowerCase())
-                          }
-                        >
-                          <img
-                            className="h-5"
-                            src={`http://localhost:8000/${category.image}`}
-                            alt=""
+                  <form onSubmit={handleFilterSubmit}>
+                    <Box>
+                      <Text className="font-semibold text-lg mt-5">
+                        Category
+                      </Text>
+                      <Divider mb={"2"} />
+                      <div className="flex">
+                        <input
+                          className="border rounded px-4 focus:border-pink-500 focus:outline-none p-1"
+                          type="text"
+                          value={searchText}
+                          onChange={(e) => setSearchText(e.target.value)}
+                          placeholder="Search by product name..."
+                        />
+                      </div>
+                    </Box>
+                    <Box>
+                      <Text className="font-semibold text-lg mt-5">Date</Text>
+                      <Divider mb={"2"} />
+                      <div className="flex">
+                        <div className="flex items-center gap-1 border p-1">
+                          <label htmlFor="start-date">Start Date:</label>
+                          <input
+                            className="border rounded p-1"
+                            type="date"
+                            id="start-date"
+                            name="start-date"
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
                           />
-                          <p className="">{category.label}</p>
+
+                          <label htmlFor="end-date">End Date:</label>
+                          <input
+                            className="border rounded p-1"
+                            type="date"
+                            id="end-date"
+                            name="end-date"
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                          />
                         </div>
-                      ))}
-                    </div>
-                  </Box>
+                      </div>
+                    </Box>
+                    <button className="mt-5 border rounded py-2 px-3 bg-pink-500 hover:bg-pink-600 font-semibold text-white">
+                      Filter
+                    </button>
+                  </form>
                 </DrawerBody>
                 <DrawerFooter></DrawerFooter>
               </DrawerContent>
             </Drawer>
           </div>
           {/* Filter - END */}
-          <div className="hidden lg:flex  gap-2 items-center">
-            <form onSubmit={handleSetCategory1}>
-              <div className="flex">
-                <div className="flex flex-col">
-                  <label htmlFor="start-date">Start Date:</label>
-                  <input
-                    type="date"
-                    id="start-date"
-                    name="start-date"
-                    value={startDate}
-                    onChange={handleStartDateChange}
-                  />
-
-                  <label htmlFor="end-date">End Date:</label>
-                  <input
-                    type="date"
-                    id="end-date"
-                    name="end-date"
-                    value={endDate}
-                    onChange={(e) => setEndDate(e.target.value)}
-                    ref={endDateRef}
-                  />
-                </div>
+          <div className="hidden lg:flex gap-3 items-center">
+            <form className="flex" onSubmit={handleSetDate}>
+              <div className="flex items-center gap-1 border p-1">
+                <label htmlFor="start-date">Start Date:</label>
                 <input
-                  className="border-l border-b border-t rounded-s-md px-4 focus:border-pink-500 focus:outline-none"
-                  type="text"
-                  value={searchText}
-                  onChange={(e) => setSearchText(e.target.value)}
-                  placeholder="Search by product name..."
+                  className="border rounded p-1"
+                  type="date"
+                  id="start-date"
+                  name="start-date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
                 />
-                <button
-                  className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-3 px-4 rounded-e-md"
-                  type="submit"
-                >
-                  <FaSearch size={15} />
-                </button>
+
+                <label htmlFor="end-date">End Date:</label>
+                <input
+                  className="border rounded p-1"
+                  type="date"
+                  id="end-date"
+                  name="end-date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                />
               </div>
+              <button
+                className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-3 px-4 rounded-e-md"
+                type="submit"
+              >
+                <FaFilter size={15} />
+              </button>
+            </form>
+            <form className="flex" onSubmit={handleSetProduct}>
+              <input
+                className="border-l border-b border-t rounded-s-md px-4 focus:border-pink-500 focus:outline-none"
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                placeholder="Search by product name..."
+              />
+              <button
+                className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-3 px-4 rounded-e-md"
+                type="submit"
+              >
+                <FaSearch size={15} />
+              </button>
             </form>
             <Select
-              className="w-full"
+              className=""
               id="product_sort_id"
               name="product_sort_id"
               placeholder="Sort by"
               options={sortOptions}
-              isClearable={isClearable}
+              isClearable="true"
               onChange={(selectedOption) =>
                 handleSortChange(selectedOption ? selectedOption.value : "")
               }
