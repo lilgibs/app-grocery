@@ -5,13 +5,36 @@ const { handleValidationErrors, handleServerError } = require("../../utils/error
 module.exports = {
   getStoreOrders: async (req, res, next) => {
     try {
-      let storeId = req.query.storeId;
+      const storeId = req.query.storeId;
+      const page = parseInt(req.query.page) || 1;
+      const limit = 3;
 
       const orderQuery = await query(`
           SELECT * FROM orders
           WHERE store_id = ${db.escape(storeId)}`);
 
-      res.status(200).send(orderQuery);
+      orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
+
+      // pagination
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
+      const paginatedOrder = orderQuery.slice(startIndex, endIndex);
+
+      const maxPages = Math.ceil(orderQuery.length / limit);
+
+      res.status(200).send({ orders: paginatedOrder, maxPages: maxPages });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getAllOrders: async (req, res, next) => {
+    try {
+      const allOrderQuery = await query(`
+          SELECT * FROM orders`);
+
+      allOrderQuery.sort((a, b) => b.order_id - a.order_id); // sort alll orders in descending order
+
+      res.status(200).send(allOrderQuery);
     } catch (error) {
       next(error);
     }
@@ -77,57 +100,4 @@ module.exports = {
       next(error);
     }
   },
-
-  //   cancelOrder: async (req, res, next) => {
-  //     try {
-  //       const orderId = req.query.orderId;
-
-  //       //1. cari di table order_details, order dengan order id yg dipilih
-  //       const orderDetails = await query(
-  //         `SELECT * FROM order_details
-  //           WHERE order_id = ${db.escape(orderId)}`
-  //       );
-
-  //       orderDetails.forEach(async (order) => {
-  //         console.log(order.product_id);
-  //         console.log(order.quantity);
-
-  //         // 2. Update stock di table store_inventory
-  //         const updateInventoryStockQuery = await query(
-  //           `UPDATE store_inventory
-  //           SET
-  //             quantity_in_stock = quantity_in_stock + ${db.escape(order.quantity)}
-  //           WHERE product_id = ${db.escape(order.product_id)}`
-  //         );
-
-  //         // 3. record perubahan stock di history
-  //         const quantityChangeHistoryQuery = await query(`
-  //         INSERT INTO stock_history(store_id, product_id, quantity_change, change_date, change_type)
-  //           SELECT
-  //             orders.store_id,
-  //             ${db.escape(order.product_id)},
-  //             ${db.escape(order.quantity)},
-  //             orders.order_date,
-  //             "add"
-  //           FROM orders
-  //           WHERE order_id = ${db.escape(orderId)}`);
-  //       });
-
-  //       // 4. ubah status order menjadi "canceled" di table orders
-  //       const cancelOrderQuery = await query(
-  //         `UPDATE orders
-  //         SET
-  //           order_status = "Canceled"
-  //         WHERE
-  //           order_id = ${db.escape(orderId)}`
-  //       );
-
-  //       res.status(200).send({
-  //         message: `Order #${orderId} canceled.`,
-  //         data: cancelOrderQuery,
-  //       });
-  //     } catch (error) {
-  //       next(error);
-  //     }
-  //   },
 };

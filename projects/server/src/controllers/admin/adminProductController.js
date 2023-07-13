@@ -19,6 +19,7 @@ module.exports = {
       });
     } catch (error) {
       console.log(error);
+      handleServerError(error, next);
     }
   },
   getStoreProducts: async (req, res, next) => {
@@ -152,9 +153,6 @@ module.exports = {
     }
   },
   addProduct: async (req, res, next) => {
-    const today = new Date();
-    const currentDate = today.toISOString().slice(0, 10);
-
     const {
       store_id,
       product_category_id,
@@ -238,13 +236,15 @@ module.exports = {
           product_category_id,
           product_name, 
           product_description,
-          product_price
+          product_price,
+          product_weight
         ) 
         VALUES (
           ${db.escape(product_category_id)},
           ${db.escape(product_name)},
           ${db.escape(product_description)},
-          ${db.escape(product_price)}
+          ${db.escape(product_price)},
+          ${db.escape(product_weight)}
         )`;
       const resultProduct = await query(sqlQueryProduct);
       const productId = resultProduct.insertId;
@@ -358,6 +358,14 @@ module.exports = {
     const { categoryId } = req.params;
 
     try {
+      if (adminRole !== 99) {
+        throw {
+          status_code: 403,
+          message:
+            "Access denied. You are not authorized to access this route.",
+        };
+      }
+
       //Ambil lokasi file gambar
       const sqlQueryGetImage = `
         SELECT product_category_image FROM product_categories 

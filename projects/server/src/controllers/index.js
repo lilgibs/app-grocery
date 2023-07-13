@@ -17,6 +17,8 @@ const orderController = require("./orderController");
 const adminOrderController = require("./admin/adminOrderController");
 const discountController = require("./admin/discountController");
 const voucherController = require("./admin/voucherController");
+const orderFilterController = require("./orderFilterController");
+const adminOrderFilterController = require("./admin/adminOrderFilterController");
 const stockHistoryController = require("./admin/stockHistoryController");
 
 module.exports = {
@@ -39,5 +41,7 @@ module.exports = {
   adminOrderController,
   discountController,
   voucherController,
+  orderFilterController,
+  adminOrderFilterController,
   stockHistoryController,
 };

@@ -90,6 +90,7 @@ export function addProduct(product) {
       formData.append("product_name", product.product_name);
       formData.append("product_description", product.product_description);
       formData.append("product_price", product.product_price);
+      formData.append("product_weight", product.product_weight);
       formData.append("quantity_in_stock", product.quantity_in_stock);
 
       if (product.product_images) {
@@ -103,7 +104,6 @@ export function addProduct(product) {
         formData,
         getConfig(true)
       );
-      console.log(response);
       alert(response.data.message);
     } catch (error) {
       alert(error.response.data);

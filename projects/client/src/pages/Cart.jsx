@@ -22,6 +22,10 @@ const Cart = () => {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
+    dispatch(fetchCart(userGlobal.user_id));
+  }, []);
+
+  useEffect(() => {
     let sumSubtotal = 0;
     cartItems.forEach((x) => {
       sumSubtotal += Number(x.subtotal);
@@ -54,15 +58,7 @@ const Cart = () => {
         order_details: cartItems,
       };
 
-      // console.log(order);
-
-      // let order_details = cartItems;
-
-      // order_details.forEach((x) => {
-      //   console.log(x);
-      // });
-
-      const response = await axios.post("http://localhost:8000/api/order/addorder", order);
+      const response = await axios.post("http://localhost:8000/api/order/", order);
 
       alert(response.data.message);
       dispatch(fetchCart(userGlobal.user_id));

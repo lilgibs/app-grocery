@@ -1,14 +1,44 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { Image, Stack, Heading, Text } from "@chakra-ui/react";
 import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
+import { formatRupiah } from "../utils/formatRupiah";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { fetchProducts } from "../api/userApi";
+import { fetchCategories } from "../api/CategoryApi";
 
 const LandingPage = () => {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const userToken = localStorage.getItem("user_token");
+
+  const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
+
   const dispatch = useDispatch();
   const nearestStore = useSelector((state) => state.location.location.nearestStore.store_name);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const getCategories = async () => {
+      const result = await fetchCategories();
+      setCategories(result.formattedCategories);
+      console.log(categories.slice(0, 5));
+    };
+
+    const getProducts = async () => {
+      const result = await fetchProducts(store_id);
+      setProducts(result.products);
+    };
+    getProducts();
+    getCategories();
+  }, [store_id]);
+
+  const formatProductName = (productName) => {
+    return productName.replace(/\s+/g, "-").toLowerCase();
+  };
 
   return (
     <div className="bg-white">
@@ -77,37 +107,18 @@ const LandingPage = () => {
             </div>
 
             <div className="mt-5 md:justify-self-end md:mt-0">
-              <Button variant="outline" color="green.500" size="sm" p="3" borderRadius="full">
+              <Button variant="outline" color="green.500" size="sm" p="3" borderRadius="full" onClick={() => navigate("/products")}>
                 More categories
               </Button>
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-5">
-            <Button bg="green.200" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 1
-            </Button>
-            <Button bg="gray.100" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 2
-            </Button>
-            <Button bg="pink.100" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 3
-            </Button>
-            <Button bg="blue.100" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 4
-            </Button>
-            <Button bg="orange.100" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 5
-            </Button>
-            <Button bg="pink.100" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 6
-            </Button>
-            <Button bg="green.200" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 7
-            </Button>
-            <Button bg="gray.100" color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-              Category 8
-            </Button>
+          <div className="mt-8 flex gap-3 justify-center">
+            {categories.map((category) => (
+              <Button bg={categories.indexOf(category) % 2 === 0 ? "green.200" : "pink.100"} color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
+                {category.label}
+              </Button>
+            ))}
           </div>
         </div>
 
@@ -117,86 +128,33 @@ const LandingPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2">
             <div className="mb-4 sm:mb-0">
               <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900">
-                Popular
-                <a className="text-green-400"> Products</a>
+                Browse
+                <a className="text-green-400"> our Products</a>
               </h1>
             </div>
 
             <div className=" md:justify-self-end">
-              <Button variant="outline" color="green.500" size="sm" p="3" borderRadius="full">
+              <Button variant="outline" color="green.500" size="sm" p="3" borderRadius="full" onClick={() => navigate("/products")}>
                 Browse all products
               </Button>
             </div>
           </div>
 
           <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-2">
-            <Card className="drop-shadow-md" h={{ base: "350px", md: "550px" }}>
-              <CardBody>
-                <Image src="https://sb-assets.sgp1.cdn.digitaloceanspaces.com/product/main_image/14085/3c8a7d0d-4389-4fee-a008-ddf14e506769.jpg" alt="Kailan" borderRadius="lg" />
-                <Stack mt="6" spacing="3">
-                  <Heading size="md">Product 1</Heading>
-
-                  <Text fontSize="lg">Rp30.000</Text>
-                </Stack>
-              </CardBody>
-
-              <CardFooter>
-                <Button bg="green.300" color="white">
-                  See details
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="drop-shadow-md" h={{ base: "350px", md: "550px" }}>
-              <CardBody>
-                <Image src="https://sb-assets.sgp1.cdn.digitaloceanspaces.com/product/main_image/14085/3c8a7d0d-4389-4fee-a008-ddf14e506769.jpg" alt="Kailan" borderRadius="lg" />
-                <Stack mt="6" spacing="3">
-                  <Heading size="md">Product 2</Heading>
-
-                  <Text fontSize="lg">Rp30.000</Text>
-                </Stack>
-              </CardBody>
-
-              <CardFooter>
-                <Button bg="green.300" color="white">
-                  See details
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="drop-shadow-md" h={{ base: "350px", md: "550px" }}>
-              <CardBody>
-                <Image src="https://sb-assets.sgp1.cdn.digitaloceanspaces.com/product/main_image/14085/3c8a7d0d-4389-4fee-a008-ddf14e506769.jpg" alt="Kailan" borderRadius="lg" />
-                <Stack mt="6" spacing="3">
-                  <Heading size="md">Product 3</Heading>
-
-                  <Text fontSize="lg">Rp30.000</Text>
-                </Stack>
-              </CardBody>
-
-              <CardFooter>
-                <Button bg="green.300" color="white">
-                  See details
-                </Button>
-              </CardFooter>
-            </Card>
-
-            <Card className="drop-shadow-md" h={{ base: "350px", md: "550px" }}>
-              <CardBody>
-                <Image src="https://sb-assets.sgp1.cdn.digitaloceanspaces.com/product/main_image/14085/3c8a7d0d-4389-4fee-a008-ddf14e506769.jpg" alt="Kailan" borderRadius="lg" />
-                <Stack mt="6" spacing="3">
-                  <Heading size="md">Product 4</Heading>
-
-                  <Text fontSize="lg">Rp30.000</Text>
-                </Stack>
-              </CardBody>
-
-              <CardFooter>
-                <Button bg="green.300" color="white">
-                  See details
-                </Button>
-              </CardFooter>
-            </Card>
+            {products.slice(0, 4).map((product) => (
+              <Card variant="elevated" className="cursor-pointer" onClick={() => navigate(`/products/${formatProductName(product.product_name)}`)}>
+                <Image src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png" alt="Green double couch with wooden legs" borderTopRadius="lg" />
+                <CardHeader padding={"2"}>
+                  <Heading className="line-clamp-2" size="sm" fontWeight={"normal"}>
+                    {product.product_name}
+                  </Heading>
+                </CardHeader>
+                <CardBody padding={"2"}>
+                  <Text className="font-semibold">{formatRupiah(product.product_price)}</Text>
+                </CardBody>
+                <CardFooter></CardFooter>
+              </Card>
+            ))}
           </div>
         </div>
 
@@ -206,12 +164,22 @@ const LandingPage = () => {
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Online Grocery Web App</h1>
           <p className="mt-8 text-gray-600 text-md md:text-xl">Stay home and get your daily needs delivered to your doorstep</p>
           <div className="mt-8 mx-5 flex flex-col items-center justify-center gap-2 md:flex-row">
-            <Button bg="green.400" color="white" variant="solid" size="md" className="w-full sm:w-auto">
-              Register
-            </Button>
-            <Button colorScheme="gray" variant="outline" size="md" className="w-full sm:w-auto mt-2 sm:mt-0">
-              Learn more →
-            </Button>
+            {userToken ? (
+              <>
+                <Button bg="green.400" color="white" variant="solid" size="md" className="w-full sm:w-auto" onClick={() => navigate("/products")}>
+                  Start shopping
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button bg="green.400" color="white" variant="solid" size="md" className="w-full sm:w-auto" onClick={() => navigate("/register")}>
+                  Register
+                </Button>
+                <Button colorScheme="gray" variant="outline" size="md" className="w-full sm:w-auto mt-2 sm:mt-0" onClick={() => navigate("/login")}>
+                  Log in
+                </Button>
+              </>
+            )}
           </div>
         </div>
 
