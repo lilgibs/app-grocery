@@ -21,21 +21,21 @@ const AdminOrders = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  // const handlePaginatePrev = () => {
-  //   if (currentPage === 1) {
-  //     setCurrentPage(currentPage);
-  //   } else {
-  //     setCurrentPage(currentPage - 1);
-  //   }
-  // };
+  const handlePaginatePrev = () => {
+    if (currentPage === 1) {
+      setCurrentPage(currentPage);
+    } else {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
-  // const handlePaginateNext = () => {
-  //   if (currentPage === totalPages) {
-  //     setCurrentPage(currentPage);
-  //   } else {
-  //     setCurrentPage(currentPage + 1);
-  //   }
-  // };
+  const handlePaginateNext = () => {
+    if (currentPage === totalPages) {
+      setCurrentPage(currentPage);
+    } else {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   // sort by
   const [sortBy, setSortBy] = useState("desc");
@@ -71,34 +71,36 @@ const AdminOrders = () => {
     }
   };
 
-  // useEffect(() => {
-  //   console.log(currentPage);
-  //   const renderPaginate = async () => {
-  //     try {
-  //       if (selectedStatus === "All") {
-  //         let response = await axios.get(`http://localhost:8000/api/admin/order/by-status/?storeId=${storeId}&page=${currentPage}`);
-  //         if (response) {
-  //           console.log(response.data.orders);
-  //           dispatch(setOrderItems(response.data.orders));
-  //           setTotalPages(response.data.maxPages);
-  //         }
-  //       } else {
-  //         let response = await axios.get(`http://localhost:8000/api/admin/order/by-status/?storeId=${storeId}&orderStatus=${selectedStatus}`);
-  //         if (response) {
-  //           console.log(response.data.orders);
-  //           console.log(response.data.maxPages);
-  //           dispatch(setOrderItems(response.data.orders));
-  //           setTotalPages(response.data.maxPages);
-  //         }
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   };
-  //   renderPaginate();
-  //   setSortBy("desc");
-  // }, [currentPage]);
+  // paginate listener
+  useEffect(() => {
+    console.log(currentPage);
+    const renderPaginate = async () => {
+      try {
+        if (selectedStatus === "All") {
+          let response = await axios.get(`http://localhost:8000/api/admin/order/?storeId=${storeId}&page=${currentPage}`);
+          if (response) {
+            console.log(response.data.orders);
+            dispatch(setOrderItems(response.data.orders));
+            setTotalPages(response.data.maxPages);
+          }
+        } else {
+          let response = await axios.get(`http://localhost:8000/api/admin/order/by-status/?storeId=${storeId}&orderStatus=${selectedStatus}`);
+          if (response) {
+            console.log(response.data.orders);
+            console.log(response.data.maxPages);
+            dispatch(setOrderItems(response.data.orders));
+            setTotalPages(response.data.maxPages);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    renderPaginate();
+    setSortBy("desc");
+  }, [currentPage]);
 
+  // status listener
   useEffect(() => {
     setCurrentPage(1);
     handleStatus(selectedStatus);
@@ -147,7 +149,33 @@ const AdminOrders = () => {
             {/* status ends */}
           </div>
         </div>
-        <div className="col-span-4 flex flex-col gap-6">{renderOrderItems()}</div>
+
+        <div className="col-span-4 flex flex-col gap-6">
+          {/* Pagination starts */}
+          <div className="flex gap-3 mb-2">
+            <Button
+              size="xs"
+              onClick={() => {
+                handlePaginatePrev();
+              }}
+            >
+              Prev
+            </Button>
+            <span>
+              {currentPage} out of {totalPages}
+            </span>
+            <Button
+              size="xs"
+              onClick={() => {
+                handlePaginateNext();
+              }}
+            >
+              Next
+            </Button>
+          </div>
+          {/* Pagination ends */}
+          <div className="flex flex-col gap-6">{renderOrderItems()}</div>
+        </div>
       </div>
     </div>
   );
