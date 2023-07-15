@@ -10,5 +10,7 @@ router.patch("/confirm-payment", adminOrderController.confirmOrder);
 router.patch("/reject-payment", adminOrderController.rejectOrder);
 router.patch("/send", adminOrderController.sendOrder);
 router.get("/by-status", adminOrderFilterController.getStoreOrdersByStatus);
+router.get("/by-invoice", adminOrderFilterController.getStoreOrdersByInvoice);
+router.get("/by-date", adminOrderFilterController.getOrdersByDate);
 
 module.exports = router;
