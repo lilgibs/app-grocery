@@ -22,7 +22,7 @@ function Product() {
   const userGlobal = useSelector((state) => state.user.user);
 
   //Fungsi untuk menampilkan gambar
-  const handleSelectedImage = (image) => { };
+  const handleSelectedImage = (image) => {};
 
   // fungsi untuk menambah quantity
   const increaseQuantity = () => {
@@ -54,6 +54,7 @@ function Product() {
         user_id: user_id,
         product_id: product.product_id,
         quantity: quantity,
+        store_id: store_id,
       };
 
       // console.log(object);
@@ -123,28 +124,17 @@ function Product() {
             <h2 className="font-semibold text-xl md:text-2xl">{product.product_name}</h2>
             {product.discounted_price ? (
               <div className="flex gap-2 bg-neutral-100  p-3 items-center rounded">
-                <p className=" text-sm md:text-lg bg-neutral-100 text-neutral-500 line-through">
-                  {formatRupiah(product.product_price)}
-                </p>
-                <p className="font-semibold text-2xl md:text-3xl bg-neutral-100 rounded-md text-rose-500">
-                  {formatRupiah(product.discounted_price)}
-                </p>
-                {product.discount_value_type == "PERCENTAGE" ? (
-                  <p className="bg-red-600 text-white px-1 rounded-sm text-xs font-bold">{parseInt(product.discount_value)}% OFF</p>
-                ) : null}
+                <p className=" text-sm md:text-lg bg-neutral-100 text-neutral-500 line-through">{formatRupiah(product.product_price)}</p>
+                <p className="font-semibold text-2xl md:text-3xl bg-neutral-100 rounded-md text-rose-500">{formatRupiah(product.discounted_price)}</p>
+                {product.discount_value_type == "PERCENTAGE" ? <p className="bg-red-600 text-white px-1 rounded-sm text-xs font-bold">{parseInt(product.discount_value)}% OFF</p> : null}
               </div>
             ) : (
-              <p className="font-semibold text-2xl md:text-3xl bg-neutral-100 rounded p-3 text-rose-500">
-                {formatRupiah(product.product_price)}
-              </p>
-            )
-            }
+              <p className="font-semibold text-2xl md:text-3xl bg-neutral-100 rounded p-3 text-rose-500">{formatRupiah(product.product_price)}</p>
+            )}
 
             <div>
               <p className="md:text-lg font-semibold">Description</p>
-              <p className=" md:text-lg">
-                {product.product_description}
-              </p>
+              <p className=" md:text-lg">{product.product_description}</p>
             </div>
             <div className="flex flex-col gap-2">
               <p className="md:text-lg font-semibold">Quantity</p>

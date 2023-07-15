@@ -99,6 +99,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
+      handleRefresh();
     } catch (error) {
       alert(`Order status change failed`);
     }
@@ -110,6 +111,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
+      handleRefresh();
     } catch (error) {
       alert(`Order status change failed`);
     }
@@ -121,6 +123,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
+      handleRefresh();
     } catch (error) {
       alert(`Order status change failed`);
     }

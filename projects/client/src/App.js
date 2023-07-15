@@ -71,9 +71,7 @@ function App() {
 
   useEffect(() => {
     if (adminToken) {
-      {
-        adminGlobal.role === 99 ? dispatch(fetchAllOrder()) : dispatch(fetchStoreOrder(adminGlobal.store_id));
-      }
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
     }
   }); // get store order if admin is logged in
 
@@ -150,22 +148,19 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            {adminGlobal.role === 99 &&
+            {adminGlobal.role === 99 && (
               <>
                 <Route path="/admin/settings/users" element={<UserManagementSettings />} />
                 <Route path="/admin/categories" element={<AdminCategories />} />
               </>
-            }
+            )}
 
             <Route path="/admin/products/" element={<AdminProducts />} />
             <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
             <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/discounts" element={<AdminDiscount />} />
-            <Route
-              path="/admin/stock-history"
-              element={<AdminStockHistory />}
-            />
+            <Route path="/admin/stock-history" element={<AdminStockHistory />} />
           </>
         ) : (
           //when admin is logged out
