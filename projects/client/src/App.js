@@ -150,9 +150,13 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            {adminGlobal.role === 99 ? <Route path="/admin/settings/users" element={<UserManagementSettings />} /> : <> </>}
+            {adminGlobal.role === 99 &&
+              <>
+                <Route path="/admin/settings/users" element={<UserManagementSettings />} />
+                <Route path="/admin/categories" element={<AdminCategories />} />
+              </>
+            }
 
-            <Route path="/admin/products/categories" element={<AdminCategories />} />
             <Route path="/admin/products/" element={<AdminProducts />} />
             <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
             <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
