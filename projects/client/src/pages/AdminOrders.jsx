@@ -190,32 +190,36 @@ const AdminOrders = () => {
           </div>
         </div>
 
-        <div className="col-span-4 flex flex-col gap-6">
-          {/* Pagination starts */}
-          <div className="flex gap-3 mb-2">
-            <Button
-              size="xs"
-              onClick={() => {
-                handlePaginatePrev();
-              }}
-            >
-              Prev
-            </Button>
-            <span>
-              {currentPage} out of {totalPages}
-            </span>
-            <Button
-              size="xs"
-              onClick={() => {
-                handlePaginateNext();
-              }}
-            >
-              Next
-            </Button>
+        {orderItems.length === 0 ? (
+          <div className="col-span-4 pt-7">No orders found</div>
+        ) : (
+          <div className="col-span-4 flex flex-col gap-6">
+            {/* Pagination starts */}
+            <div className="flex gap-3 mb-2">
+              <Button
+                size="xs"
+                onClick={() => {
+                  handlePaginatePrev();
+                }}
+              >
+                Prev
+              </Button>
+              <span>
+                {currentPage} out of {totalPages}
+              </span>
+              <Button
+                size="xs"
+                onClick={() => {
+                  handlePaginateNext();
+                }}
+              >
+                Next
+              </Button>
+            </div>
+            {/* Pagination ends */}
+            <div className="flex flex-col gap-6">{renderOrderItems()}</div>
           </div>
-          {/* Pagination ends */}
-          <div className="flex flex-col gap-6">{renderOrderItems()}</div>
-        </div>
+        )}
       </div>
     </div>
   );
