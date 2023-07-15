@@ -7,8 +7,10 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkLoginAdmin } from '../features/adminSlice';
 import AdminAddCategoryModal from '../components/AdminAddCategoryModal';
 import AdminEditCategoryModal from '../components/AdminEditCategoryModal';
-import { fetchCategories } from '../api/CategoryApi';
+import { fetchCategories } from '../api/adminCategoryApi';
 import AdminCategoryCard from '../components/AdminCategoryCard';
+import AdminPagination from '../components/AdminPagination';
+import Pagination from '../components/Pagination';
 
 function AdminCategories() {
   const [loading, setLoading] = useState(true);
@@ -37,17 +39,9 @@ function AdminCategories() {
     getCategories(searchCategory, page, limit)
   }
 
-  const handleNextPage = () => {
-    if (page < Math.ceil(totalCategories / limit)) {
-      setPage(page => page + 1);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page => page - 1);
-    }
-  };
+  const handlePageChange = ({ selected }) => {
+    setPage(selected + 1);
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('admin_token');
@@ -84,7 +78,7 @@ function AdminCategories() {
       <div className="p-4 bg-white border shadow-md rounded">
         <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
           <p className="font-semibold text-pink-500 text-lg">
-            Categories Management
+            Category Management
           </p>
         </div>
         <div className="flex justify-between mb-2">
@@ -114,16 +108,19 @@ function AdminCategories() {
             <FaPlus size={15} className="" />
             <p className='hidden sm:block'>Add Category</p>
           </div>
-          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={getCategories} limit={limit} resetPage={resetPage}/>
+          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={getCategories} limit={limit} resetPage={resetPage} />
         </div>
         <div className="flex flex-wrap justify-center gap-4">
-          <AdminCategoryCard categories={categories} getCategories={getCategories} limit={limit} resetPage={resetPage}/>
+          <AdminCategoryCard categories={categories} getCategories={getCategories} limit={limit} resetPage={resetPage} />
         </div>
       </div>
-      <div className='flex gap-2 justify-center'>
-        <button onClick={handlePrevPage}>Previous</button>
-        <p>{page} of {Math.ceil(totalCategories / limit)}</p>
-        <button onClick={handleNextPage}>Next</button>
+      <div className='my-1'>
+        <Pagination
+          pageCount={Math.ceil(totalCategories / limit)}
+          onPageChange={handlePageChange}
+          forcePage={page - 1}
+          color='pink-500'
+        />
       </div>
     </div >
   );
