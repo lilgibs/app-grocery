@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { formatRupiah } from "../utils/formatRupiah";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { fetchProducts } from "../api/userApi";
-import { fetchCategories } from "../api/CategoryApi";
+import { fetchCategories } from "../api/adminCategoryApi";
 
 const LandingPage = () => {
   const [products, setProducts] = useState([]);

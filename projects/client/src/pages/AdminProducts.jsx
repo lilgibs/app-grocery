@@ -5,11 +5,12 @@ import axios from 'axios';
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
 import { checkLoginAdmin } from '../features/adminSlice';
-import { fetchCategories } from '../api/CategoryApi';
+import { fetchCategories } from '../api/adminCategoryApi';
 import Select from 'react-select';
 import AdminProductCard from '../components/AdminProductCard';
 import AdminProductFilterDrawer from '../components/AdminProductFilterDrawer';
-import { fetchProductsInventory } from '../api/AdminProductsApi';
+import { fetchProductsInventory } from '../api/adminProductApi';
+import AdminPagination from '../components/AdminPagination';
 
 function AdminProducts() {
   const [loading, setLoading] = useState(true);
@@ -58,12 +59,14 @@ function AdminProducts() {
   const handleNextPage = () => {
     if (page < Math.ceil(totalProducts / limit)) {
       setPage(page => page + 1);
+      window.scrollTo(0, 0);
     }
   };
 
   const handlePrevPage = () => {
     if (page > 1) {
       setPage(page => page - 1);
+      window.scrollTo(0, 0);
     }
   };
 
@@ -133,7 +136,7 @@ function AdminProducts() {
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
       <div className="p-4 bg-white border shadow-md rounded">
         <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
-          <p className="font-semibold text-pink-500 text-lg">Products Management</p>
+          <p className="font-semibold text-pink-500 text-lg">Product Management</p>
         </div>
         <div className='w-full flex justify-end'>
           <button
@@ -190,14 +193,10 @@ function AdminProducts() {
           selectedSortOption={selectedSortOption}
         />
         <div className="flex flex-wrap justify-center gap-4">
-          <AdminProductCard products={products} getProductsData={getProductsData} page={page} setPage={setPage}/>
+          <AdminProductCard products={products} getProductsData={getProductsData} page={page} setPage={setPage} />
         </div>
       </div>
-      <div className='flex gap-2 justify-center'>
-        <button onClick={handlePrevPage}>Previous</button>
-        <p>{page} of {Math.ceil(totalProducts / limit)}</p>
-        <button onClick={handleNextPage}>Next</button>
-      </div>
+      <AdminPagination page={page} totalProducts={totalProducts} limit={limit} handlePrevPage={handlePrevPage} handleNextPage={handleNextPage}/>
     </div>
   );
 }

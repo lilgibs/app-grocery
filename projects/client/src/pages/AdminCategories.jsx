@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { checkLoginAdmin } from '../features/adminSlice';
 import AdminAddCategoryModal from '../components/AdminAddCategoryModal';
 import AdminEditCategoryModal from '../components/AdminEditCategoryModal';
-import { fetchCategories } from '../api/CategoryApi';
+import { fetchCategories } from '../api/adminCategoryApi';
 import AdminCategoryCard from '../components/AdminCategoryCard';
 
 function AdminCategories() {

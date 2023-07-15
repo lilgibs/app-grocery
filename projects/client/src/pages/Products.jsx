@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { fetchCategories } from "../api/CategoryApi";
+import { fetchCategories } from "../api/adminCategoryApi";
 import Select from "react-select";
 import { fetchProducts } from "../api/userApi";
 import { useNavigate, useSearchParams } from "react-router-dom";

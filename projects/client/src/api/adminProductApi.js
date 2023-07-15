@@ -14,7 +14,7 @@ export const fetchProductsInventory = async (adminToken, page, limit, searchText
   }
 
   try {
-    const response = await axios.get(`http://localhost:8000/api/admin/products/inventory`,
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/products/inventory`,
       {
         params,
         headers: {
@@ -31,7 +31,7 @@ export const fetchProductsInventory = async (adminToken, page, limit, searchText
 
 export const fetchProducts = async (adminToken) => {
   try {
-    const response = await axios.get('http://localhost:8000/api/admin/products',
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/products`,
       {
         headers: {
           'Authorization': `Bearer ${adminToken}`
