@@ -10,8 +10,8 @@ import Select from 'react-select';
 import axios from 'axios';
 import { checkLoginAdmin } from '../features/adminSlice';
 import { useNavigate } from 'react-router-dom';
-import { fetchCategories } from '../api/CategoryApi';
-import { fetchProducts } from '../api/AdminProductsApi';
+import { fetchCategories } from '../api/adminCategoryApi';
+import { fetchProducts } from '../api/adminProductApi';
 
 function AddProduct() {
   const [loading, setLoading] = useState(true);
