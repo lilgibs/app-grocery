@@ -6,6 +6,8 @@ import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import OrderItem from "../components/OrderItem";
 import { setOrderItems } from "../features/orderSlice";
+import Select from "react-select";
+import { fetchBranchStores, fetchMonthlySales, fetchProducts, fetchProductsSold, fetchWeeklySales } from "../api/adminDashboardApi";
 
 import axios from "axios";
 
@@ -15,7 +17,25 @@ const AdminOrders = () => {
   const adminGlobal = useSelector((state) => state.admin.admin);
   const orderGlobal = useSelector((state) => state.order.order);
   const orderItems = orderGlobal.order_items;
-  const storeId = adminGlobal.store_id;
+  const adminRole = adminGlobal.role;
+  const [storeId, setStoreId] = useState(1360); // main store
+  const [branchStores, setBranchStores] = useState([]);
+
+  useEffect(() => {
+    if (adminRole == 99) {
+      const getBranchStores = async () => {
+        const response = await fetchBranchStores();
+        setBranchStores(response.options);
+        // setTotalStores(response.totalStores);
+        // console.log(response);
+      };
+
+      getBranchStores();
+    } else {
+      setStoreId(adminGlobal.store_id);
+      console.log("branch admin");
+    }
+  }, []);
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -98,7 +118,7 @@ const AdminOrders = () => {
     };
     renderPaginate();
     setSortBy("desc");
-  }, [currentPage]);
+  }, [currentPage, storeId]);
 
   // status listener
   useEffect(() => {
@@ -131,8 +151,28 @@ const AdminOrders = () => {
       <div className="grid grid-cols-5 gap-5 m-10">
         <div className="flex flex-col gap-5">
           <h1 className="text-3xl pt-5 font-semibold tracking-tight text-pink-500 ">Orders</h1>
-          {selectedStatus} - Page: {currentPage}
-          {adminGlobal.role == 99 ? <div className="my-2">All Stores</div> : <></>}
+          {/* {selectedStatus} - Page: {currentPage} */}
+          {adminGlobal.role == 99 ? (
+            <div>
+              <Select
+                className="w-full"
+                id="product_sort_id"
+                name="product_sort_id"
+                placeholder="Toko JKT"
+                options={branchStores}
+                // isClearable={isClearable}
+                onChange={(selectedOption) => {
+                  // setSelectedBranchStore(selectedOption.value);
+                  // console.log(selectedBranchStore);
+                  // // console.log(selectedOption);
+                  console.log(selectedOption.value);
+                  setStoreId(selectedOption.value);
+                }}
+              />
+            </div>
+          ) : (
+            <></>
+          )}
           <div className="flex flex-col gap-3">
             {/* status starts */}
             {statuses.map((x) => (
