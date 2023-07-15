@@ -54,7 +54,7 @@ const Cart = () => {
         shipping_price: cartGlobal.shipping_option.cost[0].value,
         total_price: total,
         order_status: "Waiting for payment",
-        address_id: cartGlobal.shipping_address.address_id,
+        address_id: cartGlobal.shipping_address,
         order_details: cartItems,
       };
 

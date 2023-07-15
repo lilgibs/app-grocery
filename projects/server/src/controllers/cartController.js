@@ -28,6 +28,7 @@ module.exports = {
     let userId = req.body.user_id;
     let productId = req.body.product_id;
     let quantity = req.body.quantity;
+    let storeId = req.body.store_id;
 
     try {
       const checkCartExistQuery = `
@@ -36,7 +37,8 @@ module.exports = {
       WHERE user_id = ${db.escape(userId)} AND store_inventory_id = (
           SELECT store_inventory_id
           FROM store_inventory
-          WHERE product_id = ${db.escape(productId)}
+          WHERE product_id = ${db.escape(productId)} AND
+          store_id = ${db.escape(storeId)}
       )
       `;
 
@@ -47,7 +49,8 @@ module.exports = {
         const checkInventoryStockQuery = `
         SELECT quantity_in_stock
         FROM store_inventory
-        WHERE product_id = ${db.escape(productId)};
+        WHERE product_id = ${db.escape(productId)} AND
+        store_id = ${db.escape(storeId)};
         `;
 
         let resultCheckInventoryStockQuery = await query(checkInventoryStockQuery);
@@ -62,7 +65,8 @@ module.exports = {
           WHERE user_id =  ${db.escape(userId)} AND store_inventory_id = (
             SELECT store_inventory_id
             FROM store_inventory
-            WHERE product_id =  ${db.escape(productId)});
+            WHERE product_id =  ${db.escape(productId)} AND
+            store_id = ${db.escape(storeId)})
           `;
 
         let resultUpdateCartQuantityQuery = await query(updateCartQuantityQuery);
@@ -85,7 +89,8 @@ module.exports = {
       JOIN
           products p ON si.product_id = p.product_id
       WHERE
-          p.product_id =  ${db.escape(productId)};
+          p.product_id =  ${db.escape(productId)} AND
+          si.store_id = ${db.escape(storeId)};
       `;
 
       let resultAddToCartQuery = await query(addToCartQuery);
