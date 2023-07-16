@@ -8,6 +8,8 @@ import { setShippingCourier, setShippingServices, resetShipping } from "../featu
 import { setShippingCourierCart, setShippingOption, setShippingAddress } from "../features/cartSlice";
 import { formatRupiah } from "../utils/formatRupiah";
 import axios from "axios";
+import { Menu, MenuButton, MenuList, MenuItem, MenuItemOption, MenuGroup, MenuOptionGroup, MenuDivider } from "@chakra-ui/react";
+import { useNavigate } from "react-router-dom";
 
 function Shipping() {
   const dispatch = useDispatch();
@@ -23,16 +25,30 @@ function Shipping() {
   const [radioButton, setRadioButton] = useState(null);
   const [prevCart, setPrevCart] = useState(cartItems);
   const [cartChange, setCartChange] = useState("invisible");
+  const nav = useNavigate();
 
   useEffect(() => {
-    if (selectedAddress === "" || selectedCourier === "") {
+    if (selectedCourier === "") {
       dispatch(setShippingCourierCart(null));
       dispatch(setShippingAddress(null));
       dispatch(setShippingOption(null));
       dispatch(resetShipping());
       setRadioButton(null);
     }
-  }, [selectedCourier, selectedAddress]);
+  }, [selectedCourier]);
+
+  useEffect(() => {
+    let main_addresss = ["Set up your main address", 0];
+
+    addressGlobal.forEach((x) => {
+      if (x.first_address === 1) {
+        main_addresss = [x.street, x.city_id];
+      }
+    });
+
+    setSelectedAddress(main_addresss);
+    console.log(selectedAddress);
+  }, []);
 
   useEffect(() => {
     setPrevCart(cartItems);
@@ -49,15 +65,15 @@ function Shipping() {
     }
   }, [cartItems]); // reset shipping options if changes are made to cart
 
-  const renderAddress = () => {
-    return addressGlobal.map((p) => {
-      return (
-        <option value={p.address_id}>
-          {p.street}, {p.city_name}
-        </option>
-      );
-    });
-  };
+  // const renderAddress = () => {
+  //   return addressGlobal.map((p) => {
+  //     return (
+  //       <option value={p.address_id}>
+  //         {p.street}, {p.city_name}
+  //       </option>
+  //     );
+  //   });
+  // };
 
   const renderShippingServices = () => {
     return services.map((p) => {
@@ -77,26 +93,19 @@ function Shipping() {
     });
   };
 
-  const handleAddressChange = (event) => {
-    setSelectedAddress(event.target.value);
-  };
+  // const handleAddressChange = (event) => {
+  //   // setSelectedAddress(event.target.value);
+  // };
 
   const handleCourierChange = (event) => {
     setSelectedCourier(event.target.value);
   };
 
   const handleButtonClick = async () => {
-    if (selectedAddress === "" || selectedCourier === "") {
-      alert("Select your address and preffered courier");
+    if (selectedCourier === "") {
+      alert("Select your preffered courier");
     } else {
       try {
-        let i = addressGlobal.findIndex((x) => {
-          return x.address_id == selectedAddress;
-        });
-        setAddressIndex(i);
-
-        let destinationId = addressGlobal[i].city_id;
-
         let totalWeight = 0;
 
         cartItems.forEach((x) => {
@@ -105,11 +114,15 @@ function Shipping() {
 
         let form = {
           origin: nearestStore.store_location,
-          destination: destinationId,
+          destination: selectedAddress[1],
           weight: totalWeight,
           courier: selectedCourier,
         };
+
+        // console.log(form);
+
         let response = await axios.post("http://localhost:8000/api/cart/shipping-fee", form);
+        // console.log(response);
         let courier = response.data.rajaongkir.results[0].name;
         let services = response.data.rajaongkir.results[0].costs;
 
@@ -120,6 +133,9 @@ function Shipping() {
         console.log(error);
       }
     }
+    // console.log("Shipping courier");
+    // console.log(selectedAddress);
+    // console.log(selectedCourier);
   };
 
   return (
@@ -128,7 +144,7 @@ function Shipping() {
         <div>
           <Heading size="md">Shipping option</Heading>
           <Text className="mt-2">
-            Deliver from: <a className="font-bold text-green-500"> {nearestStore.store_name}</a>
+            Deliver from <a className="font-bold text-green-500"> {nearestStore.store_name}</a>
           </Text>
         </div>
 
@@ -145,15 +161,33 @@ function Shipping() {
       <CardBody className="flex flex-col gap-5">
         <FormControl className="grid grid-cols-4 gap-3">
           <div className="col-span-3 grid grid-cols-2 gap-2">
-            <Select placeholder="Select address" onChange={handleAddressChange}>
+            {/* <Select placeholder="Select address" onChange={handleAddressChange}>
               {renderAddress()}
-            </Select>
+            </Select> */}
+            <div>
+              <Menu>
+                <MenuButton as={Button} size="md" variant="ghost" colorScheme="green" border="1px">
+                  {selectedAddress[1] === 0 ? <span> Set up your main adresss </span> : <span> {selectedAddress[0]} </span>}
+                </MenuButton>
+                <MenuList>
+                  <MenuItem
+                    onClick={() => {
+                      nav("/profile");
+                    }}
+                  >
+                    {selectedAddress[1] === 0 ? <span> Set up main adresss </span> : <span> Change main address </span>}
+                  </MenuItem>
+                </MenuList>
+              </Menu>
+            </div>
 
-            <Select placeholder="Select Courier" onChange={handleCourierChange}>
-              <option value="pos">POS Indonesia</option>
-              <option value="jne">JNE</option>
-              <option value="tiki">TIKI</option>
-            </Select>
+            <div>
+              <Select placeholder="Select Courier" onChange={handleCourierChange}>
+                <option value="pos">POS Indonesia</option>
+                <option value="jne">JNE</option>
+                <option value="tiki">TIKI</option>
+              </Select>
+            </div>
           </div>
 
           <div>
@@ -167,7 +201,7 @@ function Shipping() {
             onChange={(value) => {
               setRadioButton(Number(value));
               dispatch(setShippingCourierCart(selectedCourier));
-              dispatch(setShippingAddress(addressGlobal[addressIndex]));
+              dispatch(setShippingAddress(selectedAddress));
               dispatch(setShippingOption(services[value]));
             }}
             value={radioButton}

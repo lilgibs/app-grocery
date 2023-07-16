@@ -23,7 +23,7 @@ import moment from "moment";
 import { addDiscount, deleteDiscount, editDiscount } from "../api/discountApi";
 import { getDiscount } from "../features/discountSlice";
 import { fetchProducts } from "../api/userApi";
-import { fetchCategories } from "../api/CategoryApi";
+import { fetchCategories } from "../api/adminCategoryApi";
 import { addVoucher } from "../api/voucherApi";
 
 function UserProfile() {

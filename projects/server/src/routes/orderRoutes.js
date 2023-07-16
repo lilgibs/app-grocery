@@ -6,6 +6,7 @@ const router = express.Router();
 
 router.get("/", orderController.getOrders);
 router.get("/asc", orderFilterController.getOrdersAsc);
+router.get("/details", orderController.getOrderDetails);
 router.post("/", orderController.addOrder);
 router.patch("/payment-proof", upload.single("payment_proof"), orderController.uploadPaymentProof);
 router.patch("/cancel", orderController.cancelOrder);

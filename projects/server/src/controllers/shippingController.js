@@ -1,14 +1,18 @@
+const { body } = require("express-validator");
 const { db, query } = require("../config/db");
 const request = require("request");
 
 module.exports = {
   getShipping: async (req, res, next) => {
-    let store = req.body.origin;
     try {
+      let store = `%${req.body.origin}%`; // wild card
       const storeToCityId = `
-      SELECT city_id
-      FROM cities
-      WHERE city_name = ${db.escape(store)}
+      SELECT
+        city_id
+      FROM
+        cities
+      WHERE
+        city_name LIKE ${db.escape(store)}
       `;
 
       let resultStoreToCityId = await query(storeToCityId);

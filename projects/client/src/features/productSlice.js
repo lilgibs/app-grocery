@@ -83,7 +83,6 @@ export function fetchProductUser(productName, storeId) {
 export function addProduct(product) {
   return async (dispatch) => {
     try {
-      console.log(product);
 
       let formData = new FormData();
       formData.append("store_id", product.store_id);

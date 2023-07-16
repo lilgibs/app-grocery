@@ -52,6 +52,9 @@ function App() {
   const userGlobalIsLoaded = useSelector((state) => state.user.isLoaded);
   const adminGlobal = useSelector((state) => state.admin.admin);
   const userAddresses = useSelector((state) => state.address.address);
+  const storeId = useSelector(
+    (state) => state.location.location.nearestStore.store_id
+  );
   const userMainAddress = useSelector((state) => state.address.mainAddress);
   const userAddressesIsLoaded = useSelector((state) => state.address.isLoaded);
   const nearestStoreIsLoaded = useSelector((state) => state.location.isLoaded);
@@ -77,19 +80,16 @@ function App() {
 
   useEffect(() => {
     if (adminToken) {
-      {
-        adminGlobal.role === 99
-          ? dispatch(fetchAllOrder())
-          : dispatch(fetchStoreOrder(adminGlobal.store_id));
-      }
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
     }
   }); // get store order if admin is logged in
 
   useEffect(() => {
     if (userToken) {
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, storeId));
+      console.log("Store:" + storeId);
     }
-  }, []);
+  }, [storeId]);
 
   useEffect(() => {
     if (userAddressesIsLoaded) {
@@ -169,19 +169,16 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            {adminGlobal.role === 99 ? (
-              <Route
-                path="/admin/settings/users"
-                element={<UserManagementSettings />}
-              />
-            ) : (
-              <> </>
+            {adminGlobal.role === 99 && (
+              <>
+                <Route
+                  path="/admin/settings/users"
+                  element={<UserManagementSettings />}
+                />
+                <Route path="/admin/categories" element={<AdminCategories />} />
+              </>
             )}
 
-            <Route
-              path="/admin/products/categories"
-              element={<AdminCategories />}
-            />
             <Route path="/admin/products/" element={<AdminProducts />} />
             <Route
               path="/admin/products/add-product"

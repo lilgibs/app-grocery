@@ -7,9 +7,10 @@ import { formatRupiah } from "../utils/formatRupiah";
 import { fetchCart } from "../features/cartSlice";
 import axios from "axios";
 
-const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock, subtotal }) => {
+const CartItem = ({ cart_id, product_id, product, price, discount_value, discounted_price, weight, quantity, stock, subtotal, buy1get1 }) => {
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
+  const storeId = useSelector((state) => state.location.location.nearestStore.store_id);
 
   const handleDeleteFromCart = async () => {
     try {
@@ -21,7 +22,7 @@ const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock
 
       // console.log(cart);
       const response = await axios.delete("http://localhost:8000/api/cart/", { data: cart });
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, storeId));
       alert(response.data.message);
       // console.log(response.data);
     } catch (error) {
@@ -39,7 +40,7 @@ const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock
       };
 
       const response = await axios.patch("http://localhost:8000/api/cart/", cart);
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, storeId));
     } catch (error) {
       method == "add" ? alert("Not enough stock for this product") : alert("Minimum quantity in cart is 1");
     }
@@ -51,12 +52,31 @@ const CartItem = ({ cart_id, product_id, product, price, weight, quantity, stock
         {/* {cart_id}  */}
         {/* {product_id} */}
         {/* {weight}g */}
+
         {product}
       </Td>
-      <Td>{formatRupiah(price)}</Td>
+      <Td>
+        {discount_value === null ? (
+          <span>{formatRupiah(price)} </span>
+        ) : (
+          <>
+            <span className="text-gray-400 line-through mr-2">{formatRupiah(price)}</span> <span className="text-red-500 font-semibold">{formatRupiah(discounted_price)}</span>{" "}
+          </>
+        )}
+        {buy1get1 === 1 ? <span className="text-red-500 font-semibold ml-3">BUY 1 GET 1</span> : <></>}
+      </Td>
+
+      {/* <Td>{formatRupiah(price)}</Td> */}
       <Td>
         <NumberInput>
-          {quantity}
+          {buy1get1 === 1 ? (
+            <>
+              <span className="text-gray-400 line-through mr-2">{quantity / 2}</span> <span className="text-red-500 font-semibold">{quantity}</span>
+            </>
+          ) : (
+            <> {quantity}</>
+          )}
+          {/* {quantity} */}
           <NumberInputStepper>
             <NumberIncrementStepper
               onClick={() => {

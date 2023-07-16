@@ -6,7 +6,7 @@ import { deleteImage, fetchProduct, updateProduct, uploadImage } from '../featur
 import { checkLoginAdmin } from '../features/adminSlice';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import * as Yup from 'yup';
-import { fetchCategories } from '../api/CategoryApi';
+import { fetchCategories } from '../api/adminCategoryApi';
 import Select from 'react-select';
 import {
   Modal,

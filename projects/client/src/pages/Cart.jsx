@@ -22,8 +22,11 @@ const Cart = () => {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    dispatch(fetchCart(userGlobal.user_id));
-  }, []);
+    dispatch(fetchCart(userGlobal.user_id, locationGlobal.nearestStore.store_id));
+    // const discounts = dispatch(getDiscount());
+
+    // console.log(discounts);
+  }, [locationGlobal.nearestStore.store_id]);
 
   useEffect(() => {
     let sumSubtotal = 0;
@@ -39,7 +42,23 @@ const Cart = () => {
 
   const renderCartItems = () => {
     return cartItems.map((p, index) => {
-      return <CartItem key={index} cart_id={p.cart_id} product_id={p.product_id} product={p.product_name} price={p.product_price} weight={p.weight} quantity={p.quantity} stock={p.quantity_in_stock} subtotal={p.subtotal} />;
+      return (
+        <CartItem
+          //
+          key={index}
+          cart_id={p.cart_id}
+          product_id={p.product_id}
+          product={p.product_name}
+          price={p.product_price}
+          discount_value={p.discount_value}
+          discounted_price={p.discounted_price}
+          weight={p.weight}
+          quantity={p.quantity}
+          stock={p.quantity_in_stock}
+          subtotal={p.subtotal}
+          buy1get1={p.buy1get1}
+        />
+      );
     });
   };
 
@@ -54,14 +73,14 @@ const Cart = () => {
         shipping_price: cartGlobal.shipping_option.cost[0].value,
         total_price: total,
         order_status: "Waiting for payment",
-        address_id: cartGlobal.shipping_address.address_id,
+        address_id: cartGlobal.shipping_address,
         order_details: cartItems,
       };
 
       const response = await axios.post("http://localhost:8000/api/order/", order);
 
       alert(response.data.message);
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, locationGlobal.nearestStore.store_id));
     } catch (error) {
       alert(`Add order fails.`);
     }
@@ -117,8 +136,8 @@ const Cart = () => {
                       {cartItems.length == 0 ? <>Your cart is empty</> : <>{formatRupiah(subtotal)}</>}
                     </Box>
                     <Box className="flex justify-between">
-                      <Heading size="sm">Discount</Heading>
-                      No discount applied
+                      <Heading size="sm">Voucher</Heading>
+                      No voucher applied
                     </Box>
                     <Box className="flex justify-between">
                       <Heading size="sm">Shipping</Heading>
