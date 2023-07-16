@@ -51,6 +51,7 @@ const Login = () => {
             validationSchema={LoginSchema}
             onSubmit={(value) => {
               dispatch(loginUser(value));
+              nav(0);
             }}
           >
             {(props) => {
