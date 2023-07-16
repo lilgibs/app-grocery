@@ -153,6 +153,9 @@ module.exports = {
     }
   },
   addProduct: async (req, res, next) => {
+    const today = new Date();
+    const currentDate = today.toISOString().slice(0, 10);
+
     const {
       store_id,
       product_category_id,

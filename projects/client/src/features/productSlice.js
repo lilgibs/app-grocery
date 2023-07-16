@@ -74,7 +74,7 @@ export function fetchProductUser(productName, storeId) {
       console.log(response.data.product);
       dispatch(setProduct(response.data.product));
     } catch (error) {
-      console.log(error)
+      console.log(error);
       throw error;
     }
   };
@@ -101,7 +101,7 @@ export function addProduct(product) {
       }
 
       let response = await axios.post(
-        "http://localhost:8000/api/admin/products/add-product",
+        "http://localhost:8000/api/admin/products",
         formData,
         getConfig(true)
       );
