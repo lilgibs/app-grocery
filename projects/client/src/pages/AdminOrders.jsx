@@ -212,6 +212,7 @@ const AdminOrders = () => {
         <OrderItem
           //
           key={index}
+          user_id={o.user_id}
           order_id={o.order_id}
           order_date={o.order_date}
           shipping_courier={o.shipping_courier}
@@ -220,6 +221,8 @@ const AdminOrders = () => {
           total_price={o.total_price}
           payment_proof={o.payment_proof}
           order_status={o.order_status}
+          origin={o.store_name}
+          destination={o.street}
         />
       );
     });

@@ -10,8 +10,16 @@ module.exports = {
       const limit = 3;
 
       const orderQuery = await query(`
-        SELECT * FROM orders
-        WHERE user_id = ${db.escape(userId)}`);
+      SELECT
+        o.*,
+        s.store_name,
+        a.street
+      FROM
+        orders o
+      INNER JOIN stores s ON o.store_id = s.store_id
+      INNER JOIN addresses a ON o.address_id = a.address_id
+      WHERE
+        o.user_id = ${db.escape(userId)}`);
 
       orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
 
@@ -23,6 +31,24 @@ module.exports = {
       const maxPages = Math.ceil(orderQuery.length / limit);
 
       res.status(200).send({ orders: paginatedOrder, maxPages: maxPages });
+    } catch (error) {
+      next(error);
+    }
+  },
+  getOrderDetails: async (req, res, next) => {
+    try {
+      const orderId = req.query.orderId;
+
+      const orderQuery = await query(`
+      SELECT
+        o.*,
+        p.product_name
+      FROM order_details o
+      INNER JOIN products p ON p.product_id = o.product_id
+      WHERE
+        order_id=${db.escape(orderId)};`);
+
+      res.status(200).send(orderQuery);
     } catch (error) {
       next(error);
     }
