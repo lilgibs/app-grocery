@@ -196,6 +196,8 @@ const Orders = () => {
           total_price={o.total_price}
           payment_proof={o.payment_proof}
           order_status={o.order_status}
+          origin={o.store_name}
+          destination={o.street}
         />
       );
     });
