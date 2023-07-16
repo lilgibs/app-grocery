@@ -45,6 +45,7 @@ function App() {
   const userGlobal = useSelector((state) => state.user.user);
   const adminGlobal = useSelector((state) => state.admin.admin);
   const userAddresses = useSelector((state) => state.address.address);
+  const storeId = useSelector((state) => state.location.location.nearestStore.store_id);
   let mainAddress;
 
   if (userAddresses) {
@@ -77,9 +78,10 @@ function App() {
 
   useEffect(() => {
     if (userToken) {
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, storeId));
+      console.log("Store:" + storeId);
     }
-  }, []);
+  }, [storeId]);
 
   useEffect(() => {
     if (mainAddress) {
