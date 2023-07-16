@@ -55,12 +55,13 @@ function Product() {
         product_id: product.product_id,
         quantity: quantity,
         store_id: store_id,
+        discount: product.discounted_price,
       };
 
       // console.log(object);
       const response = await axios.post("http://localhost:8000/api/cart/", cart);
 
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, store_id));
       dispatch(fetchProductUser(productName, store_id));
       alert(response.data.message);
     } catch (error) {

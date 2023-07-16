@@ -38,13 +38,11 @@ function Shipping() {
   }, [selectedCourier]);
 
   useEffect(() => {
-    let main_addresss = [];
+    let main_addresss = ["Set up your main address", 0];
 
     addressGlobal.forEach((x) => {
       if (x.first_address === 1) {
         main_addresss = [x.street, x.city_id];
-      } else {
-        main_addresss = ["Set up your main address", 0];
       }
     });
 
@@ -108,21 +106,6 @@ function Shipping() {
       alert("Select your preffered courier");
     } else {
       try {
-        // let main_addresss = "";
-
-        // addressGlobal.forEach((x) => {
-        //   if (x.first_address === 1) {
-        //     main_addresss = x.city_id;
-        //   }
-        // });
-        // // setAddressIndex(i);
-
-        // console.log(main_addresss);
-
-        // console.log(selectedAddress[1]);
-
-        // let destinationId = addressGlobal[i].city_id;
-
         let totalWeight = 0;
 
         cartItems.forEach((x) => {
@@ -136,9 +119,10 @@ function Shipping() {
           courier: selectedCourier,
         };
 
-        console.log(form);
+        // console.log(form);
+
         let response = await axios.post("http://localhost:8000/api/cart/shipping-fee", form);
-        console.log(response);
+        // console.log(response);
         let courier = response.data.rajaongkir.results[0].name;
         let services = response.data.rajaongkir.results[0].costs;
 
