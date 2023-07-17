@@ -8,7 +8,7 @@ import AdminNavbar from "./components/AdminNavbar";
 import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
-import UserManagementSettings from "./pages/UserManagementSettings";
+import AdminUserManagement from "./pages/AdminUserManagement";
 import Register from "./pages/Register";
 import Verification from "./pages/Verification";
 import Login from "./pages/Login";
@@ -131,7 +131,7 @@ function App() {
     })();
   }, []);
 
-  if (!userGlobalIsLoaded || !userAddressesIsLoaded || !nearestStoreIsLoaded) {
+  if (!userGlobalIsLoaded || !userAddressesIsLoaded) {
     return <div>Loading...</div>;
   }
 
@@ -163,7 +163,7 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             {adminGlobal.role === 99 && (
               <>
-                <Route path="/admin/settings/users" element={<UserManagementSettings />} />
+                <Route path="/admin/user-management" element={<AdminUserManagement />} />
                 <Route path="/admin/categories" element={<AdminCategories />} />
               </>
             )}

@@ -13,7 +13,7 @@ router.post('/', adminVerifyToken,
   upload.array('product_images', 3),
   check('store_id').notEmpty().withMessage('Store id is required'),
   check('product_name').notEmpty().withMessage('Product name is required'),
-  check('quantity_in_stock').notEmpty().withMessage('Product quantity is required'),
+  check('quantity_in_stock').notEmpty().withMessage('Product quantity is required').isLength({ max: 250 }).withMessage('Product description can only be a maximum of 250 characters'),
   adminProductController.addProduct)
 router.put('/:productId',
   check('product_category_id').notEmpty().withMessage('Product category is required'),

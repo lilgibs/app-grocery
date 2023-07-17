@@ -79,7 +79,7 @@ const AdminNavbar = () => {
                         <MenuItem
                           className="flex gap-2 items-center"
                           onClick={() => {
-                            nav("/admin/settings/users");
+                            nav("/admin/user-management");
                           }}
                         >
                           <FaUserPlus />

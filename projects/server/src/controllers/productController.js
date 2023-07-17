@@ -4,7 +4,7 @@ const { handleServerError, handleValidationErrors } = require("../utils/errorHan
 
 module.exports = {
   getProducts: async (req, res, next) => {
-    let storeId = req.query.storeId || 1366
+    let storeId = req.query.storeId
     const search = req.query.search
     const page = parseInt(req.query.page) || 1
     const limit = parseInt(req.query.limit) || 10
@@ -13,11 +13,11 @@ module.exports = {
     const sortType = req.query.sortType; // 'price' or 'stock'
     const sortOrder = req.query.sortOrder; // 'asc' or 'desc'
 
-    // if (!storeId) {
-    //   const defaultStoreQuery = 'SELECT store_id FROM stores LIMIT 1';
-    //   const resultDefaultStoreQuery = await query(defaultStoreQuery);
-    //   storeId = resultDefaultStoreQuery[0].store_id;
-    // }
+    if (!storeId) {
+      const defaultStoreQuery = 'SELECT store_id FROM stores LIMIT 1';
+      const resultDefaultStoreQuery = await query(defaultStoreQuery);
+      storeId = resultDefaultStoreQuery[0].store_id;
+    }
 
     try {
       let productQuery = `SELECT 
