@@ -11,7 +11,6 @@ import AsyncSelect from 'react-select/async';
 function UserManagementSettings() {
   const [latLong, setLatLong] = useState({ lat: '', lng: '' })
   const [loading, setLoading] = useState(true);
-  const [cities, setCities] = useState([])
   const [inputValue, setInputValue] = useState('');
 
   const token = localStorage.getItem('admin_token');
@@ -36,7 +35,6 @@ function UserManagementSettings() {
       const data = response.data
       if (data.results && data.results.length > 0) {
         const { lat, lng } = data.results[0].geometry;
-        console.log('lat:', lat, 'lng:', lng)
         setLatLong({ lat, lng })
         setFieldValue('latitude', lat);
         setFieldValue('longitude', lng);
@@ -49,16 +47,6 @@ function UserManagementSettings() {
       alert('There was an error fetching the coordinates.');
     }
   }
-
-  const GetCoordinatesButton = () => {
-    const { values, setFieldValue } = useFormikContext();
-
-    const handleClick = () => {
-      getCoordinates(values.store_location, setFieldValue);
-    };
-
-    return <button className='bg-teal-500 shadow rounded w-1/4 py-2 px-3 text-white leading-tight hover:bg-teal-600' type="button" onClick={handleClick}>Get</button>;
-  };
 
   const validationSchema = Yup.object().shape({
     name: Yup.string()
@@ -103,15 +91,8 @@ function UserManagementSettings() {
   }, [role]);
 
   useEffect(() => {
-    const getCities = async () => {
-      let response = await fetchCity(token, 'Bekasi')
-      setCities(response)
-    }
-
     if (!loading && role !== 99) {
       navigate('/');
-    } else {
-      getCities()
     }
   }, [role, navigate, loading]);
 
