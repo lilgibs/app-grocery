@@ -3,35 +3,51 @@ import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
 import { Image, Stack, Heading, Text } from "@chakra-ui/react";
-import {
-  Table,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
-} from "@chakra-ui/react";
+import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { formatRupiah } from "../utils/formatRupiah";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { fetchProducts } from "../api/userApi";
 import { fetchCategories } from "../api/adminCategoryApi";
+import { Box, IconButton, useBreakpointValue } from "@chakra-ui/react";
+import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
+import Slider from "react-slick";
 
 const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const userToken = localStorage.getItem("user_token");
 
-  const { store_id, store_name } = useSelector(
-    (state) => state.location.location.nearestStore
-  );
+  const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
 
   const dispatch = useDispatch();
-  const nearestStore = useSelector(
-    (state) => state.location.location.nearestStore.store_name
-  );
+  const nearestStore = useSelector((state) => state.location.location.nearestStore.store_name);
   const navigate = useNavigate();
+
+  //carousel
+  const settings = {
+    dots: true,
+    arrows: false,
+    fade: true,
+    infinite: true,
+    autoplay: true,
+    speed: 500,
+    autoplaySpeed: 5000,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+  };
+
+  const [slider, setSlider] = useState(<Slider />);
+
+  // These are the breakpoints which changes the position of the
+  // buttons as the screen size changes
+  const top = useBreakpointValue({ base: "90%", md: "50%" });
+  const side = useBreakpointValue({ base: "30%", md: "10px" });
+
+  // These are the images used in the slide
+  const cards = ["http://localhost:8000/uploads/banner1.png", "http://localhost:8000/uploads/banner2.png", "http://localhost:8000/uploads/banner3.png"];
+
+  //---------------------------------------------
 
   useEffect(() => {
     const getCategories = async () => {
@@ -61,7 +77,26 @@ const LandingPage = () => {
             <a className="text-green-500"> {nearestStore}</a>
           </h3>
         </div>
-        <div className="bg-sky-100 rounded-lg grid grid-col-1 gap-4 py-10 px-4 lg:my-5 md:px-10 md:grid-cols-3 lg:px-20">
+
+        <Box position={"relative"} height={"450px"} width={"full"} overflow={"hidden"}>
+          <link rel="stylesheet" type="text/css" charSet="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />
+          <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick-theme.min.css" />
+
+          <IconButton aria-label="left-arrow" colorScheme="green" borderRadius="full" position="absolute" left={side} top={top} transform={"translate(0%, -50%)"} zIndex={2} onClick={() => slider?.slickPrev()}>
+            <BiLeftArrowAlt />
+          </IconButton>
+
+          <IconButton aria-label="right-arrow" colorScheme="green" borderRadius="full" position="absolute" right={side} top={top} transform={"translate(0%, -50%)"} zIndex={2} onClick={() => slider?.slickNext()}>
+            <BiRightArrowAlt />
+          </IconButton>
+
+          <Slider {...settings} ref={(slider) => setSlider(slider)}>
+            {cards.map((url, index) => (
+              <Box key={index} height="450px" position="relative" backgroundPosition="center" backgroundRepeat="no-repeat" backgroundSize="contain" backgroundImage={`url(${url})`} />
+            ))}
+          </Slider>
+        </Box>
+        {/* <div className="bg-sky-100 rounded-lg grid grid-col-1 gap-4 py-10 px-4 lg:my-5 md:px-10 md:grid-cols-3 lg:px-20">
           <div className="col-span-1 md:col-span-2">
             <Card align="center">
               <Tabs variant="soft-rounded" colorScheme="green">
@@ -69,7 +104,7 @@ const LandingPage = () => {
                 <CardBody py={{ base: "10", md: "20" }}>
                   <TabPanels>
                     <TabPanel>
-                      <p>Promo 1</p>
+                    <p>Promo 1</p>
                     </TabPanel>
 
                     <TabPanel>
@@ -92,20 +127,20 @@ const LandingPage = () => {
               </Tabs>
             </Card>
           </div>
+          
+           <div className="hidden md:block">
+             <Card align="center">
+               <CardHeader></CardHeader>
+               <CardBody py="20">promo 4</CardBody>
 
-          <div className="hidden md:block">
-            <Card align="center">
-              <CardHeader></CardHeader>
-              <CardBody py="20">promo 4</CardBody>
-
-              <CardFooter m="1">
-                <Button bg="green.200" color="white">
-                  Shop Now
-                </Button>
-              </CardFooter>
-            </Card>
-          </div>
-        </div>
+               <CardFooter m="1">
+                 <Button bg="green.200" color="white">
+                   Shop Now
+               </Button>
+               </CardFooter>
+             </Card>
+           </div>
+        </div> */}
 
         <br />
 
@@ -119,14 +154,7 @@ const LandingPage = () => {
             </div>
 
             <div className="mt-5 md:justify-self-end md:mt-0">
-              <Button
-                variant="outline"
-                color="green.500"
-                size="sm"
-                p="3"
-                borderRadius="full"
-                onClick={() => navigate("/products")}
-              >
+              <Button variant="outline" color="green.500" size="sm" p="3" borderRadius="full" onClick={() => navigate("/products")}>
                 More categories
               </Button>
             </div>
@@ -134,17 +162,7 @@ const LandingPage = () => {
 
           <div className="mt-8 flex gap-3 justify-center">
             {categories.map((category) => (
-              <Button
-                bg={
-                  categories.indexOf(category) % 2 === 0
-                    ? "green.200"
-                    : "pink.100"
-                }
-                color="gray.700"
-                h={{ base: "80px", md: "120px", lg: "150px" }}
-                w={{ base: "80px", md: "120px", lg: "150px" }}
-                fontSize="sm"
-              >
+              <Button bg={categories.indexOf(category) % 2 === 0 ? "green.200" : "pink.100"} color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
                 {category.label}
               </Button>
             ))}
@@ -163,14 +181,7 @@ const LandingPage = () => {
             </div>
 
             <div className=" md:justify-self-end">
-              <Button
-                variant="outline"
-                color="green.500"
-                size="sm"
-                p="3"
-                borderRadius="full"
-                onClick={() => navigate("/products")}
-              >
+              <Button variant="outline" color="green.500" size="sm" p="3" borderRadius="full" onClick={() => navigate("/products")}>
                 Browse all products
               </Button>
             </div>
@@ -178,33 +189,15 @@ const LandingPage = () => {
 
           <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-2">
             {products.slice(0, 4).map((product) => (
-              <Card
-                variant="elevated"
-                className="cursor-pointer"
-                onClick={() =>
-                  navigate(
-                    `/products/${formatProductName(product.product_name)}`
-                  )
-                }
-              >
-                <Image
-                  src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png"
-                  alt="Green double couch with wooden legs"
-                  borderTopRadius="lg"
-                />
+              <Card variant="elevated" className="cursor-pointer" onClick={() => navigate(`/products/${formatProductName(product.product_name)}`)}>
+                <Image src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png" alt="Green double couch with wooden legs" borderTopRadius="lg" />
                 <CardHeader padding={"2"}>
-                  <Heading
-                    className="line-clamp-2"
-                    size="sm"
-                    fontWeight={"normal"}
-                  >
+                  <Heading className="line-clamp-2" size="sm" fontWeight={"normal"}>
                     {product.product_name}
                   </Heading>
                 </CardHeader>
                 <CardBody padding={"2"}>
-                  <Text className="font-semibold">
-                    {formatRupiah(product.product_price)}
-                  </Text>
+                  <Text className="font-semibold">{formatRupiah(product.product_price)}</Text>
                 </CardBody>
                 <CardFooter></CardFooter>
               </Card>
@@ -215,45 +208,21 @@ const LandingPage = () => {
         <br />
 
         <div className="text-center mx-7 my-8 py-8 lg:my-12">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            Online Grocery Web App
-          </h1>
-          <p className="mt-8 text-gray-600 text-md md:text-xl">
-            Stay home and get your daily needs delivered to your doorstep
-          </p>
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">Online Grocery Web App</h1>
+          <p className="mt-8 text-gray-600 text-md md:text-xl">Stay home and get your daily needs delivered to your doorstep</p>
           <div className="mt-8 mx-5 flex flex-col items-center justify-center gap-2 md:flex-row">
             {userToken ? (
               <>
-                <Button
-                  bg="green.400"
-                  color="white"
-                  variant="solid"
-                  size="md"
-                  className="w-full sm:w-auto"
-                  onClick={() => navigate("/products")}
-                >
+                <Button bg="green.400" color="white" variant="solid" size="md" className="w-full sm:w-auto" onClick={() => navigate("/products")}>
                   Start shopping
                 </Button>
               </>
             ) : (
               <>
-                <Button
-                  bg="green.400"
-                  color="white"
-                  variant="solid"
-                  size="md"
-                  className="w-full sm:w-auto"
-                  onClick={() => navigate("/register")}
-                >
+                <Button bg="green.400" color="white" variant="solid" size="md" className="w-full sm:w-auto" onClick={() => navigate("/register")}>
                   Register
                 </Button>
-                <Button
-                  colorScheme="gray"
-                  variant="outline"
-                  size="md"
-                  className="w-full sm:w-auto mt-2 sm:mt-0"
-                  onClick={() => navigate("/login")}
-                >
+                <Button colorScheme="gray" variant="outline" size="md" className="w-full sm:w-auto mt-2 sm:mt-0" onClick={() => navigate("/login")}>
                   Log in
                 </Button>
               </>
@@ -266,9 +235,7 @@ const LandingPage = () => {
         <hr className="border-1 border-gray-300" />
         <div className="grid grid-cols-1 px-4 py-5 md:py-11 md:grid-cols-3 md:px-6 lg:px-8">
           <div className="col-span-1">
-            <h1 className="text-lg font-bold tracking-tight px-2 py-2 md:py-0 md:text-3xl md:pl-5">
-              Online Grocery Web App
-            </h1>
+            <h1 className="text-lg font-bold tracking-tight px-2 py-2 md:py-0 md:text-3xl md:pl-5">Online Grocery Web App</h1>
           </div>
           <div className="mt-3 md:m-0 md:col-span-2">
             <TableContainer>
