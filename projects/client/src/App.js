@@ -27,11 +27,7 @@ import NotFound from "./pages/NotFound";
 import { checkLogin } from "./features/userSlice";
 import { checkLoginAdmin } from "./features/adminSlice";
 import { fetchCart } from "./features/cartSlice";
-import {
-  fetchOrder,
-  fetchStoreOrder,
-  fetchAllOrder,
-} from "./features/orderSlice";
+import { fetchOrder, fetchStoreOrder, fetchAllOrder } from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
 import { getAddress } from "./features/addressSlice";
 import AdminDiscount from "./pages/AdminDiscount";
@@ -52,9 +48,7 @@ function App() {
   const userGlobalIsLoaded = useSelector((state) => state.user.isLoaded);
   const adminGlobal = useSelector((state) => state.admin.admin);
   const userAddresses = useSelector((state) => state.address.address);
-  const storeId = useSelector(
-    (state) => state.location.location.nearestStore.store_id
-  );
+  const storeId = useSelector((state) => state.location.location.nearestStore.store_id);
   const userMainAddress = useSelector((state) => state.address.mainAddress);
   const userAddressesIsLoaded = useSelector((state) => state.address.isLoaded);
   const nearestStoreIsLoaded = useSelector((state) => state.location.isLoaded);
@@ -87,9 +81,9 @@ function App() {
   useEffect(() => {
     if (userToken) {
       dispatch(fetchCart(userGlobal.user_id, storeId));
-      console.log("Store:" + storeId);
+      console.log("Ganti ke store:" + storeId);
     }
-  }, [storeId]);
+  }, [storeId]); // ganti cart jika alamat diganti
 
   useEffect(() => {
     if (userAddressesIsLoaded) {
@@ -107,7 +101,7 @@ function App() {
         });
       }
     }
-  }, [userAddressesIsLoaded]);
+  }, [userAddressesIsLoaded, userMainAddress]); // ganti store jika alamat diganti
 
   useEffect(() => {
     if (userGlobalIsLoaded) {
@@ -132,9 +126,7 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/greetings`
-      );
+      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
       setMessage(data?.message || "");
     })();
   }, []);
@@ -171,34 +163,19 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             {adminGlobal.role === 99 && (
               <>
-                <Route
-                  path="/admin/settings/users"
-                  element={<UserManagementSettings />}
-                />
+                <Route path="/admin/settings/users" element={<UserManagementSettings />} />
                 <Route path="/admin/categories" element={<AdminCategories />} />
               </>
             )}
 
             <Route path="/admin/products/" element={<AdminProducts />} />
-            <Route
-              path="/admin/products/add-product"
-              element={<AdminAddProduct />}
-            />
-            <Route
-              path="/admin/products/:productId"
-              element={<AdminEditProduct />}
-            />
+            <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
+            <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/discounts" element={<AdminDiscount />} />
-            <Route
-              path="/admin/stock-history"
-              element={<AdminStockHistory />}
-            />
+            <Route path="/admin/stock-history" element={<AdminStockHistory />} />
             <Route path="/admin/sales-report" element={<AdminSalesReport />} />
-            <Route
-              path="/admin/sales-report/:orderId"
-              element={<AdminSalesReportDetail />}
-            />
+            <Route path="/admin/sales-report/:orderId" element={<AdminSalesReportDetail />} />
           </>
         ) : (
           //when admin is logged out
@@ -215,10 +192,7 @@ function App() {
         ) : (
           //when user is logged out
           <>
-            <Route
-              path="/reset-password"
-              element={<ResetPasswordEmailForm />}
-            />
+            <Route path="/reset-password" element={<ResetPasswordEmailForm />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
           </>
         )}
