@@ -5,10 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { addProduct } from '../features/productSlice';
 import CreatableSelect from 'react-select/creatable';
 import { IoMdRemoveCircle } from 'react-icons/io';
-
 import Select from 'react-select';
-import axios from 'axios';
-import { checkLoginAdmin } from '../features/adminSlice';
 import { useNavigate } from 'react-router-dom';
 import { fetchCategories } from '../api/adminCategoryApi';
 import { fetchProducts } from '../api/adminProductApi';
@@ -53,9 +50,6 @@ function AddProduct() {
     setFieldValue('product_images', newImages);
   };
 
-  useEffect(() => {
-    adminToken ? dispatch(checkLoginAdmin(adminToken)) : setLoading(false);
-  }, [dispatch]);
 
   useEffect(() => {
     if (role !== null) {
@@ -73,11 +67,6 @@ function AddProduct() {
     }
   }, [role, navigate, loading]);
 
-  // useEffect(() => {
-  //   fetchCategories();
-  //   fetchProductOptions(); // Memuat data produk dari database saat komponen dimount
-  // }, []);
-
   const getValidationSchema = () => {
     if (isNewOption) {
       return Yup.object().shape({
@@ -88,7 +77,8 @@ function AddProduct() {
         product_name: Yup.string()
           .required('Required'),
         product_description: Yup.string()
-          .required('Required'),
+          .required('Required')
+          .max(250),
         product_price: Yup.number()
           .required('Required'),
         product_weight: Yup.number()
@@ -99,6 +89,12 @@ function AddProduct() {
           .required('Required')
           .min(1, 'At least one image is required')
           .max(3, 'You can only upload up to 3 images')
+          .test("fileSize", "File too large", value =>
+            value && value.length ? value.every(file => file.size <= 1024 * 1024) : true
+          )
+          .test("fileFormat", "Unsupported Format", value =>
+            value && value.length ? value.every(file => ["image/jpeg", "image/png"].includes(file.type)) : true
+          ),
       });
     } else {
       return Yup.object().shape({
@@ -144,11 +140,11 @@ function AddProduct() {
         onSubmit={(values, { setSubmitting, resetForm }) => {
           setSubmitting(true);
           dispatch(addProduct(values))
-          console.log(values)
+          setImagePreviews([])
+          setSelectedOption(null);
           resetForm();
           setSubmitting(false);
         }}
-
       >
         {({ isSubmitting, values, setFieldValue }) => (
           <Form className="bg-white border shadow-md rounded px-8 pt-6 pb-8 mb-4">
