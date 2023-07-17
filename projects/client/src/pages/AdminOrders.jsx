@@ -18,6 +18,7 @@ const AdminOrders = () => {
   const adminRole = adminGlobal.role;
   const [storeId, setStoreId] = useState(1360); // main store
   const [branchStores, setBranchStores] = useState([]);
+  const [selectedBranchStore, setSelectedBranchStore] = useState(null);
 
   useEffect(() => {
     if (adminRole == 99) {
@@ -25,7 +26,7 @@ const AdminOrders = () => {
         const response = await fetchBranchStores();
         setBranchStores(response.options);
         // setTotalStores(response.totalStores);
-        // console.log(response);
+        console.log(response);
       };
 
       getBranchStores();
@@ -244,9 +245,9 @@ const AdminOrders = () => {
                 options={branchStores}
                 // isClearable={isClearable}
                 onChange={(selectedOption) => {
-                  // setSelectedBranchStore(selectedOption.value);
-                  // console.log(selectedBranchStore);
-                  // // console.log(selectedOption);
+                  setSelectedBranchStore(selectedOption.value);
+                  console.log(selectedBranchStore);
+                  // console.log(selectedOption);
                   console.log(selectedOption.value);
                   setStoreId(selectedOption.value);
                 }}

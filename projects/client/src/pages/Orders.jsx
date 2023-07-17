@@ -51,7 +51,7 @@ const Orders = () => {
   };
 
   // id filter
-  const [selectedId, setSelectedId] = useState("");
+  const [selectedId, setSelectedId] = React.useState("");
   const handleIdChange = (event) => setSelectedId(event.target.value);
 
   const handleId = async () => {
@@ -137,7 +137,7 @@ const Orders = () => {
       const response = await axios.get(`http://localhost:8000/api/order/by-date/?userId=${userGlobal.user_id}&page=${currentPage}&startDate="${startDate}"&endDate="${endDate}"`);
 
       console.log(response.data);
-      if (response.data.orders.length === 0) {
+      if (response.data.orders.length == 0) {
         alert("Orders not found");
       }
       dispatch(setOrderItems(response.data.orders));
@@ -204,12 +204,14 @@ const Orders = () => {
   };
 
   return (
-    <div className="mx-4 md:mx-20">
+    <div className="mx-20">
+      {/* <Input placeholder="Select Date and Time" size="md" type="datetime-local" value={date} onChange={handleChange} /> */}
+
       {userGlobal.user_id > 0 ? (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-5 m-5 gap-5">
+          <div className="grid grid-cols-5 m-10 gap-5">
             <div className="flex flex-col gap-5">
-              <h1 className="text-2xl md:text-3xl pt-5 font-semibold tracking-tight text-gray-900">Orders</h1>
+              <h1 className="text-3xl pt-5 font-semibold tracking-tight text-gray-900">Orders</h1>
               <div className="flex flex-col gap-3">
                 {/* status starts */}
                 {statuses.map((x) => (
@@ -296,10 +298,10 @@ const Orders = () => {
       ) : (
         <>
           <div>
-            <h1 className="text-2xl md:text-3xl my-10 font-semibold tracking-tight text-gray-900 ">Order List</h1>
+            <h1 className="text-3xl my-10 font-semibold tracking-tight text-gray-900 ">Order List</h1>
           </div>
 
-          <div className="text-center mx-4 md:mx-7 py-5">
+          <div className="text-center mx-7 py-5">
             <p className="mt-8 text-gray-600 text-md md:text-xl">Login to view your orders</p>
             <div className="mt-5 mx-5 flex flex-col items-center justify-center gap-2 md:flex-row">
               <Stack direction="row" spacing={2}>
