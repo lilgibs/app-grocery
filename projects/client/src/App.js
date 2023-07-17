@@ -139,7 +139,7 @@ function App() {
     })();
   }, []);
 
-  if (!userGlobalIsLoaded || !userAddressesIsLoaded || !nearestStoreIsLoaded) {
+  if (!userGlobalIsLoaded || !userAddressesIsLoaded) {
     return <div>Loading...</div>;
   }
 

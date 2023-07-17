@@ -10,6 +10,7 @@ import ProductCard from "../components/ProductCard";
 import ProductNotFound from "../components/ProductNotFound";
 import Pagination from "../components/Pagination";
 import { sortOptions } from '../utils/sortOptions';
+import Footer from "../components/Footer";
 
 function Products() {
   const [products, setProducts] = useState([]);
@@ -55,6 +56,7 @@ function Products() {
     let selected = data.selected + 1; // react-paginate mulai dari 0
     searchParams.set("page", selected);
     setSearchParams(new URLSearchParams(searchParams.toString()));
+    window.scrollTo(0, 0);
   };
 
   useEffect(() => {
@@ -178,7 +180,7 @@ function Products() {
           {/* Content - END */}
         </div>
       </div>
-      <div className="h-60 bg-red-500"></div>
+      <Footer/>
     </div>
   );
 }
