@@ -1,10 +1,11 @@
 const express = require('express')
-const { adminAuthController } = require('../../controllers')
+const { adminAuthController, adminCityController } = require('../../controllers')
 const { check } = require('express-validator')
 const { adminVerifyToken } = require('../../middleware/adminAuth')
 const router = express.Router()
 
-router.post('/create', adminVerifyToken, [
+router.get('/cities', adminVerifyToken, adminCityController.getCities)
+router.post('/', adminVerifyToken, [
   check('name').notEmpty().withMessage('Name is required'),
   check('email').isEmail().withMessage('Email is not valid'),
   check('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters'),
