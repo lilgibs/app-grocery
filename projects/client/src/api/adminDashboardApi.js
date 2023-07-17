@@ -1,9 +1,15 @@
 import axios from "axios";
 import moment from 'moment';
 
-export async function fetchBranchStores() {
+
+export async function fetchBranchStores(adminToken) {
+
   try {
-    const response = await axios.get('http://localhost:8000/api/admin/dashboard/stores')
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/dashboard/stores`, {
+      headers: {
+        'Authorization': `Bearer ${adminToken}`
+      }
+    })
     const options = response.data.data.map((store) => ({
       value: store.store_id,
       label: store.store_name,
@@ -16,9 +22,32 @@ export async function fetchBranchStores() {
   }
 }
 
-export async function fetchProducts(storeId) {
+export async function fetchUsers(adminToken) {
   try {
-    const response = await axios.get('http://localhost:8000/api/admin/dashboard/products')
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/dashboard/users`, {
+      headers: {
+        'Authorization': `Bearer ${adminToken}`
+      }
+    })
+    // const options = response.data.data.map((store) => ({
+    //   value: store.store_id,
+    //   label: store.store_name,
+    // }));
+    const totalUsers = response.data.total
+
+    return totalUsers;
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export async function fetchProducts(adminToken) {
+  try {
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/dashboard/products`, {
+      headers: {
+        'Authorization': `Bearer ${adminToken}`
+      }
+    })
     return response.data.data.length
   } catch (error) {
     console.log(error)
@@ -34,7 +63,7 @@ export async function fetchWeeklySales(storeId) {
 
   try {
     // Kirim request ke API dengan startOfWeek dan endOfWeek sebagai bagian dari body request
-    const response = await axios.get(`http://localhost:8000/api/admin/dashboard/daily-sales`, {
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/dashboard/daily-sales`, {
       params: {
         startOfWeek,
         endOfWeek,
@@ -77,7 +106,7 @@ export async function fetchMonthlySales(storeId) {
       const startOfMonth = moment().year(year).month(i).startOf('month').format('YYYY-MM-DD');
       const endOfMonth = moment().year(year).month(i).endOf('month').format('YYYY-MM-DD');
 
-      const response = await axios.get(`http://localhost:8000/api/admin/dashboard/monthly-sales`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/dashboard/monthly-sales`, {
         params: {
           startOfMonth,
           endOfMonth,
@@ -106,7 +135,7 @@ export async function fetchProductsSold(storeId) {
   const endOfMonth = moment().endOf('month').format('YYYY-MM-DD');
 
   try {
-    const response = await axios.get(`http://localhost:8000/api/admin/dashboard/products-sold`, {
+    const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/dashboard/products-sold`, {
       params: {
         startOfMonth,
         endOfMonth,
@@ -117,7 +146,7 @@ export async function fetchProductsSold(storeId) {
       }
     });
 
-    return  response.data.data
+    return response.data.data
   } catch (error) {
     console.log(error)
   }
