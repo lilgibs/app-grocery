@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { formatRupiah } from "../utils/formatRupiah";
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from "chart.js";
 import { Line } from "react-chartjs-2";
-import { fetchBranchStores, fetchMonthlySales, fetchProducts, fetchProductsSold, fetchWeeklySales } from "../api/adminDashboardApi";
+import { fetchBranchStores, fetchMonthlySales, fetchProducts, fetchProductsSold, fetchUsers, fetchWeeklySales } from "../api/adminDashboardApi";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 
@@ -16,6 +16,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 const AdminDashboard = () => {
   const [branchStores, setBranchStores] = useState([]);
+  const [users, setUsers] = useState(null);
   const [totalStores, setTotalStores] = useState(null);
   const [totalProducts, setTotalProducts] = useState(null);
   const [totalProductsSold, setTotalProductsSold] = useState(null);
@@ -28,8 +29,9 @@ const AdminDashboard = () => {
 
   const nav = useNavigate();
 
+  const adminToken = localStorage.getItem("admin_token");
   const adminGlobal = useSelector((state) => state.admin.admin);
-
+  
   const AdminDashboardCard = ({ icon, title, titleDesc, value, bgColor }) => {
     return (
       <div className="h-16 xl:h-24  rounded-md flex flex-row items-center px-3 lg:px-5 gap-2 lg:gap-3 shadow-md text-neutral-500 border">
@@ -65,7 +67,6 @@ const AdminDashboard = () => {
   useEffect(() => {
     const getWeeklySales = async () => {
       const { weekDays, totalSalesData } = await fetchWeeklySales(selectedBranchStore);
-
       setDailySalesData({
         labels: weekDays,
         datasets: [
@@ -81,7 +82,6 @@ const AdminDashboard = () => {
 
     const getMonthlySales = async () => {
       const { monthNames, totalSalesData, revenueThisMonth } = await fetchMonthlySales(selectedBranchStore);
-
       setMonthlySalesData({
         labels: monthNames,
         datasets: [
@@ -98,24 +98,31 @@ const AdminDashboard = () => {
     };
 
     const getBranchStores = async () => {
-      const response = await fetchBranchStores();
+      const response = await fetchBranchStores(adminToken);
       setBranchStores(response.options);
       setTotalStores(response.totalStores);
     };
 
+    const getUsers = async () => {
+      const response = await fetchUsers(adminToken);
+      setUsers(response);
+    };
+
     const getProducts = async () => {
-      const response = await fetchProducts();
+      const response = await fetchProducts(adminToken);
       setTotalProducts(response);
     };
 
     const getProductsSold = async () => {
-      const response = await fetchProductsSold(selectedBranchStore);
+      const response = await fetchProductsSold(selectedBranchStore, adminToken);
       setTotalProductsSold(response);
     };
 
     if (adminGlobal.role == 99) {
       getBranchStores();
     }
+
+    getUsers()
     getProducts();
     getWeeklySales();
     getMonthlySales();
@@ -125,7 +132,7 @@ const AdminDashboard = () => {
   return (
     <div className="w-[95%] xl:max-w-screen-2xl mx-auto text-neutral-500">
       {/* <div className="h-20 w-20 fixed bg-pink-50"></div> */}
-      <div className="flex flex-row min-h-[calc(100vh-64px)] w-full">
+      <div className="flex flex-row w-full">
         {/* Content */}
         <div className="mt-5 rounded-md w-full flex flex-col gap-5">
           <div className="flex flex-row justify-between items-center w-full p-3 lg:p-5 border rounded-md shadow-md">
@@ -155,7 +162,7 @@ const AdminDashboard = () => {
             {adminGlobal.role == 99 ? (
               <AdminDashboardCard icon={<FaStore className="text-red-500" />} title="Branch Stores" value={totalStores} />
             ) : (
-              <AdminDashboardCard icon={<IoPersonCircle className="text-cyan-500" />} title="Users" value="99" />
+              <AdminDashboardCard icon={<IoPersonCircle className="text-cyan-500" />} title="Users" value={users} />
             )}
             <AdminDashboardCard icon={<FaShoppingBasket className="text-zinc-500" />} title="Products" value={totalProducts} />
             <AdminDashboardCard icon={<AiFillDollarCircle className="text-green-500" />} title="Revenue" titleDesc="Monthly" value={formatRupiah(revenue)} />
@@ -167,8 +174,6 @@ const AdminDashboard = () => {
             <div className="w-full border shadow-md rounded-md flex justify-center px-2 max-h-80">{dailySalesData.labels ? <Line data={data.dailySalesData} options={options} /> : <div>Loading...</div>}</div>
             <div className="w-full border shadow-md rounded-md flex justify-center px-2 max-h-80">{monthlySalesData.labels ? <Line data={data.monthlySalesData} options={options} /> : <div>Loading...</div>}</div>
           </div>
-          <div className="h-20 w-full bg-red-200 rounded-md"></div>
-          <div className="h-20 w-full bg-red-200 rounded-md"></div>
         </div>
         {/* Content */}
       </div>

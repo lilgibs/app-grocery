@@ -2,6 +2,7 @@ const { db, query } = require("../../config/db");
 const { validationResult } = require('express-validator');
 const jwt = require("jsonwebtoken");
 const { handleValidationErrors, handleServerError } = require('../../utils/errorHandlers');
+const { validateAdminRole } = require("../../utils/adminValidationUtils");
 
 module.exports = {
   getDailySales: async (req, res, next) => {
@@ -73,8 +74,25 @@ module.exports = {
       console.log(error)
     }
   },
-  getBranchStores: async (req, res, next) => {
+  getUsers: async (req, res, next) => {
     try {
+      const userResult = await query(`SELECT * FROM users`)
+      const userCountResult = await query(`SELECT COUNT(*) as total FROM users`)
+
+      res.status(200).json({
+        data: userResult,
+        total: userCountResult[0].total
+      })
+    } catch (error) {
+      handleServerError(error, next)
+    }
+  },
+  getBranchStores: async (req, res, next) => {
+    const { adminRole } = req.admin
+
+    try {
+      validateAdminRole(adminRole);
+      
       const branchStoresResult = await query(`SELECT * FROM stores`)
       const countStoresResult = await query(`SELECT COUNT(*) as total FROM stores`)
       const totalStores = countStoresResult[0].total
@@ -106,7 +124,7 @@ module.exports = {
         JOIN 
           order_details od ON o.order_id = od.order_id
         WHERE 
-          order_date BETWEEN ${db.escape(startOfMonth)} AND ${db.escape(endOfMonth)}
+          o.order_date BETWEEN ${db.escape(startOfMonth)} AND ${db.escape(endOfMonth)}
           AND order_status = 'completed'
       `
       if (adminRole != 99) {
@@ -118,6 +136,8 @@ module.exports = {
       }
 
       const productsSoldResult = await query(productsSoldQuery)
+
+      console.log(productsSoldResult)
 
       let productsSold;
       if (!productsSoldResult || !productsSoldResult.length || !productsSoldResult[0].products_sold) {
@@ -131,7 +151,7 @@ module.exports = {
       })
 
     } catch (error) {
-      
+      console.log(error)
     }
   }
 }
