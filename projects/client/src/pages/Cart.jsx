@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, Center } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { Card, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
@@ -198,14 +198,17 @@ const Cart = () => {
                       {/* Vouchers */}
                       <div className="flex flex-col gap-1">
                         <div>
-                          <select id="voucherSelect" value={selectedVoucher.voucher_id} onChange={handleVoucherChange}>
-                            <option value="">Select vouchers</option>
-                            {vouchers.map((voucher, index) => (
-                              <option key={index} value={voucher.voucher_id}>
-                                {voucher.voucher_name}
-                              </option>
-                            ))}
-                          </select>
+                          <Select
+                            id="voucherSelect"
+                            options={vouchers}
+                            value={selectedVoucher}
+                            onChange={(value) => {
+                              setSelectedVoucher(value);
+                            }}
+                            getOptionLabel={(option) => option.voucher_name}
+                            getOptionValue={(option) => option.voucher_id}
+                            placeholder="Select vouchers"
+                          />
                         </div>
                         <Text className="text-red-500 font-semibold text-sm"> {voucherMin}</Text>
 
