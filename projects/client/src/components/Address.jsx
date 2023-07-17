@@ -1,32 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaPen, FaPlus, FaTrash } from "react-icons/fa";
-import {
-  Button,
-  useDisclosure,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  FormControl,
-  FormLabel,
-  Input,
-  ModalFooter,
-  Select,
-  FormErrorMessage,
-} from "@chakra-ui/react";
+import { Button, useDisclosure, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter, Select, FormErrorMessage } from "@chakra-ui/react";
 import { getAddress } from "../features/addressSlice";
 import { fetchCity } from "../api/CityApi";
 import { fetchProvince } from "../api/ProvinceApi";
 import { getCoordinates } from "../api/UtilApi";
-import {
-  addAddress,
-  deleteAddress,
-  editAddress,
-  setMainAddress,
-} from "../api/AddressApi";
+import { addAddress, deleteAddress, editAddress, setMainAddress } from "../api/AddressApi";
 
 function Address() {
   const dispatch = useDispatch();
@@ -38,16 +18,8 @@ function Address() {
   const [cityOptions, setCityOptions] = useState([]);
   const [provinceOptions, setProvinceOptions] = useState([]);
 
-  const {
-    isOpen: isAddOpen,
-    onOpen: onAddOpen,
-    onClose: onAddClose,
-  } = useDisclosure();
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
+  const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
+  const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
 
   const initialRef = useRef();
 
@@ -58,10 +30,7 @@ function Address() {
 
   const renderAddresses = () => {
     return addresses.map((address) => (
-      <div
-        key={address.address_id}
-        className="w-full  p-2 border border-pink-500 rounded-md  shadow-md"
-      >
+      <div key={address.address_id} className="w-full  p-2 border border-pink-500 rounded-md  shadow-md">
         <div className="flex">
           <div className="flex flex-row items-center border-gray-200 rounded overflow-hidden w-1/2 gap-2 px-1">
             <div>
@@ -69,18 +38,11 @@ function Address() {
               <p className="text-md font-medium">
                 {address.street}, {address.city_name}, {address.province_name}
               </p>
-              {address.first_address ? (
-                <p className="inline-block w-auto border border-green-500 rounded p-1 my-1 text-green-500 text-sm">
-                  Main Address
-                </p>
-              ) : null}
+              {address.first_address ? <p className="inline-block w-auto border border-green-500 rounded p-1 my-1 text-green-500 text-sm">Main Address</p> : null}
             </div>
           </div>
           <div className="flex flex-col justify-center gap-1 items-center w-1/2 border-l-2">
-            <div
-              className="px-2 py-1 rounded bg-teal-500 hover:bg-teal-600 font-semibold text-white w-1/2 flex items-center justify-center gap-1 cursor-pointer"
-              onClick={() => handleEditAddress(address)}
-            >
+            <div className="px-2 py-1 rounded bg-teal-500 hover:bg-teal-600 font-semibold text-white w-1/2 flex items-center justify-center gap-1 cursor-pointer" onClick={() => handleEditAddress(address)}>
               <FaPen size={15} />
               <p>Edit</p>
             </div>
@@ -98,11 +60,7 @@ function Address() {
               <button
                 className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 font-semibold text-white w-1/2 flex items-center justify-center"
                 onClick={async () => {
-                  await setMainAddress(
-                    address.address_id,
-                    userGlobal.user_id,
-                    userToken
-                  );
+                  await setMainAddress(address.address_id, userGlobal.user_id, userToken);
                   dispatch(getAddress(userGlobal.user_id, userToken));
                 }}
               >
@@ -148,9 +106,7 @@ function Address() {
       }
 
       if (isValid) {
-        const coordinates = await getCoordinates(
-          `${addressStreet}, ${addressCity}, ${addressProvince}`
-        );
+        const coordinates = await getCoordinates(`${addressStreet}, ${addressCity}, ${addressProvince}`);
 
         const data = {
           street: addressStreet,
@@ -168,11 +124,7 @@ function Address() {
     };
 
     return (
-      <Modal
-        initialFocusRef={initialRef}
-        isOpen={isAddOpen}
-        onClose={onAddClose}
-      >
+      <Modal initialFocusRef={initialRef} isOpen={isAddOpen} onClose={onAddClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Add Address</ModalHeader>
@@ -187,18 +139,13 @@ function Address() {
                 onChange={(e) => {
                   const selectedProvince = e.target.value;
                   setaddressProvince(selectedProvince);
-                  const province = provinceOptions.find(
-                    (province) => province.province_name === selectedProvince
-                  );
+                  const province = provinceOptions.find((province) => province.province_name === selectedProvince);
                   setSelectedProvinceId(province ? province.province_id : "");
                   setaddressCity("");
                 }}
               >
                 {provinceOptions.map((province) => (
-                  <option
-                    key={province.province_id}
-                    value={province.province_name}
-                  >
+                  <option key={province.province_id} value={province.province_name}>
                     {province.province_name}
                   </option>
                 ))}
@@ -207,12 +154,7 @@ function Address() {
             </FormControl>
             <FormControl isInvalid={cityError !== ""}>
               <FormLabel>City</FormLabel>
-              <Select
-                placeholder="Select City"
-                value={addressCity}
-                onChange={(e) => setaddressCity(e.target.value)}
-                isRequired={true}
-              >
+              <Select placeholder="Select City" value={addressCity} onChange={(e) => setaddressCity(e.target.value)} isRequired={true}>
                 {cityOptions
                   .filter((city) => city.province_id === selectedProvinceId)
                   .map((city) => (
@@ -225,11 +167,7 @@ function Address() {
             </FormControl>
             <FormControl isInvalid={streetError !== ""}>
               <FormLabel>Street</FormLabel>
-              <Input
-                placeholder="Enter Street"
-                value={addressStreet}
-                onChange={(e) => setaddressStreet(e.target.value)}
-              />
+              <Input placeholder="Enter Street" value={addressStreet} onChange={(e) => setaddressStreet(e.target.value)} />
               <FormErrorMessage>{streetError}</FormErrorMessage>
             </FormControl>
           </ModalBody>
@@ -279,9 +217,7 @@ function Address() {
       }
 
       if (isValid) {
-        const coordinates = await getCoordinates(
-          `${addressStreet}, ${addressCity}, ${addressProvince}`
-        );
+        const coordinates = await getCoordinates(`${addressStreet}, ${addressCity}, ${addressProvince}`);
 
         const data = {
           street: addressStreet,
@@ -307,11 +243,7 @@ function Address() {
     }, [selectedAddress]);
 
     return (
-      <Modal
-        initialFocusRef={initialRef}
-        isOpen={isEditOpen}
-        onClose={onEditClose}
-      >
+      <Modal initialFocusRef={initialRef} isOpen={isEditOpen} onClose={onEditClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Edit Address</ModalHeader>
@@ -325,18 +257,13 @@ function Address() {
                 onChange={(e) => {
                   const selectedProvince = e.target.value;
                   setaddressProvince(selectedProvince);
-                  const province = provinceOptions.find(
-                    (province) => province.province_name === selectedProvince
-                  );
+                  const province = provinceOptions.find((province) => province.province_name === selectedProvince);
                   setSelectedProvinceId(province ? province.province_id : "");
                   setaddressCity("");
                 }}
               >
                 {provinceOptions.map((province) => (
-                  <option
-                    key={province.province_id}
-                    value={province.province_name}
-                  >
+                  <option key={province.province_id} value={province.province_name}>
                     {province.province_name}
                   </option>
                 ))}
@@ -345,12 +272,7 @@ function Address() {
             </FormControl>
             <FormControl isInvalid={cityError !== ""}>
               <FormLabel>City</FormLabel>
-              <Select
-                placeholder="Select City"
-                value={addressCity}
-                onChange={(e) => setaddressCity(e.target.value)}
-                isRequired={true}
-              >
+              <Select placeholder="Select City" value={addressCity} onChange={(e) => setaddressCity(e.target.value)} isRequired={true}>
                 {cityOptions
                   .filter((city) => city.province_id === selectedProvinceId)
                   .map((city) => (
@@ -363,12 +285,7 @@ function Address() {
             </FormControl>
             <FormControl isInvalid={streetError !== ""}>
               <FormLabel>Street</FormLabel>
-              <Input
-                ref={initialRef}
-                placeholder="Enter Street"
-                value={addressStreet}
-                onChange={(e) => setaddressStreet(e.target.value)}
-              />
+              <Input ref={initialRef} placeholder="Enter Street" value={addressStreet} onChange={(e) => setaddressStreet(e.target.value)} />
               <FormErrorMessage>{streetError}</FormErrorMessage>
             </FormControl>
           </ModalBody>
@@ -409,15 +326,10 @@ function Address() {
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto my-5">
       <div className="px-8 py-4 bg-white border shadow-md rounded">
         <div className="w-full bg-slate-100 text-center py-4 rounded-md mb-8">
-          <p className="font-semibold text-green-500 text-lg">
-            Address Management
-          </p>
+          <p className="font-semibold text-green-500 text-lg">Address Management</p>
         </div>
         <div className="flex justify-end">
-          <button
-            onClick={onAddOpen}
-            className="bg-green-500 hover:bg-green-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
-          >
+          <button onClick={onAddOpen} className="bg-green-500 hover:bg-green-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center">
             <FaPlus size={15} className="mr-2" /> Add Address
           </button>
         </div>

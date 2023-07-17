@@ -1,17 +1,26 @@
 const { db, query } = require("../config/db");
 
 module.exports = {
+  getVoucher: async (req, res, next) => {
+    try {
+      let storeId = req.query.storeId;
+
+      const voucherQuery = await query(`
+          SELECT *
+          FROM vouchers
+          WHERE store_id = ${db.escape(storeId)}
+      `);
+
+      return res.status(200).send(voucherQuery);
+      // return res.status(200).send("get vouchers");
+    } catch (error) {
+      next(error);
+    }
+  },
   getCart: async (req, res, next) => {
     try {
       let userId = req.query.userId;
       let storeId = req.query.storeId;
-      // const cartQuery = `
-      // SELECT c.cart_id, si.product_id, p.product_name, p.product_price, (p.product_weight * c.quantity) AS weight, c.quantity, si.quantity_in_stock, (p.product_price * c.quantity) AS subtotal
-      // FROM cart c
-      // JOIN store_inventory si ON c.store_inventory_id = si.store_inventory_id
-      // JOIN products p ON si.product_id = p.product_id
-      // WHERE c.user_id = ${db.escape(userId)};
-      // `;
 
       // check discount
       const cartQuery = await query(`
@@ -52,6 +61,14 @@ module.exports = {
               c.user_id = ${db.escape(userId)};
             `);
 
+      // const cartQuery = `
+      // SELECT c.cart_id, si.product_id, p.product_name, p.product_price, (p.product_weight * c.quantity) AS weight, c.quantity, si.quantity_in_stock, (p.product_price * c.quantity) AS subtotal
+      // FROM cart c
+      // JOIN store_inventory si ON c.store_inventory_id = si.store_inventory_id
+      // JOIN products p ON si.product_id = p.product_id
+      // WHERE c.user_id = ${db.escape(userId)};
+      // `;
+
       return res.status(200).send(
         // storeId
         {
@@ -59,8 +76,8 @@ module.exports = {
           cart: cartQuery,
         }
       );
-    } catch {
-      next;
+    } catch (error) {
+      next(error);
     }
   },
   addToCart: async (req, res, next) => {
