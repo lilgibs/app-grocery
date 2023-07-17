@@ -46,6 +46,7 @@ export default usersSlice.reducer;
 export function loginUser(data) {
   return async (dispatch) => {
     try {
+      console.log('test')
       let response = await Axios.post(
         "http://localhost:8000/api/auth/login",
         data
@@ -58,6 +59,7 @@ export function loginUser(data) {
         localStorage.setItem("user_token", response.data.token);
         alert(response.data.message);
       }
+      return true
     } catch (error) {
       alert(error.response.data);
     } finally {

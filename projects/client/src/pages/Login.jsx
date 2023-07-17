@@ -49,9 +49,11 @@ const Login = () => {
           <Formik
             initialValues={{ email: "", password: "" }}
             validationSchema={LoginSchema}
-            onSubmit={(value) => {
-              dispatch(loginUser(value));
-              nav(0);
+            onSubmit={(value, { setSubmitting }) => {
+              dispatch(loginUser(value)).then((result) => {
+                setSubmitting(false);
+                if (result) { window.location.reload(); }
+              });
             }}
           >
             {(props) => {
