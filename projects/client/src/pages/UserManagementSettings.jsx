@@ -5,16 +5,27 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useEffect, useState } from 'react';
 import { checkLoginAdmin, createBranchAdmin } from '../features/adminSlice';
 import { useNavigate } from 'react-router-dom';
+import { fetchCity } from '../api/adminCityApi';
+import AsyncSelect from 'react-select/async';
 
 function UserManagementSettings() {
   const [latLong, setLatLong] = useState({ lat: '', lng: '' })
   const [loading, setLoading] = useState(true);
+  const [cities, setCities] = useState([])
+  const [inputValue, setInputValue] = useState('');
 
+  const token = localStorage.getItem('admin_token');
   const role = useSelector(state => state.admin.admin.role);
   const navigate = useNavigate()
   const dispatch = useDispatch()
 
-  const getCoordinates = async (storeLocation, setFieldValue ) => {
+  const loadCityOptions = (inputValue, callback) => {
+    if (inputValue.length > 2) {
+      fetchCity(token, inputValue).then((results) => callback(results));
+    }
+  }
+
+  const getCoordinates = async (storeLocation, setFieldValue) => {
     try {
       const response = await axios.get('https://api.opencagedata.com/geocode/v1/json', {
         params: {
@@ -40,10 +51,10 @@ function UserManagementSettings() {
   }
 
   const GetCoordinatesButton = () => {
-    const { values, setFieldValue  } = useFormikContext();
-    
+    const { values, setFieldValue } = useFormikContext();
+
     const handleClick = () => {
-      getCoordinates(values.store_location, setFieldValue );
+      getCoordinates(values.store_location, setFieldValue);
     };
 
     return <button className='bg-teal-500 shadow rounded w-1/4 py-2 px-3 text-white leading-tight hover:bg-teal-600' type="button" onClick={handleClick}>Get</button>;
@@ -86,25 +97,21 @@ function UserManagementSettings() {
   );
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-
-    if (token) { // check if the admin is logged in
-      dispatch(checkLoginAdmin(token));
-    }
-    else { // set loading to false if no token is found     
-      setLoading(false);
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
     if (role !== null) {
       setLoading(false);
     }
   }, [role]);
 
   useEffect(() => {
+    const getCities = async () => {
+      let response = await fetchCity(token, 'Bekasi')
+      setCities(response)
+    }
+
     if (!loading && role !== 99) {
       navigate('/');
+    } else {
+      getCities()
     }
   }, [role, navigate, loading]);
 
@@ -139,7 +146,7 @@ function UserManagementSettings() {
           setSubmitting(false);
         }}
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, setFieldValue, setFieldTouched }) => (
           <Form className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
               <p className="font-semibold text-pink-500 text-lg">Branch Admin</p>
@@ -152,9 +159,29 @@ function UserManagementSettings() {
               </div>
               <div className='sm:w-1/2'>
                 <CustomInput name="store_name" type="text" label="Store Name" />
-                <CustomInput name="store_location" type="text" label="Store Location">
-                  <GetCoordinatesButton />
-                </CustomInput>
+                <div className="mb-4">
+
+                  <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="store_location">
+                    Store Location
+                  </label>
+                  <AsyncSelect
+                    cacheOptions
+                    loadOptions={loadCityOptions}
+                    defaultOptions
+                    onInputChange={setInputValue}
+                    onChange={(selectedOption) => {
+                      if (selectedOption) {
+                        setFieldValue('store_location', selectedOption.label);
+                        getCoordinates(selectedOption.label, setFieldValue);
+                      }
+                      else {
+                        setFieldValue('store_location', '');
+                      }
+                    }}
+                    onBlur={() => setFieldTouched('store_location', true)}
+                  />
+                  <ErrorMessage name='store_location' component="div" className="text-red-500 text-xs italic" />
+                </div>
                 <div className='flex flex-row gap-2'>
                   <div className="mb-4">
                     <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="latitude">

@@ -82,7 +82,7 @@ export function createBranchAdmin(data) {
     const adminToken = localStorage.getItem("admin_token");
     try {
       let response = await Axios.post(
-        `http://localhost:8000/api/admin/create`,
+        `${process.env.REACT_APP_API_BASE_URL}/admin/auth`,
         data,
         {
           headers: {
