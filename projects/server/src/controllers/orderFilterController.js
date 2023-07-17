@@ -7,8 +7,18 @@ module.exports = {
       let userId = req.query.userId;
 
       const orderQuery = await query(`
-        SELECT * FROM orders
-        WHERE user_id = ${db.escape(userId)}`);
+      SELECT
+        o.*,
+        s.store_name,
+        a.street
+      FROM
+        orders o
+      INNER JOIN stores s ON o.store_id = s.store_id
+      INNER JOIN addresses a ON o.address_id = a.address_id
+      WHERE
+        o.user_id = ${db.escape(userId)}  
+      
+      `);
 
       res.status(200).send(orderQuery);
     } catch (error) {
@@ -23,10 +33,17 @@ module.exports = {
       const limit = 3;
 
       const orderQuery = await query(`
-        SELECT * FROM orders
-        WHERE
-        user_id = ${db.escape(userId)} AND
-        order_status = ${db.escape(orderStatus)}`);
+      SELECT
+        o.*,
+        s.store_name,
+       a.street
+      FROM
+        orders o
+      INNER JOIN stores s ON o.store_id = s.store_id
+      INNER JOIN addresses a ON o.address_id = a.address_id
+      WHERE
+        o.user_id = ${db.escape(userId)} AND
+        o.order_status = ${db.escape(orderStatus)}`);
 
       orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
 
@@ -47,10 +64,17 @@ module.exports = {
       let userId = req.query.userId;
       let orderId = req.query.orderId;
       const orderQuery = await query(`
-        SELECT * FROM orders
+      SELECT
+        o.*,
+        s.store_name,
+        a.street
+      FROM
+       orders o
+      INNER JOIN stores s ON o.store_id = s.store_id
+      INNER JOIN addresses a ON o.address_id = a.address_id
         WHERE
-        user_id = ${db.escape(userId)} AND
-        order_id = ${db.escape(orderId)}`);
+        o.user_id = ${db.escape(userId)} AND
+        o.order_id = ${db.escape(orderId)}`);
 
       if (orderQuery.length === 0) {
         res.status(200).send({ data: orderQuery, message: "Order doesn't exist" });
@@ -72,10 +96,18 @@ module.exports = {
       const limit = 3;
 
       const orderQuery = await query(`
-        SELECT * FROM orders
-        WHERE user_id = ${db.escape(userId)} AND
-          order_date >= ${startDate} AND
-          order_date <= ${endDate}`);
+        SELECT
+          o.*,
+          s.store_name,
+          a.street
+        FROM
+          orders o
+        INNER JOIN stores s ON o.store_id = s.store_id
+        INNER JOIN addresses a ON o.address_id = a.address_id
+        WHERE
+        o.user_id = ${db.escape(userId)} AND
+          o.order_date >= ${startDate} AND
+          o.order_date <= ${endDate}`);
 
       orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
 
