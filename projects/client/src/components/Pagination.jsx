@@ -3,6 +3,14 @@ import ReactPaginate from 'react-paginate';
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 
 function Pagination({ pageCount, onPageChange, forcePage, color = 'green-500' }) {
+
+  const handlePageClick = (data) => {
+    onPageChange(data);
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  };
   
   return (
     <ReactPaginate
@@ -13,7 +21,7 @@ function Pagination({ pageCount, onPageChange, forcePage, color = 'green-500' })
       pageCount={pageCount}
       marginPagesDisplayed={2}
       pageRangeDisplayed={5}
-      onPageChange={onPageChange}
+      onPageChange={handlePageClick}
       containerClassName={"pagination flex justify-center gap-4 items-center"}
       pageLinkClassName={"px-1"}
       previousLinkClassName={"previous-link"}

@@ -28,11 +28,17 @@ module.exports = {
       const offset = (page - 1) * limit;
       const searchText = req.query.search || '';
       const productCategoryId = req.query.category;
-      const sortType = req.query.sortType; // 'price' or 'stock'
-      const sortOrder = req.query.sortOrder; // 'asc' or 'desc'
+      const sortType = req.query.sortType;
+      const sortOrder = req.query.sortOrder;
       const adminStoreId = req.admin.adminStoreId;
 
       const [{ total }] = await countProducts(adminStoreId, searchText, productCategoryId);
+      
+      const sorting = {
+        price: `p.product_price ${sortOrder}`,
+        stock: `si.quantity_in_stock ${sortOrder}`,
+        name: `p.product_name ${sortOrder}`
+      };
 
       // Menggabungkan tabel products, store_inventory, dan stores berdasarkan product_id dan store_id
       let sqlQuery = `
@@ -48,7 +54,7 @@ module.exports = {
       `;
       if (searchText !== '') sqlQuery += ` AND p.product_name LIKE ${db.escape('%' + searchText + '%')}`;
       if (productCategoryId) sqlQuery += ` AND p.product_category_id = ${db.escape(productCategoryId)}`;
-      if (sortType && sortOrder) sqlQuery += ` ORDER BY ${sortType === 'price' ? 'p.product_price' : 'si.quantity_in_stock'} ${sortOrder}`;
+      if (sortType && sortOrder) sqlQuery += ` ORDER BY ${sorting[sortType]}`;
       sqlQuery += ` LIMIT ${limit} OFFSET ${offset}`;
 
       const result = await query(sqlQuery);
