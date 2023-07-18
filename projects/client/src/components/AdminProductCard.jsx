@@ -3,7 +3,7 @@ import { FaPen, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { formatRupiah } from '../utils/formatRupiah'
 import axios from 'axios';
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, Button } from "@chakra-ui/react"
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 function AdminProductCard({ products, getProductsData, page, setPage }) {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -24,7 +24,7 @@ function AdminProductCard({ products, getProductsData, page, setPage }) {
 
     try {
       const response = await axios.delete(
-        `http://localhost:8000/api/admin/products/${toBeDeleted}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admin/products/${toBeDeleted}`,
         {
           headers: {
             'Authorization': `Bearer ${adminToken}`
@@ -96,25 +96,8 @@ function AdminProductCard({ products, getProductsData, page, setPage }) {
           </div>
         </div>
       ))}
-      <Modal isOpen={isModalOpen} onClose={() => setModalOpen(false)}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Confirm Deletion</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody>
-            Are you sure you want to delete this product?
-          </ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={() => setModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button colorScheme="red" onClick={confirmDeleteProduct}>
-              Delete
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmationModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onConfirm={confirmDeleteProduct}
+      />
     </>
   )
 }
