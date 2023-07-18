@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaPen, FaPlus, FaSearch, FaTrash, FaFilter } from 'react-icons/fa';
 import { Input, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Button, Box, FormLabel } from '@chakra-ui/react';
-import axios from 'axios';
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
 import { checkLoginAdmin } from '../features/adminSlice';
@@ -10,7 +9,7 @@ import Select from 'react-select';
 import AdminProductCard from '../components/AdminProductCard';
 import AdminProductFilterDrawer from '../components/AdminProductFilterDrawer';
 import { fetchProductsInventory } from '../api/adminProductApi';
-import AdminPagination from '../components/AdminPagination';
+import Pagination from '../components/Pagination';
 
 function AdminProducts() {
   const [loading, setLoading] = useState(true);
@@ -33,16 +32,15 @@ function AdminProducts() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    const loadData = async () => {
+    const getCategories = async () => {
       const result = await fetchCategories();
       setCategoryOptions(result.formattedCategories);
     };
-    loadData();
+    getCategories();
   }, []);
 
   const getProductsData = async () => {
     const response = await fetchProductsInventory(adminToken, page, limit, searchText, selectedCategory, sortType, sortOrder);
-    console.log(response)
     if (response) {
       setProducts(response.products);
       setTotalProducts(response.total);
@@ -56,19 +54,9 @@ function AdminProducts() {
   };
 
 
-  const handleNextPage = () => {
-    if (page < Math.ceil(totalProducts / limit)) {
-      setPage(page => page + 1);
-      window.scrollTo(0, 0);
-    }
-  };
-
-  const handlePrevPage = () => {
-    if (page > 1) {
-      setPage(page => page - 1);
-      window.scrollTo(0, 0);
-    }
-  };
+  const handlePageChange = ({ selected }) => {
+    setPage(selected + 1);
+  }
 
   const FilterComponent = (
     <Select
@@ -88,6 +76,8 @@ function AdminProducts() {
     { value: 'price_desc', label: 'Highest price' },
     { value: 'stock_asc', label: 'Lowest Stock' },
     { value: 'stock_desc', label: 'Highest stock' },
+    { value: 'name_asc', label: 'Name A-Z' },
+    { value: 'name_desc', label: 'Name Z-A' },
   ];
 
   const handleSortChange = (selectedOption) => {
@@ -96,10 +86,11 @@ function AdminProducts() {
       const [sortType, sortOrder] = selectedOption.value.split('_');
       setSortType(sortType);
       setSortOrder(sortOrder);
-      console.log('Sort type', sortType)
+      setPage(1)
     } else {
       setSortType(null);
       setSortOrder(null);
+      setPage(1)
     }
     // Then fetch the products
     getProductsData();
@@ -196,7 +187,14 @@ function AdminProducts() {
           <AdminProductCard products={products} getProductsData={getProductsData} page={page} setPage={setPage} />
         </div>
       </div>
-      <AdminPagination page={page} totalProducts={totalProducts} limit={limit} handlePrevPage={handlePrevPage} handleNextPage={handleNextPage}/>
+      <div className='my-1'>
+        <Pagination
+          pageCount={Math.ceil(totalProducts / limit)}
+          onPageChange={handlePageChange}
+          forcePage={page - 1}
+          color='pink-500'
+        />
+      </div>
     </div>
   );
 }
