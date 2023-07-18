@@ -1,6 +1,7 @@
 const adminAuthController = require("./admin/adminAuthController");
 const adminCategoryController = require("./admin/adminCategoryController");
 const adminDashboardController = require("./admin/adminDashboardController");
+const adminCityController = require("../controllers/admin/adminCityController")
 const authController = require("./authController");
 const storeController = require("./storeController");
 const addressController = require("./addressController");
@@ -20,6 +21,7 @@ const voucherController = require("./admin/voucherController");
 const orderFilterController = require("./orderFilterController");
 const adminOrderFilterController = require("./admin/adminOrderFilterController");
 const stockHistoryController = require("./admin/stockHistoryController");
+const salesReportController = require("./admin/salesReportController");
 
 module.exports = {
   authController,
@@ -29,6 +31,7 @@ module.exports = {
   adminProductImageController,
   adminProductStockController,
   adminDashboardController,
+  adminCityController,
   storeController,
   addressController,
   cityController,
@@ -44,4 +47,5 @@ module.exports = {
   orderFilterController,
   adminOrderFilterController,
   stockHistoryController,
+  salesReportController,
 };

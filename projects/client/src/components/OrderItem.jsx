@@ -1,15 +1,16 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Card, CardHeader, CardBody, CardFooter, Text, Heading, Box, StackDivider } from "@chakra-ui/react";
-import { Button, Stack, Image } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
-import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
-import { AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, AlertDialogCloseButton } from "@chakra-ui/react";
+import { Button, Stack, Image, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
+import { Card, CardHeader, CardBody, CardFooter, Text, Heading, Box, StackDivider, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, AlertDialogCloseButton } from "@chakra-ui/react";
+import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from "@chakra-ui/react";
 import { formatRupiah } from "../utils/formatRupiah";
 import axios from "axios";
 import { fetchOrder, fetchStoreOrder } from "../features/orderSlice";
 
-const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, shipping_price, total_price, payment_proof, order_status }) => {
+import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer } from "@chakra-ui/react";
+
+const OrderItem = ({ user_id, order_id, order_date, shipping_courier, shipping_type, shipping_price, total_price, payment_proof, order_status, origin, destination }) => {
   const nav = useNavigate();
   const dispatch = useDispatch();
   const userGlobal = useSelector((state) => state.user.user);
@@ -21,6 +22,19 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
   const cancelRef = React.useRef();
   const [previewImage, setPreviewImage] = useState(null);
   const [paymetProof, setPaymentProof] = useState(null);
+  const [orderDetails, setOrderDetails] = useState([]);
+
+  const renderDetails = () => {
+    return orderDetails.map((o) => {
+      return (
+        <Tr>
+          <Td>{o.product_name}</Td>
+          <Td>{o.quantity}</Td>
+          <Td isNumeric>{formatRupiah(o.price)}</Td>
+        </Tr>
+      );
+    });
+  };
 
   const handleRefresh = () => {
     window.location.reload(); // Refresh the page
@@ -99,6 +113,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
+      handleRefresh();
     } catch (error) {
       alert(`Order status change failed`);
     }
@@ -110,6 +125,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
+      handleRefresh();
     } catch (error) {
       alert(`Order status change failed`);
     }
@@ -121,6 +137,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
       alert(response.data.message);
       dispatch(fetchStoreOrder(adminGlobal.store_id));
       onProofClose();
+      handleRefresh();
     } catch (error) {
       alert(`Order status change failed`);
     }
@@ -133,6 +150,7 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
           <div className="flex gap-3">
             <Heading size="md" mb="2">
               Order #{order_id}
+              {adminGlobal.id != null ? <span className="text-pink-500 text-sm"> by user #{user_id} </span> : <></>}
             </Heading>
             <Text className="text-gray-400 font-bold">{order_status}</Text>
           </div>
@@ -157,8 +175,48 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
         <CardBody>
           <Stack divider={<StackDivider />} spacing="4">
             <Box className="flex justify-between">
+              <Heading size="sm">
+                From <span className="text-green-600">{origin}</span>
+              </Heading>
+              Shipped to {destination}
+            </Box>
+
+            <Box className="flex justify-between">
               <Heading size="sm">Subtotal</Heading>
-              {formatRupiah(total_price - shipping_price)}
+              <div>
+                <Accordion allowToggle allowMultiple={false}>
+                  <AccordionItem>
+                    <h2>
+                      <AccordionButton
+                        className="flex justify-end gap-1"
+                        onClick={async () => {
+                          let response = await axios.get(`http://localhost:8000/api/order/details/?orderId=${order_id}`);
+                          setOrderDetails(response.data);
+                        }}
+                      >
+                        {formatRupiah(total_price - shipping_price)}
+                        <AccordionIcon />
+                      </AccordionButton>
+                    </h2>
+                    <AccordionPanel pb={4}>
+                      {/*  */}
+                      <TableContainer>
+                        <Table size="sm">
+                          <Thead>
+                            <Tr>
+                              <Th>Product</Th>
+                              <Th>Qty</Th>
+                              <Th isNumeric>Price</Th>
+                            </Tr>
+                          </Thead>
+                          <Tbody>{renderDetails()}</Tbody>
+                        </Table>
+                      </TableContainer>
+                      {/*  */}
+                    </AccordionPanel>
+                  </AccordionItem>
+                </Accordion>
+              </div>
             </Box>
 
             <Box className="flex justify-between text-right">
@@ -185,9 +243,6 @@ const OrderItem = ({ order_id, order_date, shipping_courier, shipping_type, ship
                 <Button variant="solid" colorScheme="orange" onClick={onUploadOpen}>
                   Upload Payment Proof
                 </Button>
-                {/* <Button variant="ghost" colorScheme="red" onClick={onCancelOpen}>
-                  Cancel order
-                </Button> */}
               </>
             ) : order_status === "Out for delivery" ? (
               <>

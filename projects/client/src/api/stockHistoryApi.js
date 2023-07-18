@@ -30,7 +30,7 @@ export async function fetchStockHistory(
 
   try {
     const response = await axios.get(
-      `http://localhost:8000/api/admin/stock-histories/${storeId}`,
+      `${process.env.REACT_APP_API_BASE_URL}/admin/stock-histories/${storeId}`,
       {
         params: params,
         headers: {
@@ -38,7 +38,6 @@ export async function fetchStockHistory(
         },
       }
     );
-    // console.log(response.data.products);
     return response.data;
   } catch (error) {
     console.error(error);

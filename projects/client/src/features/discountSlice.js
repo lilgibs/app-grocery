@@ -23,7 +23,7 @@ export function getDiscount(store_id, token) {
   return async (dispatch) => {
     try {
       const response = await Axios.get(
-        `http://localhost:8000/api/admin/discounts/${store_id}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admin/discounts/${store_id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,

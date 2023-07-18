@@ -1,33 +1,90 @@
-const { validationResult, check } = require("express-validator");
 const { db, query } = require("../config/db");
-const { handleServerError } = require("../utils/errorHandlers");
-const { response } = require("express");
 
 module.exports = {
-  getCart: async (req, res, next) => {
-    let userId = req.query.userId;
-
+  getVoucher: async (req, res, next) => {
     try {
-      const cartQuery = `
-      SELECT c.cart_id, si.product_id, p.product_name, p.product_price, (p.product_weight * c.quantity) AS weight, c.quantity, si.quantity_in_stock, (p.product_price * c.quantity) AS subtotal
-      FROM cart c
-      JOIN store_inventory si ON c.store_inventory_id = si.store_inventory_id
-      JOIN products p ON si.product_id = p.product_id 
-      WHERE c.user_id = ${db.escape(userId)};
-      `;
-      let resultCartQuery = await query(cartQuery);
-      return res.status(200).send({
-        message: "Cart fecthed succesfully",
-        cart: resultCartQuery,
-      });
-    } catch {
-      next;
+      let storeId = req.query.storeId;
+
+      const voucherQuery = await query(`
+          SELECT *
+          FROM vouchers
+          WHERE store_id = ${db.escape(storeId)}
+      `);
+
+      return res.status(200).send(voucherQuery);
+      // return res.status(200).send("get vouchers");
+    } catch (error) {
+      next(error);
+    }
+  },
+  getCart: async (req, res, next) => {
+    try {
+      let userId = req.query.userId;
+      let storeId = req.query.storeId;
+
+      // check discount
+      const cartQuery = await query(`
+              SELECT
+              c.cart_id,
+              c.store_inventory_id,
+              p.product_id,
+              p.product_name,
+              p.product_price,
+              d.discount_value,
+              CASE
+                  WHEN d.discount_value IS NULL THEN p.product_price
+                  WHEN d.discount_value_type = 'NOMINAL' THEN p.product_price - d.discount_value
+                  WHEN d.discount_value_type = 'PERCENTAGE' THEN p.product_price - (p.product_price * d.discount_value/100)
+              END AS discounted_price,
+              p.product_weight * c.quantity AS weight,
+              CASE
+                  WHEN d.discount_type = 'BUY_1_GET_1' THEN c.quantity * 2
+                  ELSE c.quantity
+              END AS quantity,   
+              si.quantity_in_stock,
+              CASE
+                  WHEN d.discount_value IS NULL THEN p.product_price * c.quantity
+                  WHEN d.discount_value_type = 'NOMINAL' THEN (p.product_price - d.discount_value) * c.quantity
+                  WHEN d.discount_value_type = 'PERCENTAGE' THEN (p.product_price - (p.product_price * d.discount_value/100)) * c.quantity
+              END AS subtotal,
+              CASE
+                  WHEN d.discount_type = 'BUY_1_GET_1' THEN TRUE
+                  ELSE FALSE
+              END AS buy1get1
+              FROM
+              cart c
+              INNER JOIN store_inventory si ON c.store_inventory_id = si.store_inventory_id AND si.store_id = ${db.escape(storeId)}
+              INNER JOIN products p ON si.product_id = p.product_id
+              LEFT JOIN product_discounts pd ON c.store_inventory_id = pd.store_inventory_id
+              LEFT JOIN discounts d ON pd.discount_id = d.discount_id
+              WHERE
+              c.user_id = ${db.escape(userId)};
+            `);
+
+      // const cartQuery = `
+      // SELECT c.cart_id, si.product_id, p.product_name, p.product_price, (p.product_weight * c.quantity) AS weight, c.quantity, si.quantity_in_stock, (p.product_price * c.quantity) AS subtotal
+      // FROM cart c
+      // JOIN store_inventory si ON c.store_inventory_id = si.store_inventory_id
+      // JOIN products p ON si.product_id = p.product_id
+      // WHERE c.user_id = ${db.escape(userId)};
+      // `;
+
+      return res.status(200).send(
+        // storeId
+        {
+          message: "Cart fecthed succesfully",
+          cart: cartQuery,
+        }
+      );
+    } catch (error) {
+      next(error);
     }
   },
   addToCart: async (req, res, next) => {
     let userId = req.body.user_id;
     let productId = req.body.product_id;
     let quantity = req.body.quantity;
+    let storeId = req.body.store_id;
 
     try {
       const checkCartExistQuery = `
@@ -36,7 +93,8 @@ module.exports = {
       WHERE user_id = ${db.escape(userId)} AND store_inventory_id = (
           SELECT store_inventory_id
           FROM store_inventory
-          WHERE product_id = ${db.escape(productId)}
+          WHERE product_id = ${db.escape(productId)} AND
+          store_id = ${db.escape(storeId)}
       )
       `;
 
@@ -47,7 +105,8 @@ module.exports = {
         const checkInventoryStockQuery = `
         SELECT quantity_in_stock
         FROM store_inventory
-        WHERE product_id = ${db.escape(productId)};
+        WHERE product_id = ${db.escape(productId)} AND
+        store_id = ${db.escape(storeId)};
         `;
 
         let resultCheckInventoryStockQuery = await query(checkInventoryStockQuery);
@@ -62,7 +121,8 @@ module.exports = {
           WHERE user_id =  ${db.escape(userId)} AND store_inventory_id = (
             SELECT store_inventory_id
             FROM store_inventory
-            WHERE product_id =  ${db.escape(productId)});
+            WHERE product_id =  ${db.escape(productId)} AND
+            store_id = ${db.escape(storeId)})
           `;
 
         let resultUpdateCartQuantityQuery = await query(updateCartQuantityQuery);
@@ -85,7 +145,8 @@ module.exports = {
       JOIN
           products p ON si.product_id = p.product_id
       WHERE
-          p.product_id =  ${db.escape(productId)};
+          p.product_id =  ${db.escape(productId)} AND
+          si.store_id = ${db.escape(storeId)};
       `;
 
       let resultAddToCartQuery = await query(addToCartQuery);
@@ -110,14 +171,7 @@ module.exports = {
       WHERE cart_id = ${db.escape(cartId)};
       `;
 
-      // const updateInventoryStockQuery = `
-      // UPDATE store_inventory
-      // SET quantity_in_stock = quantity_in_stock + ${db.escape(quantity)}
-      // WHERE product_id = ${db.escape(productId)};
-      // `;
-
       let resultDeleteFromCartQuery = await query(deleteFromCartQuery);
-      // let updateInventoryStock = await query(updateInventoryStockQuery);
 
       return res.status(200).send({
         message: "Cart item deleted",

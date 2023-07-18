@@ -41,6 +41,11 @@ router.post(
 );
 router.post("/verification", verifyToken, authController.verification);
 router.post(
+  "/re-verification",
+  check("email").isEmail().withMessage("Must be a valid e-mail address."),
+  authController.reSendVerificationEmail
+);
+router.post(
   "/login",
   [
     check("email").isEmail().withMessage("Must be a valid e-mail address."),

@@ -10,8 +10,18 @@ module.exports = {
       const limit = 3;
 
       const orderQuery = await query(`
-          SELECT * FROM orders
-          WHERE store_id = ${db.escape(storeId)}`);
+          SELECT
+              o.*,
+              s.store_name,
+              a.user_id,
+              a.street
+          FROM
+              orders o
+              INNER JOIN stores s ON o.store_id = s.store_id
+              INNER JOIN addresses a ON o.address_id = a.address_id
+          WHERE
+              o.store_id = ${db.escape(storeId)};
+          `);
 
       orderQuery.sort((a, b) => b.order_id - a.order_id); // sort order in descending order
 

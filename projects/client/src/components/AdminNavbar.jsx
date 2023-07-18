@@ -2,13 +2,15 @@ import React, { Fragment } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Disclosure } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
-import { Button, Stack } from "@chakra-ui/react";
+import { Box, Button, Divider, Stack, Text } from "@chakra-ui/react";
 import { Input, InputGroup, InputLeftElement } from "@chakra-ui/react";
 import { Icon, SearchIcon } from "@chakra-ui/icons";
 import { Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
 import { GrLocation, GrUser } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import { resetAdmin } from "../features/adminSlice";
+import { FaList, FaUserPlus } from 'react-icons/fa';
+import { BiCategory } from 'react-icons/bi';
 
 const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", current: true },
@@ -73,13 +75,27 @@ const AdminNavbar = () => {
                   </MenuButton>
                   <MenuList>
                     {adminGlobal.role === 99 ? (
-                      <MenuItem
-                        onClick={() => {
-                          nav("/admin/settings/users");
-                        }}
-                      >
-                        Add branch admin
-                      </MenuItem>
+                      <Box textColor={'gray'}>
+                        <MenuItem
+                          className="flex gap-2 items-center"
+                          onClick={() => {
+                            nav("/admin/user-management");
+                          }}
+                        >
+                          <FaUserPlus />
+                          <Text>User Management</Text>
+                        </MenuItem>
+                        <MenuItem
+                          className="flex gap-2 items-center"
+                          onClick={() => {
+                            nav("/admin/categories");
+                          }}
+                        >
+                          <BiCategory/>
+                          <Text>Category Management</Text>
+                        </MenuItem>
+                        <Divider />
+                      </Box>
                     ) : (
                       <></>
                     )}

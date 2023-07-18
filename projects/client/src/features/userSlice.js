@@ -46,15 +46,24 @@ export default usersSlice.reducer;
 export function loginUser(data) {
   return async (dispatch) => {
     try {
-      let response = await Axios.post("http://localhost:8000/api/auth/login", data);
+      let response = await Axios.post(
+        `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
+        data
+      );
       if (response) {
-        response.data.data.birthdate = moment(response.data.data.birthdate).format("YYYY-MM-DD");
+        response.data.data.birthdate = moment(
+          response.data.data.birthdate
+        ).format("YYYY-MM-DD");
         dispatch(setUser(response.data.data));
         localStorage.setItem("user_token", response.data.token);
-        alert(response.data.message);
+        // alert(response.data.message);
       }
+      return true;
     } catch (error) {
-      alert(error.response.data);
+      return error.response.data;
+      // alert(error.response.data);
+    } finally {
+      dispatch(setLoaded(true));
     }
   };
 }
@@ -63,7 +72,7 @@ export function checkLogin(token) {
   return async (dispatch) => {
     try {
       let response = await Axios.post(
-        "http://localhost:8000/api/auth/check-login",
+        `${process.env.REACT_APP_API_BASE_URL}/auth/check-login`,
         {},
         {
           headers: {
@@ -72,14 +81,17 @@ export function checkLogin(token) {
         }
       );
       if (response) {
-        response.data.data.birthdate = moment(response.data.data.birthdate).format("YYYY-MM-DD");
+        response.data.data.birthdate = moment(
+          response.data.data.birthdate
+        ).format("YYYY-MM-DD");
         dispatch(setUser(response.data.data));
       }
     } catch (error) {
       if (error.response.data === "jwt expired") {
         localStorage.removeItem("user_token");
       }
-      alert(error.response.data);
+      // alert(error.response.data);
+      console.log(error.response.data);
     } finally {
       dispatch(setLoaded(true));
     }

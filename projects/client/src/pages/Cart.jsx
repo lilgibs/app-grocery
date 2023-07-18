@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, Center } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
 import { Card, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
@@ -9,6 +9,7 @@ import { formatRupiah } from "../utils/formatRupiah";
 import CartItem from "../components/CartItem";
 import Shipping from "../components/Shipping";
 import axios from "axios";
+import Select from "react-select";
 
 const Cart = () => {
   const nav = useNavigate();
@@ -20,17 +21,77 @@ const Cart = () => {
   const cartShippingOption = cartGlobal.shipping_option;
   const [subtotal, setSubtotal] = useState(0);
   const [total, setTotal] = useState(0);
+  const [vouchers, setVouchers] = useState([]);
+  const [selectedVoucher, setSelectedVoucher] = useState("");
+  const [voucherMin, setVoucherMin] = useState();
 
+  //vouchers
   useEffect(() => {
-    dispatch(fetchCart(userGlobal.user_id));
+    setVouchers([]); // reset
+    const getVouchers = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/cart/voucher/?storeId=${locationGlobal.nearestStore.store_id}`);
+        if (response.data.length > 0) {
+          setVouchers(response.data);
+        }
+
+        // console.log("Vouchers:");
+        // console.log(response.data);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getVouchers();
   }, []);
 
+  const handleVoucherChange = (event) => {
+    // let obj = vouchers.find((o) => o.voucher_id === event.target.value);
+
+    // setSelectedVoucher(obj);
+    // console.log(selectedVoucher);
+
+    const voucher = vouchers.find((object) => object.voucher_id === parseInt(event.target.value));
+
+    if (voucher) {
+      setSelectedVoucher(voucher);
+    } else {
+      setSelectedVoucher("No voucher selected");
+    }
+  };
+
   useEffect(() => {
+    console.log("Voucher changed to: ");
+    console.log(selectedVoucher);
+  }, [selectedVoucher]); // checker
+
+  //-------------------------------------
+
+  useEffect(() => {
+    dispatch(fetchCart(userGlobal.user_id, locationGlobal.nearestStore.store_id));
+  }, [locationGlobal.nearestStore.store_id]);
+
+  useEffect(() => {
+    // cari subtotal
     let sumSubtotal = 0;
     cartItems.forEach((x) => {
       sumSubtotal += Number(x.subtotal);
       setSubtotal(sumSubtotal); // get subtotal
     });
+
+    // voucher applied
+    if (selectedVoucher.minimum_amount > sumSubtotal) {
+      setVoucherMin(`Min. order ${formatRupiah(selectedVoucher.minimum_amount)}`);
+    } else {
+      setVoucherMin("");
+      if (selectedVoucher.voucher_value_type === "NOMINAL") {
+        let priceWithVoucher = sumSubtotal - parseInt(selectedVoucher.voucher_value);
+        setSubtotal(priceWithVoucher);
+      } else if (selectedVoucher.voucher_value_type === "PERCENTAGE") {
+        let priceWithVoucher = sumSubtotal - sumSubtotal * (parseInt(selectedVoucher.voucher_value) / 100);
+        setSubtotal(priceWithVoucher);
+      }
+    }
 
     let sumTotal = cartItems.length == 0 ? 0 : cartShippingOption == null ? subtotal : subtotal + cartShippingOption.cost[0].value;
 
@@ -39,7 +100,23 @@ const Cart = () => {
 
   const renderCartItems = () => {
     return cartItems.map((p, index) => {
-      return <CartItem key={index} cart_id={p.cart_id} product_id={p.product_id} product={p.product_name} price={p.product_price} weight={p.weight} quantity={p.quantity} stock={p.quantity_in_stock} subtotal={p.subtotal} />;
+      return (
+        <CartItem
+          //
+          key={index}
+          cart_id={p.cart_id}
+          product_id={p.product_id}
+          product={p.product_name}
+          price={p.product_price}
+          discount_value={p.discount_value}
+          discounted_price={p.discounted_price}
+          weight={p.weight}
+          quantity={p.quantity}
+          stock={p.quantity_in_stock}
+          subtotal={p.subtotal}
+          buy1get1={p.buy1get1}
+        />
+      );
     });
   };
 
@@ -54,14 +131,14 @@ const Cart = () => {
         shipping_price: cartGlobal.shipping_option.cost[0].value,
         total_price: total,
         order_status: "Waiting for payment",
-        address_id: cartGlobal.shipping_address.address_id,
+        address_id: cartGlobal.shipping_address,
         order_details: cartItems,
       };
 
       const response = await axios.post("http://localhost:8000/api/order/", order);
 
       alert(response.data.message);
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, locationGlobal.nearestStore.store_id));
     } catch (error) {
       alert(`Add order fails.`);
     }
@@ -117,8 +194,33 @@ const Cart = () => {
                       {cartItems.length == 0 ? <>Your cart is empty</> : <>{formatRupiah(subtotal)}</>}
                     </Box>
                     <Box className="flex justify-between">
-                      <Heading size="sm">Discount</Heading>
-                      No discount applied
+                      <Heading size="sm">Voucher</Heading>
+                      {/* Vouchers */}
+                      <div className="flex flex-col gap-1">
+                        <div>
+                          <Select
+                            id="voucherSelect"
+                            options={vouchers}
+                            value={selectedVoucher}
+                            onChange={(value) => {
+                              setSelectedVoucher(value);
+                            }}
+                            getOptionLabel={(option) => option.voucher_name}
+                            getOptionValue={(option) => option.voucher_id}
+                            placeholder="Select vouchers"
+                          />
+                        </div>
+                        <Text className="text-red-500 font-semibold text-sm"> {voucherMin}</Text>
+
+                        {/* <Button
+                          onClick={() => {
+                            console.log(vouchers);
+                          }}
+                        >
+                          all vouchers
+                        </Button> */}
+                      </div>
+                      {/*  */}
                     </Box>
                     <Box className="flex justify-between">
                       <Heading size="sm">Shipping</Heading>

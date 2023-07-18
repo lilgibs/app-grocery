@@ -7,6 +7,7 @@ import {
   Th,
   Td,
   TableContainer,
+  // Select,
 } from "@chakra-ui/react";
 import moment from "moment";
 import {
@@ -29,30 +30,35 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 import ReactPaginate from "react-paginate";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { FaFilter, FaSearch } from "react-icons/fa";
-import { fetchStockHistory } from "../api/stockHistoryApi";
+import { FaFilter } from "react-icons/fa";
+import { fetchSalesReportByStoreId } from "../api/salesReportApi";
+import { fetchBranchStores } from "../api/adminDashboardApi";
 
-function AdminStockHistory() {
+function AdminSalesReport() {
   const navigate = useNavigate();
   const adminToken = localStorage.getItem("admin_token");
   const adminData = useSelector((state) => state.admin.admin);
-  const [stockHistories, setStockHistories] = useState([]);
+  const [branchStores, setBranchStores] = useState([]);
+  const [salesReports, setSalesReports] = useState([]);
+  const [sortType, setSortType] = useState(null); // 'date' or 'price'
   const [sortOrder, setSortOrder] = useState(null); // 'asc' or 'desc'
   const [searchParams, setSearchParams] = useSearchParams();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
-  const [TotalStockHistories, setTotalStockHistories] = useState(null);
+  const [TotalSalesReports, setTotalSalesReports] = useState(null);
   const [isFilterVisible, setFilterVisible] = useState(false);
-  const [searchText, setSearchText] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [selectedBranchStore, setSelectedBranchStore] = useState(null);
 
   const sortOptions = [
-    { value: "desc", label: "Newest" },
-    { value: "asc", label: "Oldest" },
+    { value: "date_desc", label: "Newest" },
+    { value: "date_asc", label: "Oldest" },
+    { value: "price_asc", label: "Lowest price" },
+    { value: "price_desc", label: "Highest price" },
   ];
 
-  const totalPages = Math.ceil(TotalStockHistories / limit);
+  const totalPages = Math.ceil(TotalSalesReports / limit);
 
   const handleSetDate = (event) => {
     event.preventDefault();
@@ -67,26 +73,23 @@ function AdminStockHistory() {
 
   const handleSortChange = (selectedOption) => {
     if (selectedOption) {
-      const sortOrder = selectedOption;
+      const [sortType, sortOrder] = selectedOption.split("_");
+      setSortType(sortType);
       setSortOrder(sortOrder);
+      searchParams.set("sort_type", sortType);
       searchParams.set("sort_order", sortOrder);
       setSearchParams(new URLSearchParams(searchParams.toString()));
     } else {
+      setSortType(null);
       setSortOrder(null);
+      searchParams.delete("sort_type");
       searchParams.delete("sort_order");
       setSearchParams(new URLSearchParams(searchParams.toString()));
     }
   };
 
-  const handleSetProduct = (event) => {
-    event.preventDefault();
-    searchParams.set("product", searchText);
-    setSearchParams(new URLSearchParams(searchParams.toString()));
-  };
-
   const handleFilterSubmit = (event) => {
     handleSetDate(event);
-    handleSetProduct(event);
   };
 
   const handlePageClick = (data) => {
@@ -96,36 +99,60 @@ function AdminStockHistory() {
   };
 
   useEffect(() => {
-    const getStockHistory = async () => {
-      const productParam = searchParams.get("product");
+    const getSalesReports = async () => {
       const startDateParam = searchParams.get("start_date");
       const endDateParam = searchParams.get("end_date");
+      const sortTypeParam = searchParams.get("sort_type");
       const sortOrderParam = searchParams.get("sort_order");
       const pageParam = Number(searchParams.get("page"));
+      let result;
       setPage(pageParam || 1);
-      const result = await fetchStockHistory(
-        adminToken,
-        adminData.store_id,
-        productParam,
-        startDateParam,
-        endDateParam,
-        pageParam,
-        limit,
-        sortOrderParam
-      );
-      setStockHistories(result.data);
-      setTotalStockHistories(result.total);
+      if (selectedBranchStore) {
+        result = await fetchSalesReportByStoreId(
+          adminToken,
+          selectedBranchStore,
+          startDateParam,
+          endDateParam,
+          pageParam,
+          limit,
+          sortTypeParam,
+          sortOrderParam
+        );
+      } else {
+        result = await fetchSalesReportByStoreId(
+          adminToken,
+          adminData.store_id,
+          startDateParam,
+          endDateParam,
+          pageParam,
+          limit,
+          sortTypeParam,
+          sortOrderParam
+        );
+      }
+      setSalesReports(result.data);
+      setTotalSalesReports(result.total);
     };
-    getStockHistory();
-  }, [searchParams, adminToken, adminData]);
+    getSalesReports();
+  }, [searchParams, adminToken, adminData, selectedBranchStore]);
+
+  useEffect(() => {
+    if (adminData.role == 99) {
+      const getBranchStores = async () => {
+        const response = await fetchBranchStores();
+        setBranchStores(response.options);
+      };
+      getBranchStores();
+    }
+  }, [adminData, selectedBranchStore]);
 
   return (
     <div className="flex flex-col md:w-[95%] xl:max-w-screen-xl mx-auto gap-5">
       <h1
         className="text-4xl pt-5 font-semibold tracking-tight text-pink-500 cursor-pointer"
-        onClick={() => navigate("/admin/stock-history")}
+        onClick={() => navigate("/admin/sales-report")}
       >
-        Stock History
+        Sales Report
       </h1>
       {/* Content - START */}
       <div className="flex flex-col gap-5">
@@ -154,7 +181,9 @@ function AdminStockHistory() {
                 <DrawerBody>
                   <RadioGroup
                     onChange={handleSortChange}
-                    value={sortOrder ? sortOrder : ""}
+                    value={
+                      sortType && sortOrder ? `${sortType}_${sortOrder}` : ""
+                    }
                   >
                     <Text className="font-semibold text-lg">Sort by</Text>
                     <Divider mb={"2"} />
@@ -162,30 +191,21 @@ function AdminStockHistory() {
                       <Radio value="" colorScheme="green">
                         Default
                       </Radio>
-                      <Radio value="desc" colorScheme="green">
+                      <Radio value="date_desc" colorScheme="green">
                         Newest
                       </Radio>
-                      <Radio value="asc" colorScheme="green">
+                      <Radio value="date_asc" colorScheme="green">
                         Oldest
+                      </Radio>
+                      <Radio value="price_desc" colorScheme="green">
+                        Highest Price
+                      </Radio>
+                      <Radio value="price_asc" colorScheme="green">
+                        Lowest Price
                       </Radio>
                     </Stack>
                   </RadioGroup>
                   <form onSubmit={handleFilterSubmit}>
-                    <Box>
-                      <Text className="font-semibold text-lg mt-5">
-                        Category
-                      </Text>
-                      <Divider mb={"2"} />
-                      <div className="flex">
-                        <input
-                          className="border rounded px-4 focus:border-pink-500 focus:outline-none p-1"
-                          type="text"
-                          value={searchText}
-                          onChange={(e) => setSearchText(e.target.value)}
-                          placeholder="Search by product name..."
-                        />
-                      </div>
-                    </Box>
                     <Box>
                       <Text className="font-semibold text-lg mt-5">Date</Text>
                       <Divider mb={"2"} />
@@ -224,6 +244,21 @@ function AdminStockHistory() {
           </div>
           {/* Filter - END */}
           <div className="hidden lg:flex gap-3 items-center">
+            {adminData.role == 99 && (
+              <form>
+                <Select
+                  placeholder="Select branch store"
+                  options={branchStores}
+                  isClearable="true"
+                  onChange={(selectedOption) => {
+                    setSelectedBranchStore(
+                      selectedOption ? selectedOption.value : ""
+                    );
+                  }}
+                />
+              </form>
+            )}
+
             <form className="flex" onSubmit={handleSetDate}>
               <div className="flex items-center gap-1 border rounded-s p-1">
                 <label htmlFor="start-date">Start Date:</label>
@@ -253,21 +288,6 @@ function AdminStockHistory() {
                 <FaFilter size={15} />
               </button>
             </form>
-            <form className="flex" onSubmit={handleSetProduct}>
-              <input
-                className="border-l border-b border-t rounded-s-md px-4 focus:border-pink-500 focus:outline-none"
-                type="text"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                placeholder="Search by product name..."
-              />
-              <button
-                className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-3 px-4 rounded-e-md"
-                type="submit"
-              >
-                <FaSearch size={15} />
-              </button>
-            </form>
             <Select
               className=""
               id="product_sort_id"
@@ -287,20 +307,29 @@ function AdminStockHistory() {
           <Table variant="striped" colorScheme="blue">
             <Thead>
               <Tr>
-                <Th>Product Name</Th>
-                <Th>Quantity</Th>
-                <Th>Type</Th>
-                <Th>Date</Th>
+                <Th>Order ID</Th>
+                <Th>User Name</Th>
+                <Th>Total Price</Th>
+                <Th>Order Date</Th>
               </Tr>
             </Thead>
             <Tbody>
-              {stockHistories.map((stockHistory) => (
+              {salesReports.map((salesReport) => (
                 <Tr>
-                  <Td>{stockHistory.product_name}</Td>
-                  <Td>{stockHistory.quantity_change}</Td>
-                  <Td>{stockHistory.change_type}</Td>
-                  <Td>
-                    {moment(stockHistory.change_date).format("MMMM DD YYYY")}
+                  <Td>{salesReport.order_id}</Td>
+                  <Td>{salesReport.name}</Td>
+                  <Td>{salesReport.total_price}</Td>
+                  <Td w="1px">
+                    {moment(salesReport.order_date).format("MMMM DD YYYY")}
+                  </Td>
+                  <Td
+                    w="1px"
+                    className="text-xs cursor-pointer text-blue-700 underline"
+                    onClick={() => {
+                      navigate(`/admin/sales-report/${salesReport.order_id}`);
+                    }}
+                  >
+                    Show Details
                   </Td>
                 </Tr>
               ))}
@@ -310,7 +339,7 @@ function AdminStockHistory() {
         {/* Content Body - END */}
         <div>
           <div>
-            {TotalStockHistories > limit && (
+            {TotalSalesReports > limit && (
               <ReactPaginate
                 previousLabel={<IoIosArrowBack />}
                 nextLabel={<IoIosArrowForward />}
@@ -343,4 +372,4 @@ function AdminStockHistory() {
   );
 }
 
-export default AdminStockHistory;
+export default AdminSalesReport;

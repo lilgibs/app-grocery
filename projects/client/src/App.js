@@ -8,7 +8,7 @@ import AdminNavbar from "./components/AdminNavbar";
 import LandingPage from "./pages/LandingPage";
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
-import UserManagementSettings from "./pages/UserManagementSettings";
+import AdminUserManagement from "./pages/AdminUserManagement";
 import Register from "./pages/Register";
 import Verification from "./pages/Verification";
 import Login from "./pages/Login";
@@ -27,7 +27,11 @@ import NotFound from "./pages/NotFound";
 import { checkLogin } from "./features/userSlice";
 import { checkLoginAdmin } from "./features/adminSlice";
 import { fetchCart } from "./features/cartSlice";
-import { fetchOrder, fetchStoreOrder, fetchAllOrder } from "./features/orderSlice";
+import {
+  fetchOrder,
+  fetchStoreOrder,
+  fetchAllOrder,
+} from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
 import { getAddress } from "./features/addressSlice";
 import AdminDiscount from "./pages/AdminDiscount";
@@ -36,6 +40,9 @@ import { getVoucher } from "./features/voucherSlice";
 import ResetPasswordEmailForm from "./pages/ResetPasswordEmailForm";
 import ResetPassword from "./pages/ResetPassword";
 import AdminStockHistory from "./pages/AdminStockHistory";
+import AdminSalesReport from "./pages/AdminSalesReport";
+import AdminSalesReportDetail from "./pages/AdminSalesReportDetail";
+import EmailVerification from "./pages/EmailVerification";
 
 function App() {
   const dispatch = useDispatch();
@@ -43,18 +50,21 @@ function App() {
   const userToken = localStorage.getItem("user_token");
   const adminToken = localStorage.getItem("admin_token");
   const userGlobal = useSelector((state) => state.user.user);
+  const userGlobalIsLoaded = useSelector((state) => state.user.isLoaded);
   const adminGlobal = useSelector((state) => state.admin.admin);
   const userAddresses = useSelector((state) => state.address.address);
-  let mainAddress;
-
-  if (userAddresses) {
-    mainAddress = userAddresses.find((address) => address.first_address === 1);
-  }
+  const storeId = useSelector(
+    (state) => state.location.location.nearestStore.store_id
+  );
+  const userMainAddress = useSelector((state) => state.address.mainAddress);
+  const userAddressesIsLoaded = useSelector((state) => state.address.isLoaded);
+  const nearestStoreIsLoaded = useSelector((state) => state.location.isLoaded);
 
   useEffect(() => {
-    if (userToken) {
-      dispatch(checkLogin(userToken));
-    }
+    // if (userToken) {
+    //   dispatch(checkLogin(userToken));
+    // }
+    dispatch(checkLogin(userToken));
   }, []);
 
   useEffect(() => {
@@ -71,36 +81,40 @@ function App() {
 
   useEffect(() => {
     if (adminToken) {
-      {
-        adminGlobal.role === 99 ? dispatch(fetchAllOrder()) : dispatch(fetchStoreOrder(adminGlobal.store_id));
-      }
+      dispatch(fetchStoreOrder(adminGlobal.store_id));
     }
   }); // get store order if admin is logged in
 
   useEffect(() => {
     if (userToken) {
-      dispatch(fetchCart(userGlobal.user_id));
+      dispatch(fetchCart(userGlobal.user_id, storeId));
+      console.log("Ganti ke store:" + storeId);
     }
-  }, []);
+  }, [storeId]); // ganti cart jika alamat diganti
 
   useEffect(() => {
-    if (mainAddress) {
-      let latitude = mainAddress.latitude;
-      let longitude = mainAddress.longitude;
-
-      dispatch(getCityStore(latitude, longitude));
-    } else {
-      navigator.geolocation.getCurrentPosition(function (position) {
-        let latitude = position.coords.latitude;
-        let longitude = position.coords.longitude;
+    if (userAddressesIsLoaded) {
+      if (userMainAddress) {
+        let latitude = userMainAddress.latitude;
+        let longitude = userMainAddress.longitude;
 
         dispatch(getCityStore(latitude, longitude));
-      });
+      } else {
+        navigator.geolocation.getCurrentPosition(function (position) {
+          let latitude = position.coords.latitude;
+          let longitude = position.coords.longitude;
+
+          dispatch(getCityStore(latitude, longitude));
+        });
+      }
     }
-  }, [mainAddress]);
+  }, [userAddressesIsLoaded, userMainAddress]); // ganti store jika alamat diganti
 
   useEffect(() => {
-    if (userGlobal.user_id !== null) {
+    if (userGlobalIsLoaded) {
+      // if (userGlobal.user_id !== null) {
+      //   dispatch(getAddress(userGlobal.user_id, userToken));
+      // }
       dispatch(getAddress(userGlobal.user_id, userToken));
     }
   }, [userGlobalIsLoaded]);
@@ -119,10 +133,16 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
+      const { data } = await axios.get(
+        `${process.env.REACT_APP_API_BASE_URL}/greetings`
+      );
       setMessage(data?.message || "");
     })();
   }, []);
+
+  if (!userGlobalIsLoaded || !userAddressesIsLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
@@ -142,7 +162,6 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/adminlogin" element={<AdminLogin />} />
-        <Route path="/verification/:token" element={<Verification />} />
         <Route path="/products" element={<Products />} />
         <Route path="/products/:productName" element={<Product />} />
 
@@ -150,17 +169,35 @@ function App() {
           //when admin is logged in
           <>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
-            {adminGlobal.role === 99 ? <Route path="/admin/settings/users" element={<UserManagementSettings />} /> : <> </>}
+            {adminGlobal.role === 99 && (
+              <>
+                <Route
+                  path="/admin/user-management"
+                  element={<AdminUserManagement />}
+                />
+                <Route path="/admin/categories" element={<AdminCategories />} />
+              </>
+            )}
 
-            <Route path="/admin/products/categories" element={<AdminCategories />} />
             <Route path="/admin/products/" element={<AdminProducts />} />
-            <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
-            <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
+            <Route
+              path="/admin/products/add-product"
+              element={<AdminAddProduct />}
+            />
+            <Route
+              path="/admin/products/:productId"
+              element={<AdminEditProduct />}
+            />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/discounts" element={<AdminDiscount />} />
             <Route
               path="/admin/stock-history"
               element={<AdminStockHistory />}
+            />
+            <Route path="/admin/sales-report" element={<AdminSalesReport />} />
+            <Route
+              path="/admin/sales-report/:orderId"
+              element={<AdminSalesReportDetail />}
             />
           </>
         ) : (
@@ -178,8 +215,13 @@ function App() {
         ) : (
           //when user is logged out
           <>
-            <Route path="/reset-password" element={<ResetPasswordEmailForm />} />
+            <Route
+              path="/reset-password"
+              element={<ResetPasswordEmailForm />}
+            />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
+            <Route path="/verification/:token" element={<Verification />} />
+            <Route path="/verification/email" element={<EmailVerification />} />
           </>
         )}
         <Route path="*" element={<NotFound />} />

@@ -11,6 +11,7 @@ export const locationSlice = createSlice({
       city: "",
       nearestStore: "",
     },
+    isLoaded: false,
   },
   reducers: {
     setLocation: (state, action) => {
@@ -27,13 +28,18 @@ export const locationSlice = createSlice({
         nearestStore: "",
       };
     },
+    setLoaded: (state, action) => {
+      state.isLoaded = action.payload;
+    },
   },
 });
 
 export function getCityStore(latitude, longitude) {
   return async (dispatch) => {
     try {
-      let response = await Axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=a79e4746db0e4c60969ae10f96ce7bb2&language=en&pretty=1`);
+      let response = await Axios.get(
+        `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=a79e4746db0e4c60969ae10f96ce7bb2&language=en&pretty=1`
+      );
       if (response) {
         let city = response.data.results[0].components.city;
 
@@ -46,8 +52,6 @@ export function getCityStore(latitude, longitude) {
 
         dispatch(setLocation(location));
       }
-
-      //
 
       let stores = await Axios.get("http://localhost:8000/api/stores");
       if (stores) {
@@ -65,7 +69,11 @@ export function getCityStore(latitude, longitude) {
           const p2 = (lat2 * Math.PI) / 180;
           const deltaLon = lon2 - lon1;
           const deltaLambda = (deltaLon * Math.PI) / 180;
-          const d = Math.acos(Math.sin(p1) * Math.sin(p2) + Math.cos(p1) * Math.cos(p2) * Math.cos(deltaLambda)) * R;
+          const d =
+            Math.acos(
+              Math.sin(p1) * Math.sin(p2) +
+                Math.cos(p1) * Math.cos(p2) * Math.cos(deltaLambda)
+            ) * R;
           storeDistances.push(d);
         });
 
@@ -76,9 +84,12 @@ export function getCityStore(latitude, longitude) {
       }
     } catch (error) {
       console.error(error.response);
+    } finally {
+      dispatch(setLoaded(true));
     }
   };
 }
 
-export const { setLocation, resetLocation, setNearestStore } = locationSlice.actions;
+export const { setLocation, resetLocation, setNearestStore, setLoaded } =
+  locationSlice.actions;
 export default locationSlice.reducer;

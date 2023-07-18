@@ -6,7 +6,15 @@ const insertDataToDatabase = async () => {
     "https://api.rajaongkir.com/starter/city?key=68a71dcc1baf3183a021fe6012b510af"
   );
 
-  const results = response.data.rajaongkir.results;
+  let results = response.data.rajaongkir.results;
+
+  results.forEach((result) => {
+    if (result.type === "Kota") {
+      result.city_name = `Kota ${result.city_name}`;
+    } else {
+      result.city_name = `Kabupaten ${result.city_name}`;
+    }
+  });
 
   const insertQuery = "INSERT INTO cities VALUES ?";
 
@@ -16,8 +24,6 @@ const insertDataToDatabase = async () => {
     result.city_name,
     result.province_id,
   ]);
-
-  //   console.log(formattedData);
 
   await query(insertQuery, [formattedData], (error, queryResults) => {
     if (error) {

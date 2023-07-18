@@ -20,6 +20,7 @@ const {
   discountRoutes,
   voucherRoutes,
   stockHistoryRoutes,
+  salesReportRoutes,
 } = require("./routes");
 const path = require("path");
 
@@ -47,7 +48,7 @@ app.get("/api/greetings", (req, res, next) => {
 // NOTE : Add your routes here
 app.use("/uploads", express.static(join(__dirname, "uploads")));
 app.use("/api/auth", authRoutes);
-app.use("/api/admin", adminAuthRoutes);
+app.use("/api/admin/auth", adminAuthRoutes);
 app.use("/api/admin/products", adminCategoryRoutes);
 app.use("/api/admin/dashboard", adminDashboarRoutes);
 app.use("/api", storeRoutes);
@@ -63,6 +64,7 @@ app.use("/api/admin/order", adminOrderRoutes);
 app.use("/api/admin/discounts", discountRoutes);
 app.use("/api/admin/vouchers", voucherRoutes);
 app.use("/api/admin/stock-histories", stockHistoryRoutes);
+app.use("/api/admin/sales-reports", salesReportRoutes);
 
 // ===========================
 
