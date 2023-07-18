@@ -33,7 +33,7 @@ function AdminEditCategoryModal({ isOpen, onClose, fetchCategories, selectedCate
 
     try {
       const response = await axios.put(
-        `http://localhost:8000/api/admin/products/categories/${selectedCategory.value}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admin/products/categories/${selectedCategory.value}`,
         formData,
         {
           headers: {

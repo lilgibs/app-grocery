@@ -58,7 +58,7 @@ function AdminProductCard({ products, getProductsData, page, setPage }) {
             <div className="w-[80%] md:w-3/4 flex flex-row border-gray-200 rounded overflow-hidden gap-2 px-1">
               <img
                 className="w-16 h-16 rounded-md my-auto"
-                src={"http://localhost:8000/" + product.image_url}
+                src={process.env.REACT_APP_API_IMG_URL + product.image_url}
                 alt=""
               />
               <div className='w-1/2 md:w-1/3'>

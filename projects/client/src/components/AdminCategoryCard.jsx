@@ -4,9 +4,12 @@ import axios from 'axios';
 import { Input, useDisclosure } from '@chakra-ui/react';
 import AdminAddCategoryModal from '../components/AdminAddCategoryModal';
 import AdminEditCategoryModal from '../components/AdminEditCategoryModal';
+import DeleteConfirmationModal from './DeleteConfirmationModal';
 
 function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [toBeDeleted, setToBeDeleted] = useState(null);
 
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
@@ -16,10 +19,16 @@ function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
     onEditOpen();
   };
 
-  const handleDeleteCategory = async (id) => {
+  const handleDeleteCategory = (id) => {
+    setToBeDeleted(id);
+    setModalOpen(true);
+  };
+
+  const ConfirmDeleteCategory = async () => {
+    setModalOpen(false);
     const adminToken = localStorage.getItem('admin_token')
     try {
-      const response = await axios.delete(`http://localhost:8000/api/admin/products/categories/${id}`,
+      const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/admin/products/categories/${toBeDeleted}`,
         {
           headers: {
             Authorization: `Bearer ${adminToken}`
@@ -32,13 +41,14 @@ function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
       getCategories("", 1, limit);
     } catch (error) {
       console.error(error);
-      alert(error.data.message)
+      alert(error.response.data)
     }
+    setToBeDeleted(null); // Reset the toBeDeleted state
   };
 
   return (
-    <>{
-      categories.map((category) => (
+    <>
+      {categories.map((category) => (
         <div
           key={category.value}
           className="w-full md:w-[48%] lg:w-[49%] p-2 border border-pink-500 rounded-md  shadow-md"
@@ -47,7 +57,7 @@ function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
             <div className="flex flex-row items-center border-gray-200 rounded overflow-hidden w-1/2 gap-2 px-1">
               <img
                 className="w-16 h-16 rounded-md"
-                src={"http://localhost:8000/" + category.image}
+                src={process.env.REACT_APP_API_IMG_URL + category.image}
                 alt=""
               />
               <div>
@@ -77,8 +87,8 @@ function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
         </div>
       ))}
       <AdminEditCategoryModal isOpen={isEditOpen} onClose={onEditClose} fetchCategories={getCategories} selectedCategory={selectedCategory} limit={limit} />
+      <DeleteConfirmationModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onConfirm={ConfirmDeleteCategory} />
     </>
-
   );
 }
 
