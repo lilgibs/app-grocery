@@ -117,7 +117,7 @@ function App() {
       // }
       dispatch(getAddress(userGlobal.user_id, userToken));
     }
-  }, [userGlobalIsLoaded, userGlobal]);
+  }, [userGlobalIsLoaded]);
 
   useEffect(() => {
     if (adminGlobal.id !== null) {
