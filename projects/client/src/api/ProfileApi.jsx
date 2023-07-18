@@ -6,7 +6,7 @@ export async function uploadProfilePhoto(file, user_id, token) {
     formData.append("profile_picture", file);
 
     let response = await axios.put(
-      `http://localhost:8000/api/profiles/profile-picture/${user_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/profiles/profile-picture/${user_id}`,
       formData,
       {
         headers: {
@@ -27,7 +27,7 @@ export async function uploadProfilePhoto(file, user_id, token) {
 export async function editUserProfile(data, user_id, token) {
   try {
     let response = await axios.put(
-      `http://localhost:8000/api/profiles/${user_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/profiles/${user_id}`,
       data,
       {
         headers: {

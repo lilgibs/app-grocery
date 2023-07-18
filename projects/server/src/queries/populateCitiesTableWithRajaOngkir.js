@@ -25,8 +25,6 @@ const insertDataToDatabase = async () => {
     result.province_id,
   ]);
 
-  //   console.log(formattedData);
-
   await query(insertQuery, [formattedData], (error, queryResults) => {
     if (error) {
       console.error("Gagal memasukkan data:", error);

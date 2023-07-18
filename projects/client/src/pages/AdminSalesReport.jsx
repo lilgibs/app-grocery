@@ -62,7 +62,6 @@ function AdminSalesReport() {
 
   const handleSetDate = (event) => {
     event.preventDefault();
-    console.log(startDate);
     if (endDate < startDate) {
       alert("End date can't be lower than start date");
       return;

@@ -4,10 +4,12 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { loginUser } from "../features/userSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import { useToast } from "@chakra-ui/react";
 
 const Login = () => {
   const dispatch = useDispatch();
   const nav = useNavigate();
+  const toast = useToast();
 
   const userGlobal = useSelector((state) => state.user.user);
 
@@ -52,7 +54,25 @@ const Login = () => {
             onSubmit={(value, { setSubmitting }) => {
               dispatch(loginUser(value)).then((result) => {
                 setSubmitting(false);
-                if (result) { window.location.reload(); }
+                if (result === true) {
+                  toast({
+                    title: "Login Success",
+                    position: "top",
+                    status: "success",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                  window.location.reload();
+                } else {
+                  toast({
+                    title: "Error",
+                    description: result,
+                    position: "top",
+                    status: "error",
+                    duration: 5000,
+                    isClosable: true,
+                  });
+                }
               });
             }}
           >

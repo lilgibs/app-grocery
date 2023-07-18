@@ -37,8 +37,8 @@ module.exports = {
 
       const addUserResult = await query(addUserQuery);
 
-      let payload = { id: addUserResult.insertId };
-      const token = jwt.sign(payload, "joe", { expiresIn: "4h" });
+      let payload = { email: email };
+      const token = jwt.sign(payload, "joe", { expiresIn: "3h" });
 
       const renderEmailTemplate = (templatePath, data) => {
         const filePath = path.join(__dirname, templatePath);
@@ -68,10 +68,10 @@ module.exports = {
   },
   verification: async (req, res, next) => {
     try {
-      const id = req.user.id;
+      const email = req.user.email;
 
-      const checkAccountQuery = `SELECT * FROM users WHERE user_id=${db.escape(
-        id
+      const checkAccountQuery = `SELECT * FROM users WHERE email=${db.escape(
+        email
       )}`;
       const isAccountExist = await query(checkAccountQuery);
 
@@ -82,14 +82,58 @@ module.exports = {
         };
       }
 
-      const updateIsActiveQuery = `UPDATE users SET is_verified = true WHERE user_id = ${db.escape(
-        id
+      const updateIsActiveQuery = `UPDATE users SET is_verified = true WHERE email = ${db.escape(
+        email
       )}`;
       let updateResponse = await query(updateIsActiveQuery);
 
       return res.status(200).send({ message: "Account is verified" });
     } catch (error) {
       handleServerError(error, next);
+    }
+  },
+  reSendVerificationEmail: async (req, res, next) => {
+    try {
+      const { email } = req.body;
+
+      const checkAccountQuery = `SELECT * FROM users WHERE email=${db.escape(
+        email
+      )}`;
+      const isAccountExist = await query(checkAccountQuery);
+
+      if (isAccountExist[0].is_verified == true) {
+        throw {
+          status_code: 400,
+          message: "Account has been verified before.",
+        };
+      }
+
+      let payload = { email: email };
+      const token = jwt.sign(payload, "joe", { expiresIn: "3h" });
+
+      const renderEmailTemplate = (templatePath, data) => {
+        const filePath = path.join(__dirname, templatePath);
+        return ejs.renderFile(filePath, data);
+      };
+
+      const template = await renderEmailTemplate(
+        "../templates/accountVerification.ejs",
+        { token }
+      );
+
+      const mail = {
+        from: `Admin <ichsannuriman12@gmail.com>`,
+        to: `${email}`,
+        subject: `Acount Verification`,
+        html: template,
+      };
+
+      const response = await transporter.sendMail(mail);
+
+      return res.status(200).send({ message: "Email verification sent." });
+    } catch (error) {
+      next(error);
+      // handleServerError(error, next);
     }
   },
   login: async (req, res, next) => {

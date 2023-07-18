@@ -46,9 +46,8 @@ export default usersSlice.reducer;
 export function loginUser(data) {
   return async (dispatch) => {
     try {
-      console.log('test')
       let response = await Axios.post(
-        "http://localhost:8000/api/auth/login",
+        `${process.env.REACT_APP_API_BASE_URL}/auth/login`,
         data
       );
       if (response) {
@@ -57,11 +56,12 @@ export function loginUser(data) {
         ).format("YYYY-MM-DD");
         dispatch(setUser(response.data.data));
         localStorage.setItem("user_token", response.data.token);
-        alert(response.data.message);
+        // alert(response.data.message);
       }
-      return true
+      return true;
     } catch (error) {
-      alert(error.response.data);
+      return error.response.data;
+      // alert(error.response.data);
     } finally {
       dispatch(setLoaded(true));
     }
@@ -72,7 +72,7 @@ export function checkLogin(token) {
   return async (dispatch) => {
     try {
       let response = await Axios.post(
-        "http://localhost:8000/api/auth/check-login",
+        `${process.env.REACT_APP_API_BASE_URL}/auth/check-login`,
         {},
         {
           headers: {

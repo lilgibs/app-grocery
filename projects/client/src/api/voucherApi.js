@@ -3,7 +3,7 @@ import axios from "axios";
 export async function addVoucher(data, token) {
   try {
     const response = await axios.post(
-      "http://localhost:8000/api/admin/vouchers",
+      `${process.env.REACT_APP_API_BASE_URL}/admin/vouchers`,
       data,
       {
         headers: {
@@ -21,7 +21,7 @@ export async function addVoucher(data, token) {
 export async function editVoucher(voucher_id, data, token) {
   try {
     const response = await axios.put(
-      `http://localhost:8000/api/admin/vouchers/${voucher_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/admin/vouchers/${voucher_id}`,
       data,
       {
         headers: {
@@ -39,7 +39,7 @@ export async function editVoucher(voucher_id, data, token) {
 export async function deleteVoucher(voucher_id, token) {
   try {
     const response = await axios.delete(
-      `http://localhost:8000/api/admin/vouchers/${voucher_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/admin/vouchers/${voucher_id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
