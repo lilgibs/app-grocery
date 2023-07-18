@@ -1,27 +1,17 @@
-import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom'
-import { deleteImage, fetchProduct, updateProduct, uploadImage } from '../features/productSlice';
+import { fetchProduct, updateProduct, uploadImage } from '../features/productSlice';
 import { checkLoginAdmin } from '../features/adminSlice';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 import { fetchCategories } from '../api/adminCategoryApi';
 import Select from 'react-select';
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  Button,
-  useDisclosure,
-} from '@chakra-ui/react'
+import { useDisclosure } from '@chakra-ui/react'
 import AdminIncreaseStockModal from '../components/AdminIncreaseStockModal';
 import AdminDecreaseStockModal from '../components/AdminDecreaseStockModal';
-import { FaSave, FaPen, FaTrash } from 'react-icons/fa';
+import { FaSave } from 'react-icons/fa';
+import AdminImageCard from '../components/AdminImageCard';
 
 function AdminEditProduct() {
   const { productId } = useParams();
@@ -37,7 +27,6 @@ function AdminEditProduct() {
   const role = useSelector(state => state.admin.admin.role);
   const product = useSelector(state => state.product.product);
   const productIsLoading = useSelector(state => state.product);
-  const adminToken = localStorage.getItem('admin_token');
 
   const [images, setImages] = useState(Array(3).fill(null));
 
@@ -64,10 +53,6 @@ function AdminEditProduct() {
     const imageId = images[index]?.product_image_id; // Get the image id, if it exists
     dispatch(uploadImage(file, productId, imageId)); // dispatch the thunk
   }
-
-  useEffect(() => {
-    adminToken ? dispatch(checkLoginAdmin(adminToken)) : setLoading(false);
-  }, [dispatch]);
 
   useEffect(() => {
     if (role !== null) {
@@ -173,10 +158,10 @@ function AdminEditProduct() {
                       <CustomInput label="Product Weight (gram)" name="product_weight" type="text" />
                       <CustomInput label="Product Stock" name="quantity_in_stock" type="text" disabled={true}>
                         <div className='flex gap-2'>
-                          <div onClick={onIncreaseOpen} className='px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded cursor-pointer flex gap-2'>+ <span className='hidden sm:block'>Increase</span></div>
-                          <AdminIncreaseStockModal isOpen={isIncreaseOpen} onClose={onIncreaseClose} productId={product.product_id} currStock={product.quantity_in_stock} />
                           <div onClick={onDecreaseOpen} className='px-4 py-2 bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded cursor-pointer flex gap-2'>-<span className='hidden sm:block'>Decrease</span></div>
                           <AdminDecreaseStockModal isOpen={isDecreaseOpen} onClose={onDecreaseClose} productId={product.product_id} currStock={product.quantity_in_stock} storeInventoryId={product.store_inventory_id} />
+                          <div onClick={onIncreaseOpen} className='px-4 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded cursor-pointer flex gap-2'>+ <span className='hidden sm:block'>Increase</span></div>
+                          <AdminIncreaseStockModal isOpen={isIncreaseOpen} onClose={onIncreaseClose} productId={product.product_id} currStock={product.quantity_in_stock} />
                         </div>
                       </CustomInput>
                     </div>
@@ -199,51 +184,7 @@ function AdminEditProduct() {
             {/* product image - START*/}
             <div>
               <h2 className='font-semibold text-pink-500 text-lg'>Product Image(s)</h2>
-              <div className='flex w-full p-4 gap-2 justify-between border rounded-md'>
-                {images.map((image, index) => (
-                  image ? (
-                    <div key={index} className="card border shadow-md rounded w-1/3">
-                      <img src={'http://localhost:8000/' + image.image_url} alt={`Product ${index + 1}`} className="w-full object-cover rounded-t" />
-                      <div className="p-4">
-                        <parent className="font-semibold">Image {index + 1}</parent>
-                        <div className='flex flex-row gap-1 sm:gap-2 mt-2 justify-center'>
-                          <div className="w-1/2">
-                            <div
-                              onClick={() => { document.getElementById(`fileInput-${index}`).click(); }}
-                              className="flex justify-center items-center gap-2 bg-green-500 hover:bg-green-700 text-white font-semibold py-2 w-full rounded cursor-pointer">
-                              <FaPen size={15} />
-                              <p className='hidden md:block'>Edit</p>
-                            </div>
-                            <input
-                              id={`fileInput-${index}`}
-                              type="file"
-                              className="hidden"
-                              onChange={(event) => handleImageUpload(event, index)}
-                            />
-                          </div>
-                          <div className="flex justify-center items-center gap-2 w-1/2 bg-rose-500 hover:bg-rose-700 text-white font-semibold py-2 md:px-4 rounded cursor-pointer"
-                            onClick={() => dispatch(deleteImage(image.product_image_id, productId))}
-                          >
-                            <FaTrash size={15} />
-                            <p className='hidden md:block'>Delete</p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="card border shadow-md rounded w-1/3">
-                      <div className="p-4">
-                        <h3 className="font-semibold">Upload New Image</h3>
-                        <input
-                          type="file"
-                          className="mt-2 text-white font-bold rounded w-full"
-                          onChange={(event) => handleImageUpload(event, index)}
-                        />
-                      </div>
-                    </div>
-                  )
-                ))}
-              </div>
+              <AdminImageCard images={images} productId={productId} />
             </div>
             {/* product image - END*/}
           </div>

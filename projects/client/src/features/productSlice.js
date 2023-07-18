@@ -47,7 +47,7 @@ export function fetchProduct(productId) {
   return async (dispatch) => {
     try {
       const response = await axios.get(
-        `http://localhost:8000/api/admin/products/${productId}`,
+        `${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}`,
         getConfig()
       );
       dispatch(setProduct(response.data.product));
@@ -64,7 +64,7 @@ export function fetchProductUser(productName, storeId) {
 
   return async (dispatch) => {
     productName = productName.replace(/-/g, " ");
-    let url = `http://localhost:8000/api/products/${productName}?`;
+    let url = `${process.env.REACT_APP_API_BASE_URL}/products/${productName}?`;
     if (storeId) {
       url += `storeId=${storeId}`;
     }
@@ -83,7 +83,6 @@ export function fetchProductUser(productName, storeId) {
 export function addProduct(product) {
   return async (dispatch) => {
     try {
-
       let formData = new FormData();
       formData.append("store_id", product.store_id);
       formData.append("product_category_id", product.product_category_id);
@@ -99,8 +98,7 @@ export function addProduct(product) {
         });
       }
 
-      let response = await axios.post(
-        "http://localhost:8000/api/admin/products",
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/products`,
         formData,
         getConfig(true)
       );
@@ -115,8 +113,7 @@ export function updateProduct(productId, product) {
   console.log(product);
   return async (dispatch) => {
     try {
-      const response = await axios.put(
-        `http://localhost:8000/api/admin/products/${productId}`,
+      const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}`,
         product,
         getConfig()
       );
@@ -141,20 +138,17 @@ export function uploadImage(file, productId, imageId) {
       let response;
       if (imageId) {
         // Jika gambar sudah ada, lakukan pembaruan
-        response = await axios.put(
-          `http://localhost:8000/api/admin/products/image/${imageId}`,
+        response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/admin/products/image/${imageId}`,
           formData,
           getConfig(true)
         );
       } else {
         // Jika tidak, unggah gambar baru
-        response = await axios.post(
-          "http://localhost:8000/api/admin/products/image",
+        response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/products/image`,
           formData,
           getConfig(true)
         );
       }
-      console.log(response);
       alert(response.data.message);
       dispatch(fetchProduct(productId));
     } catch (error) {
@@ -167,11 +161,9 @@ export function deleteImage(imageId, productId) {
   return async (dispatch) => {
     try {
       console.log(imageId);
-      const response = await axios.delete(
-        `http://localhost:8000/api/admin/products/image/${imageId}/permanently?productId=${productId}`,
+      const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/admin/products/image/${imageId}/permanently?productId=${productId}`,
         getConfig()
       );
-      console.log(response);
       alert(response.data.message);
       dispatch(fetchProduct(productId));
     } catch (error) {

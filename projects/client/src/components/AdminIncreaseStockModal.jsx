@@ -19,7 +19,7 @@ function AdminIncreaseStockModal({ isOpen, onClose, productId, currStock }) {
     const adminToken = localStorage.getItem('admin_token')
     console.log(values)
     try {
-      const response = await axios.post(`http://localhost:8000/api/admin/products/${productId}/increase-stock`, values,
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}/increase-stock`, values,
         {
           headers: {
             'Authorization': `Bearer ${adminToken}`
