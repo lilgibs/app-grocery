@@ -180,6 +180,7 @@ module.exports = {
       });
     } catch (error) {
       console.log(error)
+      handleServerError(error, next);
     }
   },
   hardDeleteCategory: async (req, res, next) => {
@@ -216,6 +217,7 @@ module.exports = {
       });
     } catch (error) {
       console.log(error)
+      handleServerError(error, next);
     }
   }
 
