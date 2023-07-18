@@ -103,7 +103,7 @@ function App() {
     if (userGlobal.user_id !== null) {
       dispatch(getAddress(userGlobal.user_id, userToken));
     }
-  }, [userGlobal, userToken]);
+  }, [userGlobalIsLoaded]);
 
   useEffect(() => {
     if (adminGlobal.id !== null) {
