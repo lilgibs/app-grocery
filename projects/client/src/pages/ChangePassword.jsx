@@ -56,7 +56,6 @@ const ChangePassword = () => {
                 userGlobal.user_id,
                 userToken
               );
-              console.log(response);
               if (response) {
                 nav("/profile");
               }

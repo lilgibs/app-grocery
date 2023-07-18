@@ -32,7 +32,7 @@ export function getAddress(user_id, token) {
   return async (dispatch) => {
     try {
       const response = await Axios.get(
-        `http://localhost:8000/api/addresses/${user_id}`,
+        `${process.env.REACT_APP_API_BASE_URL}/addresses/${user_id}`,
         // {},
         {
           headers: {
@@ -42,12 +42,10 @@ export function getAddress(user_id, token) {
       );
       if (response) {
         dispatch(setAddress(response.data.data));
-        // console.log(response.data.data);
         if (response.data.data.length > 0) {
           const mainAddress = response.data.data.find(
             (address) => address["first_address"] === 1
           );
-          console.log(mainAddress);
           dispatch(setMainAddress(mainAddress));
         } else {
           dispatch(setMainAddress(false));
