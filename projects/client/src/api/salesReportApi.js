@@ -35,7 +35,6 @@ export async function fetchSalesReportByStoreId(
         },
       }
     );
-    console.log(response);
     return response.data;
   } catch (error) {
     console.error(error);

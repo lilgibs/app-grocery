@@ -16,7 +16,7 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage }
 
     try {
       const response = await axios.post(
-        'http://localhost:8000/api/admin/products/categories/',
+        `${process.env.REACT_APP_API_BASE_URL}/admin/products/categories/`,
         formData,
         {
           headers: {

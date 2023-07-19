@@ -3,7 +3,7 @@ import axios from "axios";
 export async function deleteAddress(address_id, token) {
   try {
     const response = await axios.delete(
-      `http://localhost:8000/api/addresses/${address_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/addresses/${address_id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -20,7 +20,7 @@ export async function deleteAddress(address_id, token) {
 export async function addAddress(data, token) {
   try {
     const response = await axios.post(
-      "http://localhost:8000/api/addresses",
+      `${process.env.REACT_APP_API_BASE_URL}/addresses`,
       data,
       {
         headers: {
@@ -38,7 +38,7 @@ export async function addAddress(data, token) {
 export async function editAddress(address_id, data, token) {
   try {
     const response = await axios.put(
-      `http://localhost:8000/api/addresses/${address_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/addresses/${address_id}`,
       data,
       {
         headers: {
@@ -56,7 +56,7 @@ export async function editAddress(address_id, data, token) {
 export async function setMainAddress(address_id, user_id, token) {
   try {
     const response = await axios.put(
-      `http://localhost:8000/api/addresses/main-address/${user_id}/${address_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/addresses/main-address/${user_id}/${address_id}`,
       {},
       {
         headers: {

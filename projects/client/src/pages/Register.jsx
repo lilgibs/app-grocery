@@ -4,10 +4,13 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import Axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useToast } from "@chakra-ui/react";
+import CustomSpinner from "../components/Spinner";
 
 const Register = () => {
   const userGlobal = useSelector((state) => state.user.user);
   const nav = useNavigate();
+  const toast = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
 
@@ -16,18 +19,31 @@ const Register = () => {
       setIsLoading(true);
       setIsDisabled(true);
       let response = await Axios.post(
-        "http://localhost:8000/api/auth/register",
+        `${process.env.REACT_APP_API_BASE_URL}/auth/register`,
         data
       );
       if (response) {
-        alert(response.data.message);
-        nav("/login");
+        toast({
+          title: "Register Success",
+          description: "Check your email for verification link.",
+          position: "top",
+          status: "success",
+          duration: 5000,
+          isClosable: true,
+        });
       }
     } catch (error) {
-      alert(error.response.data);
-      setIsLoading(false);
-      setIsDisabled(false);
+      toast({
+        title: "Error",
+        description: error.response.data,
+        position: "top",
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+      });
     }
+    setIsLoading(false);
+    setIsDisabled(false);
   };
 
   const RegisterSchema = Yup.object().shape({
@@ -50,6 +66,7 @@ const Register = () => {
 
   return (
     <div className="flex flex-row items-start justify-around m-8">
+      {isLoading && <CustomSpinner />}
       <div className="flex-initial w-96 max-md:hidden">
         <img
           src="https://freepngimg.com/thumb/ecommerce/1-2-ecommerce-png.png"
@@ -75,7 +92,6 @@ const Register = () => {
             validationSchema={RegisterSchema}
             onSubmit={(value) => {
               registerUser(value);
-              console.log(value); //checker
             }}
           >
             {(props) => {

@@ -21,9 +21,6 @@ function Product() {
   const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
   const userGlobal = useSelector((state) => state.user.user);
 
-  //Fungsi untuk menampilkan gambar
-  const handleSelectedImage = (image) => {};
-
   // fungsi untuk menambah quantity
   const increaseQuantity = () => {
     setQuantity((prevQuantity) => (prevQuantity === product.quantity_in_stock ? prevQuantity : prevQuantity + 1));
@@ -59,7 +56,7 @@ function Product() {
       };
 
       // console.log(object);
-      const response = await axios.post("http://localhost:8000/api/cart/", cart);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/cart/`, cart);
 
       dispatch(fetchCart(userGlobal.user_id, store_id));
       dispatch(fetchProductUser(productName, store_id));
@@ -84,7 +81,7 @@ function Product() {
 
   useEffect(() => {
     if (product && product.product_images && product.product_images.length > 0) {
-      setSelectedImage(`http://localhost:8000/${product.product_images[0].image_url}`);
+      setSelectedImage(`${process.env.REACT_APP_API_IMG_URL + product.product_images[0].image_url}`);
     }
   }, [product]);
 
@@ -104,11 +101,11 @@ function Product() {
                 <div
                   key={index}
                   onClick={() => {
-                    setSelectedImage(`http://localhost:8000/${image.image_url}`);
+                    setSelectedImage(`${process.env.REACT_APP_API_IMG_URL + image.image_url}`);
                   }}
-                  className={`rounded-md w-1/5 lg:w-full ${selectedImage === `http://localhost:8000/${image.image_url}` ? "outline outline-offset-2 outline-1 outline-green-500" : ""}`}
+                  className={`rounded-md w-1/5 lg:w-full cursor-pointer ${selectedImage === `${process.env.REACT_APP_API_IMG_URL + image.image_url}` ? "outline outline-offset-2 outline-1 outline-green-500" : ""}`}
                 >
-                  <img className="w-full" src={`http://localhost:8000/${image.image_url}`} alt="" />
+                  <img className="w-full" src={`${process.env.REACT_APP_API_IMG_URL + image.image_url}`} alt="" />
                 </div>
               ))}
             </div>

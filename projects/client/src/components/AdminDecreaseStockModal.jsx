@@ -19,7 +19,7 @@ function AdminDecreaseStockModal({ isOpen, onClose, productId, currStock, storeI
     const adminToken = localStorage.getItem('admin_token')
 
     try {
-      const response = await axios.post(`http://localhost:8000/api/admin/products/${productId}/decrease-stock`,
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}/decrease-stock`,
         {
           ...values,
           store_inventory_id: storeInventoryId

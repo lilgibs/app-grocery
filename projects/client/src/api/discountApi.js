@@ -3,7 +3,7 @@ import axios from "axios";
 export async function addDiscount(data, token) {
   try {
     const response = await axios.post(
-      "http://localhost:8000/api/admin/discounts",
+      `${process.env.REACT_APP_API_BASE_URL}/admin/discounts`,
       data,
       {
         headers: {
@@ -21,7 +21,7 @@ export async function addDiscount(data, token) {
 export async function editDiscount(discount_id, data, token) {
   try {
     const response = await axios.put(
-      `http://localhost:8000/api/admin/discounts/${discount_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/admin/discounts/${discount_id}`,
       data,
       {
         headers: {
@@ -39,7 +39,7 @@ export async function editDiscount(discount_id, data, token) {
 export async function deleteDiscount(discount_id, token) {
   try {
     const response = await axios.delete(
-      `http://localhost:8000/api/admin/discounts/${discount_id}`,
+      `${process.env.REACT_APP_API_BASE_URL}/admin/discounts/${discount_id}`,
       {
         headers: {
           Authorization: `Bearer ${token}`,
