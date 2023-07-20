@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import OrderItem from "../components/OrderItem";
 import axios from "axios";
 import { setOrderItems } from "../features/orderSlice";
+import { useDisclosure, Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton } from "@chakra-ui/react";
+import { FaFilter } from "react-icons/fa";
 
 const Orders = () => {
   const nav = useNavigate();
@@ -12,6 +14,10 @@ const Orders = () => {
   const userGlobal = useSelector((state) => state.user.user);
   const orderGlobal = useSelector((state) => state.order.order);
   const orderItems = orderGlobal.order_items;
+
+  // drawer for filtering on mobile
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = React.useRef();
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +63,7 @@ const Orders = () => {
   const handleId = async () => {
     try {
       console.log(selectedId);
-      let response = await axios.get(`http://localhost:8000/api/order/by-invoice/?userId=${userGlobal.user_id}&orderId=${selectedId}`);
+      let response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/by-invoice/?userId=${userGlobal.user_id}&orderId=${selectedId}`);
       if (response.data.data.length === 0) {
         alert("Order not found");
       } else {
@@ -79,7 +85,7 @@ const Orders = () => {
       setSelectedStatus(status);
 
       if (status === "All") {
-        let response = await axios.get(`http://localhost:8000/api/order/?userId=${userGlobal.user_id}`);
+        let response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/?userId=${userGlobal.user_id}`);
         if (response) {
           console.log(response.data.orders);
           console.log(response.data.max);
@@ -87,7 +93,7 @@ const Orders = () => {
           setTotalPages(response.data.maxPages);
         }
       } else {
-        let response = await axios.get(`http://localhost:8000/api/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${status}`);
+        let response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${status}`);
         if (response) {
           console.log(response.data.orders);
           console.log(response.data.max);
@@ -134,7 +140,7 @@ const Orders = () => {
       const startDate = formatDate(startValue);
       const endDate = formatDate(endValue);
 
-      const response = await axios.get(`http://localhost:8000/api/order/by-date/?userId=${userGlobal.user_id}&page=${currentPage}&startDate="${startDate}"&endDate="${endDate}"`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/by-date/?userId=${userGlobal.user_id}&page=${currentPage}&startDate="${startDate}"&endDate="${endDate}"`);
 
       console.log(response.data);
       if (response.data.orders.length == 0) {
@@ -153,7 +159,7 @@ const Orders = () => {
     const renderPaginate = async () => {
       try {
         if (selectedStatus === "All") {
-          let response = await axios.get(`http://localhost:8000/api/order/?userId=${userGlobal.user_id}&page=${currentPage}`);
+          let response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/?userId=${userGlobal.user_id}&page=${currentPage}`);
           if (response) {
             console.log(response.data.orders);
 
@@ -161,7 +167,7 @@ const Orders = () => {
             setTotalPages(response.data.maxPages);
           }
         } else {
-          let response = await axios.get(`http://localhost:8000/api/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${selectedStatus}&page=${currentPage}`);
+          let response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/by-status/?userId=${userGlobal.user_id}&orderStatus=${selectedStatus}&page=${currentPage}`);
           if (response) {
             console.log(response.data.orders);
             console.log(response.data.maxPages);
@@ -204,15 +210,23 @@ const Orders = () => {
   };
 
   return (
-    <div className="mx-20">
-      {/* <Input placeholder="Select Date and Time" size="md" type="datetime-local" value={date} onChange={handleChange} /> */}
-
+    <div className="mx-0 md:mx-5 lg:mx-20">
       {userGlobal.user_id > 0 ? (
         <>
-          <div className="grid grid-cols-5 m-10 gap-5">
-            <div className="flex flex-col gap-5">
-              <h1 className="text-3xl pt-5 font-semibold tracking-tight text-gray-900">Orders</h1>
-              <div className="flex flex-col gap-3">
+          <div className="grid m-10 gap-5 md:grid-cols-6 lg:grid-cols-5 ">
+            <div className="flex flex-col gap-5  md:col-span-2 lg:col-span-1">
+              <div className=" flex flex-cols gap-10">
+                <h1 className="text-3xl font-semibold tracking-tight text-gray-900 md:pt-5">Orders</h1>
+
+                <div className="flex items-end mb-0.5 md:hidden">
+                  <Button ref={btnRef} leftIcon={<FaFilter />} colorScheme="whatsapp" variant="outline" size="xs" onClick={onOpen}>
+                    Filter
+                  </Button>
+                </div>
+              </div>
+
+              {/* Filter starts */}
+              <div className="hidden md:flex md:flex-col md:gap-3">
                 {/* status starts */}
                 {statuses.map((x) => (
                   <div
@@ -226,7 +240,7 @@ const Orders = () => {
                   </div>
                 ))}
                 {/* status ends */}
-                {/* Filter starts */}
+
                 <Divider />
                 <Text className="font-semibold text-green-600">Sort and Filter</Text>
                 <div className="flex flex-col gap-3">
@@ -265,30 +279,32 @@ const Orders = () => {
                     </Button>
                   </div>
                 </div>
-                {/* Filter ends */}
               </div>
+              {/* Filter ends */}
             </div>
 
             {orderItems.length === 0 ? (
               <div className="col-span-4 pt-7">No orders found</div>
             ) : (
               <>
-                <div className="col-span-4">
-                  {/* Pagination starts */}
+                <div className="col-span-4 md:col-span-4">
+                  <div className="flex justify-between">
+                    {/* Pagination starts */}
 
-                  <div className="flex gap-3 mb-2">
-                    <Button size="xs" onClick={handlePaginatePrev}>
-                      Prev
-                    </Button>
-                    <span>
-                      {currentPage} out of {totalPages}
-                    </span>
-                    <Button size="xs" onClick={handlePaginateNext}>
-                      Next
-                    </Button>
+                    <div className="flex mb-2 gap-2 md:gap-3">
+                      <Button size="xs" onClick={handlePaginatePrev}>
+                        Prev
+                      </Button>
+                      <span className="text-sm">
+                        {currentPage} out of {totalPages}
+                      </span>
+                      <Button size="xs" onClick={handlePaginateNext}>
+                        Next
+                      </Button>
+                    </div>
+                    {/* Pagination ends */}
                   </div>
 
-                  {/* Pagination ends */}
                   <div className="flex flex-col gap-6">{renderOrderItems()}</div>
                 </div>
               </>
@@ -331,6 +347,74 @@ const Orders = () => {
           </div>
         </>
       )}
+
+      {/* Mobile filter */}
+      <Drawer isOpen={isOpen} placement="right" onClose={onClose} finalFocusRef={btnRef}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader>Filter orders</DrawerHeader>
+
+          <DrawerBody>
+            {/* Filter starts */}
+            <div className=" flex flex-col gap-3">
+              {/* status starts */}
+              {statuses.map((x) => (
+                <div
+                  className={`flex border px-4 py-2 rounded-md items-center cursor-pointer hover:translate-x-1 duration-100
+                    ${selectedStatus === x ? "font-semibold border-green-500 text-green-500" : ""}`}
+                  onClick={() => {
+                    handleStatus(x);
+                  }}
+                >
+                  <p className="">{x}</p>
+                </div>
+              ))}
+              {/* status ends */}
+
+              <Divider />
+              <Text className="font-semibold text-green-600">Sort and Filter</Text>
+              <div className="flex flex-col gap-3">
+                <div>
+                  <Select placeholder="Sort by" size="sm" value={sortBy} onChange={handleSortChange}>
+                    <option value="desc">Latest to oldest</option>
+                    <option value="asc">Oldest to latest</option>
+                  </Select>
+                </div>
+                <div className="grid grid-cols-3 gap-1">
+                  <Input className="col-span-2" type="number" value={selectedId} onChange={handleIdChange} placeholder="Find order by id" size="sm" />
+                  <Button className="col-span-1" size="sm" onClick={handleId}>
+                    Find
+                  </Button>
+                </div>
+
+                <div className="flex flex-col gap-2">
+                  <div className="grid grid-cols-4">
+                    <Text>Start</Text>
+                    <Input className="col-span-3" placeholder="Select Date and Time" size="sm" type="datetime-local" value={startValue} onChange={handleStartChange} />
+                  </div>
+                  <div className="grid grid-cols-4">
+                    <Text>End</Text>
+                    <Input
+                      className="col-span-3"
+                      placeholder="Select Date and Time"
+                      size="sm"
+                      type="datetime-local"
+                      value={endValue}
+                      onChange={handleEndChange}
+                      min={minEndDate} // Set the minimum allowed value for the end date
+                    />
+                  </div>
+                  <Button size="sm" onClick={handleDate}>
+                    Find order by date
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {/* Filter ends */}
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };

@@ -21,6 +21,7 @@
     "projects/*"
   ],
   "dependencies": {
-    "react-date-range": "^1.4.0"
+    "react-date-range": "^1.4.0",
+    "react-slick": "^0.29.0"
   }
 }

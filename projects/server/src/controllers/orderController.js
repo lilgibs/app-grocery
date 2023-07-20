@@ -168,7 +168,7 @@ module.exports = {
       let payment_proof = "";
 
       if (req.file) {
-        payment_proof = "uploads/" + req.file.filename;
+        payment_proof = req.file.filename;
       } else {
         throw {
           status_code: 400,

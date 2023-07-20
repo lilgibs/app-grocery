@@ -3,11 +3,12 @@ import { useNavigate } from "react-router-dom";
 
 function NotFound() {
   const nav = useNavigate();
+  console.log(process.env.REACT_APP_API_UPLOAD_URL + `/404-icon.png`)
 
   return (
     <div className="flex flex-col justify-center items-center m-7 gap-8">
       <img
-        src="http://localhost:8000/uploads/404-icon.png"
+        src={process.env.REACT_APP_API_UPLOAD_URL + `/404-icon.png`}
         alt="404 Error"
         className="w-80"
       />

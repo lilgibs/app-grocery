@@ -19,7 +19,7 @@ function ProductCard({ product }) {
       // onClick={() => navigate(`/products/${formatProductName(product.product_name)}`)}
       >
         <Link to={`/products/${formatProductName(product.product_name)}`}>
-          <Image src={`http://localhost:8000/${product.image_url}`} alt="Green double couch with wooden legs" borderTopRadius="lg" />
+          <Image src={`${process.env.REACT_APP_API_IMG_URL + product.image_url}`} alt="Green double couch with wooden legs" borderTopRadius="lg" />
           <Box className="h-36">
             <CardHeader py={"1"} px={"2"}>
               <Heading className="line-clamp-2" size="xs" fontWeight={"normal"}>
