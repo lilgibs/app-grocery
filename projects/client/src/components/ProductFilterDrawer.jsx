@@ -35,7 +35,7 @@ function ProductFilterDrawer({ isOpen, onClose, handleSortChange, sortType, sort
                     }`}
                   onClick={() => handleSetCategory(category.label.toLowerCase())}
                 >
-                  <img className="h-5" src={`http://localhost:8000/${category.image}`} alt="" />
+                  <img className="h-5" src={`${process.env.REACT_APP_API_IMG_URL + category.image}`} alt="" />
                   <p className="">{category.label}</p>
                 </div>
               ))}
