@@ -17,24 +17,38 @@ import {
   RadioGroup,
   Radio,
 } from "@chakra-ui/react";
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tr,
+  Th,
+  Td,
+  TableContainer,
+} from "@chakra-ui/react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
-import { addDiscount, deleteDiscount, editDiscount } from "../api/discountApi";
+import {
+  addDiscount,
+  deleteDiscount,
+  editDiscount,
+  getDiscounts,
+} from "../api/discountApi";
 import { getDiscount } from "../features/discountSlice";
 import { fetchProducts } from "../api/userApi";
-import { fetchCategories } from "../api/adminCategoryApi";
 import { addVoucher } from "../api/voucherApi";
 
-function UserProfile() {
+function AdminDiscount() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const adminData = useSelector((state) => state.admin.admin);
   const storeDiscounts = useSelector((state) => state.discount.discount);
   const adminToken = localStorage.getItem("admin_token");
   const [discounts, setDiscounts] = useState(storeDiscounts);
   const [selectedDiscount, setselectedDiscount] = useState(null);
   const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
 
   const {
     isOpen: isAddOpen,
@@ -618,47 +632,121 @@ function UserProfile() {
   };
 
   useEffect(() => {
-    setDiscounts(storeDiscounts);
-  }, [storeDiscounts]);
+    const fetchDiscounts = async () => {
+      const data = await getDiscounts(adminData.store_id, adminToken);
+      const mergedData = Object.values(
+        data.reduce((acc, obj) => {
+          if (!acc[obj.discount_id]) {
+            acc[obj.discount_id] = { ...obj };
+          } else {
+            acc[obj.discount_id].product_name += `, ${obj.product_name}`;
+          }
+          return acc;
+        }, {})
+      );
+      console.log(mergedData);
+      setDiscounts(mergedData);
+    };
+    fetchDiscounts();
+  }, [adminData.store_id]);
 
   useEffect(() => {
-    const getCategories = async () => {
-      const result = await fetchCategories();
-      setCategories(result);
-    };
-
     const getProducts = async () => {
       const result = await fetchProducts(adminData.store_id);
       setProducts(result.products);
     };
     getProducts();
-    getCategories();
   }, [adminData.store_id]);
 
   return (
-    <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto my-5">
-      <div className="px-8 py-4 bg-white border shadow-md rounded">
-        <div className="w-full bg-slate-100 text-center py-4 rounded-md mb-8">
-          <p className="font-semibold text-pink-500 text-lg">
-            Discount Management
-          </p>
-        </div>
-        <div className="flex justify-end">
-          <button
-            onClick={onAddOpen}
-            className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
-          >
-            <FaPlus size={15} className="mr-2" /> Add Discount
-          </button>
-        </div>
-        <div className="flex flex-wrap justify-center gap-4">
-          {renderDiscounts()}
-          <ModalAddDiscount />
-          <ModalEditDiscount />
-        </div>
-      </div>
+    <div className="flex flex-col md:w-[95%] xl:max-w-screen-xl mx-auto gap-10">
+      <h1
+        className="text-4xl pt-5 font-semibold tracking-tight text-pink-500 cursor-pointer"
+        onClick={() => navigate("/admin/discounts")}
+      >
+        Promo Management
+      </h1>
+      <TableContainer whiteSpace="normal">
+        <Table variant="striped" colorScheme="blue">
+          <Thead>
+            <Tr>
+              <Th>ID</Th>
+              <Th>Product Name</Th>
+              <Th>Discount Value</Th>
+              <Th>Discount Type</Th>
+              <Th>Discount Value Type</Th>
+              <Th>Duration</Th>
+              <Th>Action</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {discounts.map((discount) => (
+              <Tr>
+                <Td w="1px">{discount.discount_id}</Td>
+                <Td w="400px">{discount.product_name}</Td>
+                <Td w="1px">{discount.discount_value}</Td>
+                <Td w="1px">{discount.discount_type}</Td>
+                <Td w="1px">{discount.discount_value_type}</Td>
+                <Td w="1px">
+                  {moment(discount.start_date).format("MMMM DD YYYY")} -{" "}
+                  {moment(discount.end_date).format("MMMM DD YYYY")}
+                </Td>
+                <Td w="1px">
+                  <button>oke</button>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      </TableContainer>
     </div>
+    // <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto my-5">
+    //   <div className="px-8 py-4 bg-white border shadow-md rounded">
+    //     <div className="w-full bg-slate-100 text-center py-4 rounded-md mb-8">
+    //       <p className="font-semibold text-pink-500 text-lg">
+    //         Discount Management
+    //       </p>
+    //     </div>
+    //     <div className="flex justify-end">
+    //       <button
+    //         onClick={onAddOpen}
+    //         className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
+    //       >
+    //         <FaPlus size={15} className="mr-2" /> Add Discount
+    //       </button>
+    //     </div>
+    //     <div className="flex flex-wrap justify-center gap-4">
+    //       {/* {renderDiscounts()} */}
+    //       <TableContainer variant="striped" colorScheme="blue">
+    //         <Table variant="striped" colorScheme="blue">
+    //           <Thead>
+    //             <Tr>
+    //               <Th>Product Name</Th>
+    //               <Th>Quantity</Th>
+    //               <Th>Type</Th>
+    //               <Th>Date</Th>
+    //             </Tr>
+    //           </Thead>
+    //           <Tbody>
+    //             {discounts.map((discount) => (
+    //               <Tr>
+    //                 <Td>{discount.product_name}</Td>
+    //                 <Td>{discount.quantity_change}</Td>
+    //                 <Td>{discount.change_type}</Td>
+    //                 <Td>
+    //                   {moment(discount.change_date).format("MMMM DD YYYY")}
+    //                 </Td>
+    //               </Tr>
+    //             ))}
+    //           </Tbody>
+    //         </Table>
+    //       </TableContainer>
+    //       <ModalAddDiscount />
+    //       <ModalEditDiscount />
+    //     </div>
+    //   </div>
+    // </div>
   );
 }
 
-export default UserProfile;
+export default AdminDiscount;
