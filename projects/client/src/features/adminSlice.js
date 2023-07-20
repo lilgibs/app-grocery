@@ -38,10 +38,7 @@ export const adminSlice = createSlice({
 export function loginAdmin(data) {
   return async (dispatch) => {
     try {
-      let response = await Axios.post(
-        "http://localhost:8000/api/auth/adminLogin",
-        data
-      );
+      let response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/adminLogin`, data);
       if (response) {
         dispatch(setAdmin(response.data.data));
         localStorage.setItem("admin_token", response.data.token);
@@ -57,7 +54,7 @@ export function checkLoginAdmin(token) {
   return async (dispatch) => {
     try {
       let response = await Axios.post(
-        "http://localhost:8000/api/auth/check-adminlogin",
+        `${process.env.REACT_APP_API_BASE_URL}/auth/check-adminlogin`,
         {},
         {
           headers: {
@@ -81,22 +78,16 @@ export function createBranchAdmin(data) {
   return async () => {
     const adminToken = localStorage.getItem("admin_token");
     try {
-      let response = await Axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/admin/auth`,
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${adminToken}`,
-          },
-        }
-      );
+      let response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/auth`, data, {
+        headers: {
+          Authorization: `Bearer ${adminToken}`,
+        },
+      });
       if (response) {
         alert(response.data.message);
       }
     } catch (error) {
-      alert(
-        `There was an error creating the branch admin: ${error.response.data}`
-      );
+      alert(`There was an error creating the branch admin: ${error.response.data}`);
     }
   };
 }

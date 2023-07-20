@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardBody, Heading, Stack, Text } from "@chakra-ui/react";
-import { Icon, Select, FormControl } from "@chakra-ui/react";
-import { Radio, RadioGroup } from "@chakra-ui/react";
-import { Button } from "@chakra-ui/react";
+import { Select, FormControl, Radio, RadioGroup, Button, Menu, MenuButton, MenuList, MenuItem } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { setShippingCourier, setShippingServices, resetShipping } from "../features/shippingSlice";
 import { setShippingCourierCart, setShippingOption, setShippingAddress } from "../features/cartSlice";
 import { formatRupiah } from "../utils/formatRupiah";
 import axios from "axios";
-import { Menu, MenuButton, MenuList, MenuItem, MenuItemOption, MenuGroup, MenuOptionGroup, MenuDivider } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 
 function Shipping() {
@@ -21,10 +18,9 @@ function Shipping() {
   const nearestStore = useSelector((state) => state.location.location.nearestStore);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [selectedCourier, setSelectedCourier] = useState("");
-  const [addressIndex, setAddressIndex] = useState();
   const [radioButton, setRadioButton] = useState(null);
   const [prevCart, setPrevCart] = useState(cartItems);
-  const [cartChange, setCartChange] = useState("invisible");
+  const [cartChange, setCartChange] = useState("hidden md:invisible");
   const nav = useNavigate();
 
   useEffect(() => {
@@ -65,16 +61,6 @@ function Shipping() {
     }
   }, [cartItems]); // reset shipping options if changes are made to cart
 
-  // const renderAddress = () => {
-  //   return addressGlobal.map((p) => {
-  //     return (
-  //       <option value={p.address_id}>
-  //         {p.street}, {p.city_name}
-  //       </option>
-  //     );
-  //   });
-  // };
-
   const renderShippingServices = () => {
     return services.map((p) => {
       let index = services.indexOf(p);
@@ -82,7 +68,7 @@ function Shipping() {
       return cartChange === "invisible" && cartItems.length > 0 ? (
         <Radio size="lg" mb="2" value={index}>
           <div className="grid grid-cols-2 gap-3">
-            <div className="font-bold">{p.description} -</div>
+            <div className="font-bold">{p.description} </div>
             <div>{formatRupiah(p.cost[0].value)}</div>
           </div>
           <div className="text-sm text-green-600 font-bold">Delivery time: {p.cost[0].etd.match(regex).join("")} days</div>
@@ -92,10 +78,6 @@ function Shipping() {
       );
     });
   };
-
-  // const handleAddressChange = (event) => {
-  //   // setSelectedAddress(event.target.value);
-  // };
 
   const handleCourierChange = (event) => {
     setSelectedCourier(event.target.value);
@@ -119,10 +101,7 @@ function Shipping() {
           courier: selectedCourier,
         };
 
-        // console.log(form);
-
-        let response = await axios.post("http://localhost:8000/api/cart/shipping-fee", form);
-        // console.log(response);
+        let response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/cart/shipping-fee`, form);
         let courier = response.data.rajaongkir.results[0].name;
         let services = response.data.rajaongkir.results[0].costs;
 
@@ -133,17 +112,14 @@ function Shipping() {
         console.log(error);
       }
     }
-    // console.log("Shipping courier");
-    // console.log(selectedAddress);
-    // console.log(selectedCourier);
   };
 
   return (
-    <Card>
+    <Card variant={["unstyled", "outline", "outline"]}>
       <CardHeader className="flex justify-between">
         <div>
           <Heading size="md">Shipping option</Heading>
-          <Text className="mt-2">
+          <Text className="text-lg mt-3 md:text-sm md:mt-2">
             Deliver from <a className="font-bold text-green-500"> {nearestStore.store_name}</a>
           </Text>
         </div>
@@ -152,21 +128,14 @@ function Shipping() {
           <Text className="text-sm text-right text-red-500 font-bold">⚠ There is changes in your cart</Text>
           <Text className="text-xs text-right"> Update shipping options to get latest rates</Text>
         </div>
-
-        {/* {selectedAddress}
-        {selectedCourier}
-        {addressIndex} */}
       </CardHeader>
 
       <CardBody className="flex flex-col gap-5">
-        <FormControl className="grid grid-cols-4 gap-3">
-          <div className="col-span-3 grid grid-cols-2 gap-2">
-            {/* <Select placeholder="Select address" onChange={handleAddressChange}>
-              {renderAddress()}
-            </Select> */}
+        <FormControl className="flex gap-3 flex-col lg:grid lg:grid-cols-4 ">
+          <div className="col-span-3 grid grid-cols-2 gap-10 lg:gap-0">
             <div>
               <Menu>
-                <MenuButton as={Button} size="md" variant="ghost" colorScheme="green" border="1px">
+                <MenuButton as={Button} size="md" variant="outline" colorScheme="green">
                   {selectedAddress[1] === 0 ? <span> Set up your main adresss </span> : <span> {selectedAddress[0]} </span>}
                 </MenuButton>
                 <MenuList>

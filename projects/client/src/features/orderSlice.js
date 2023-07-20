@@ -26,14 +26,10 @@ export default orderSlice.reducer;
 export function fetchOrder(user) {
   return async (dispatch) => {
     try {
-      // console.log(user);
-      const response = await Axios.get(`http://localhost:8000/api/order/?userId=${user}`);
+      const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/order/?userId=${user}`);
       let orderItems = response.data.orders;
 
-      // console.log(orderItems);
       dispatch(setOrderItems(orderItems));
-
-      //   dispatch(updateCartCount());
     } catch (error) {
       console.error(error);
     }
@@ -43,7 +39,7 @@ export function fetchOrder(user) {
 export function fetchStoreOrder(store) {
   return async (dispatch) => {
     try {
-      const response = await Axios.get(`http://localhost:8000/api/admin/order/?storeId=${store}`);
+      const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/order/?storeId=${store}`);
       let orderItems = response.data.orders;
 
       dispatch(setOrderItems(orderItems));
@@ -56,12 +52,10 @@ export function fetchStoreOrder(store) {
 export function fetchAllOrder() {
   return async (dispatch) => {
     try {
-      const response = await Axios.get(`http://localhost:8000/api/admin/order/all`);
+      const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/order/all`);
       let orderItems = response.data;
 
-      // console.log(orderItems);
       dispatch(setOrderItems(orderItems));
-      //   dispatch(updateCartCount());
     } catch (error) {
       console.error(error);
     }

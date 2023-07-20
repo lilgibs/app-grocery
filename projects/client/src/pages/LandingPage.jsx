@@ -1,25 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { Card, CardHeader, CardBody, CardFooter } from "@chakra-ui/react";
 import { Button } from "@chakra-ui/react";
-import { Tabs, TabList, TabPanels, Tab, TabPanel } from "@chakra-ui/react";
-import { Image, Stack, Heading, Text } from "@chakra-ui/react";
-import { Table, Thead, Tbody, Tr, Th, Td, TableContainer } from "@chakra-ui/react";
+import { Image, Heading, Text } from "@chakra-ui/react";
 import { useDispatch, useSelector } from "react-redux";
 import { formatRupiah } from "../utils/formatRupiah";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { fetchProducts } from "../api/userApi";
 import { fetchCategories } from "../api/adminCategoryApi";
 import { Box, IconButton, useBreakpointValue } from "@chakra-ui/react";
 import { BiLeftArrowAlt, BiRightArrowAlt } from "react-icons/bi";
 import Slider from "react-slick";
+import Footer from "../components/Footer";
+import ProductCard from "../components/ProductCard";
+import ProductNotFound from "../components/ProductNotFound";
 
 const LandingPage = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const userToken = localStorage.getItem("user_token");
-
   const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
-
   const dispatch = useDispatch();
   const nearestStore = useSelector((state) => state.location.location.nearestStore.store_name);
   const navigate = useNavigate();
@@ -45,7 +44,7 @@ const LandingPage = () => {
   const side = useBreakpointValue({ base: "30%", md: "10px" });
 
   // These are the images used in the slide
-  const cards = ["http://localhost:8000/uploads/banner1.png", "http://localhost:8000/uploads/banner2.png", "http://localhost:8000/uploads/banner3.png"];
+  const cards = [`${process.env.REACT_APP_API_UPLOAD_URL}/banner1.png`, `${process.env.REACT_APP_API_UPLOAD_URL}/banner2.png`, `${process.env.REACT_APP_API_UPLOAD_URL}/banner3.png`];
 
   //---------------------------------------------
 
@@ -96,51 +95,6 @@ const LandingPage = () => {
             ))}
           </Slider>
         </Box>
-        {/* <div className="bg-sky-100 rounded-lg grid grid-col-1 gap-4 py-10 px-4 lg:my-5 md:px-10 md:grid-cols-3 lg:px-20">
-          <div className="col-span-1 md:col-span-2">
-            <Card align="center">
-              <Tabs variant="soft-rounded" colorScheme="green">
-                <CardHeader></CardHeader>
-                <CardBody py={{ base: "10", md: "20" }}>
-                  <TabPanels>
-                    <TabPanel>
-                    <p>Promo 1</p>
-                    </TabPanel>
-
-                    <TabPanel>
-                      <p>Promo 2</p>
-                    </TabPanel>
-
-                    <TabPanel>
-                      <p>Promo 3</p>
-                    </TabPanel>
-                  </TabPanels>
-                </CardBody>
-
-                <CardFooter>
-                  <TabList gap="1">
-                    <Tab bg="gray.100"></Tab>
-                    <Tab bg="gray.100"></Tab>
-                    <Tab bg="gray.100"></Tab>
-                  </TabList>
-                </CardFooter>
-              </Tabs>
-            </Card>
-          </div>
-          
-           <div className="hidden md:block">
-             <Card align="center">
-               <CardHeader></CardHeader>
-               <CardBody py="20">promo 4</CardBody>
-
-               <CardFooter m="1">
-                 <Button bg="green.200" color="white">
-                   Shop Now
-               </Button>
-               </CardFooter>
-             </Card>
-           </div>
-        </div> */}
 
         <br />
 
@@ -155,7 +109,7 @@ const LandingPage = () => {
 
             <div className="mt-5 md:justify-self-end md:mt-0">
               <Button variant="outline" color="green.500" size="sm" p="3" borderRadius="full" onClick={() => navigate("/products")}>
-                More categories
+                Browse categories
               </Button>
             </div>
           </div>
@@ -172,7 +126,7 @@ const LandingPage = () => {
         <br />
 
         <div className="px-4 py-5 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2">
+          <div className="grid grid-cols-1 mb-6 sm:grid-cols-2">
             <div className="mb-4 sm:mb-0">
               <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-gray-900">
                 Browse
@@ -187,22 +141,17 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-2">
-            {products.slice(0, 4).map((product) => (
-              <Card variant="elevated" className="cursor-pointer" onClick={() => navigate(`/products/${formatProductName(product.product_name)}`)}>
-                <Image src="https://webstyle.unicomm.fsu.edu/3.4/img/placeholders/ratio-pref-1-1.png" alt="Green double couch with wooden legs" borderTopRadius="lg" />
-                <CardHeader padding={"2"}>
-                  <Heading className="line-clamp-2" size="sm" fontWeight={"normal"}>
-                    {product.product_name}
-                  </Heading>
-                </CardHeader>
-                <CardBody padding={"2"}>
-                  <Text className="font-semibold">{formatRupiah(product.product_price)}</Text>
-                </CardBody>
-                <CardFooter></CardFooter>
-              </Card>
-            ))}
-          </div>
+          {/* <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-2"> */}
+          {products.length > 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-5 h-auto">
+              {products.slice(0, 6).map((product) => (
+                <ProductCard product={product} key={product.product_id} />
+              ))}
+            </div>
+          ) : (
+            <ProductNotFound />
+          )}
+          {/* </div> */}
         </div>
 
         <br />
@@ -233,41 +182,7 @@ const LandingPage = () => {
         <br />
 
         <hr className="border-1 border-gray-300" />
-        <div className="grid grid-cols-1 px-4 py-5 md:py-11 md:grid-cols-3 md:px-6 lg:px-8">
-          <div className="col-span-1">
-            <h1 className="text-lg font-bold tracking-tight px-2 py-2 md:py-0 md:text-3xl md:pl-5">Online Grocery Web App</h1>
-          </div>
-          <div className="mt-3 md:m-0 md:col-span-2">
-            <TableContainer>
-              <Table variant="unstyled" size="sm">
-                <Thead>
-                  <Tr>
-                    <Th>Company</Th>
-                    <Th>Account</Th>
-                    <Th>Shop</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  <Tr>
-                    <Td className="hover:text-green-500">About Us</Td>
-                    <Td className="hover:text-green-500">Login</Td>
-                    <Td className="hover:text-green-500">Categories</Td>
-                  </Tr>
-                  <Tr>
-                    <Td className="hover:text-green-500">Service</Td>
-                    <Td className="hover:text-green-500">View Cart</Td>
-                    <Td className="hover:text-green-500">Products</Td>
-                  </Tr>
-                  <Tr>
-                    <Td className="hover:text-green-500">Contact</Td>
-                    <Td className="hover:text-green-500">Track My Order</Td>
-                  </Tr>
-                </Tbody>
-              </Table>
-            </TableContainer>
-            <br />
-          </div>
-        </div>
+        {Footer()}
       </div>
     </div>
   );
