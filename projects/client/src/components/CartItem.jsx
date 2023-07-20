@@ -21,7 +21,7 @@ const CartItem = ({ cart_id, product_id, product, price, discount_value, discoun
       };
 
       // console.log(cart);
-      const response = await axios.delete("http://localhost:8000/api/cart/", { data: cart });
+      const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/cart/`, { data: cart });
       dispatch(fetchCart(userGlobal.user_id, storeId));
       alert(response.data.message);
       // console.log(response.data);
@@ -39,7 +39,7 @@ const CartItem = ({ cart_id, product_id, product, price, discount_value, discoun
         method: method,
       };
 
-      const response = await axios.patch("http://localhost:8000/api/cart/", cart);
+      const response = await axios.patch(`${process.env.REACT_APP_API_BASE_URL}/cart/`, cart);
       dispatch(fetchCart(userGlobal.user_id, storeId));
     } catch (error) {
       method == "add" ? alert("Not enough stock for this product") : alert("Minimum quantity in cart is 1");
@@ -48,13 +48,8 @@ const CartItem = ({ cart_id, product_id, product, price, discount_value, discoun
 
   return (
     <Tr>
-      <Td>
-        {/* {cart_id}  */}
-        {/* {product_id} */}
-        {/* {weight}g */}
-
-        {product}
-      </Td>
+      {/* <Td>{product.match(/^.{1,20}/)}...</Td> */}
+      <Td>{product}</Td>
       <Td>
         {discount_value === null ? (
           <span>{formatRupiah(price)} </span>
@@ -66,7 +61,6 @@ const CartItem = ({ cart_id, product_id, product, price, discount_value, discoun
         {buy1get1 === 1 ? <span className="text-red-500 font-semibold ml-3">BUY 1 GET 1</span> : <></>}
       </Td>
 
-      {/* <Td>{formatRupiah(price)}</Td> */}
       <Td>
         <NumberInput>
           {buy1get1 === 1 ? (

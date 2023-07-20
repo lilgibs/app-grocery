@@ -54,7 +54,7 @@ export function fetchCart(user, store) {
   return async (dispatch) => {
     try {
       //console.log(user);
-      const response = await Axios.get(`http://localhost:8000/api/cart/?userId=${user}&storeId=${store}`);
+      const response = await Axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart/?userId=${user}&storeId=${store}`);
       let cartItems = response.data.cart;
       console.log(cartItems);
 
@@ -65,17 +65,3 @@ export function fetchCart(user, store) {
     }
   };
 }
-
-// export function getDiscount() {
-//   return async () => {
-//     try {
-//       //console.log(user);
-//       const response = await Axios.get(`http://localhost:8000/api/cart/discounts`);
-//       // let discountedItems = response.data;
-
-//       return response;
-//     } catch (error) {
-//       console.error(error);
-//     }
-//   };
-// }

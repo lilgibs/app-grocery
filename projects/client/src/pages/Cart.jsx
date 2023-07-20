@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, Thead, Tbody, Tfoot, Tr, Th, Td, TableCaption, TableContainer, Center } from "@chakra-ui/react";
-import { Button } from "@chakra-ui/react";
-import { Card, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text } from "@chakra-ui/react";
+import { Card, CardBody, CardFooter, Heading, Stack, StackDivider, Box, Text, Button } from "@chakra-ui/react";
+import { useDisclosure, Drawer, DrawerBody, DrawerFooter, DrawerHeader, DrawerOverlay, DrawerContent, DrawerCloseButton } from "@chakra-ui/react";
 import { fetchCart } from "../features/cartSlice";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -25,32 +25,28 @@ const Cart = () => {
   const [selectedVoucher, setSelectedVoucher] = useState("");
   const [voucherMin, setVoucherMin] = useState();
 
+  // drawer for  on mobile
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const btnRef = React.useRef();
+
   //vouchers
   useEffect(() => {
     setVouchers([]); // reset
     const getVouchers = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/cart/voucher/?storeId=${locationGlobal.nearestStore.store_id}`);
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/cart/voucher/?storeId=${locationGlobal.nearestStore.store_id}`);
         if (response.data.length > 0) {
           setVouchers(response.data);
         }
-
-        // console.log("Vouchers:");
-        // console.log(response.data);
       } catch (error) {
         console.log(error);
       }
     };
 
     getVouchers();
-  }, []);
+  }, [locationGlobal]);
 
   const handleVoucherChange = (event) => {
-    // let obj = vouchers.find((o) => o.voucher_id === event.target.value);
-
-    // setSelectedVoucher(obj);
-    // console.log(selectedVoucher);
-
     const voucher = vouchers.find((object) => object.voucher_id === parseInt(event.target.value));
 
     if (voucher) {
@@ -135,7 +131,7 @@ const Cart = () => {
         order_details: cartItems,
       };
 
-      const response = await axios.post("http://localhost:8000/api/order/", order);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/order/`, order);
 
       alert(response.data.message);
       dispatch(fetchCart(userGlobal.user_id, locationGlobal.nearestStore.store_id));
@@ -145,15 +141,15 @@ const Cart = () => {
   };
 
   return (
-    <div className="mx-20 my-10">
+    <div className="mx-8 my-10 md:mx-10 lg:mx-20">
       {userGlobal.user_id > 0 ? (
         <>
           <div>
             <h1 className="text-3xl mb-10 font-semibold tracking-tight text-gray-900 ">Shopping Cart</h1>
           </div>
 
-          <div className="grid grid-cols-3 gap-5">
-            <div className="col-span-2">
+          <div className="flex flex-col gap-5 md:grid md:grid-cols-5 lg:grid-cols-3">
+            <div className="md:col-span-3 lg:col-span-2">
               <TableContainer>
                 <Table variant="simple">
                   <Thead>
@@ -168,7 +164,7 @@ const Cart = () => {
 
                   <Tbody>{renderCartItems()}</Tbody>
 
-                  <TableCaption className="pt-10">
+                  <TableCaption className="pt-10 hidden md:block">
                     <div className="flex flex-row justify-between">
                       <Button
                         bg="green.100"
@@ -185,7 +181,13 @@ const Cart = () => {
               </TableContainer>
             </div>
 
-            <div className=" flex flex-col gap-2">
+            <div className="rounded md:hidden">
+              <Button ref={btnRef} colorScheme="orange" variant="solid" onClick={onOpen} w="full">
+                Select shipping option
+              </Button>
+            </div>
+
+            <div className="flex flex-col gap-2 col-span-2 lg:col-span-1">
               <Card>
                 <CardBody>
                   <Stack divider={<StackDivider />} spacing="4">
@@ -211,14 +213,6 @@ const Cart = () => {
                           />
                         </div>
                         <Text className="text-red-500 font-semibold text-sm"> {voucherMin}</Text>
-
-                        {/* <Button
-                          onClick={() => {
-                            console.log(vouchers);
-                          }}
-                        >
-                          all vouchers
-                        </Button> */}
                       </div>
                       {/*  */}
                     </Box>
@@ -251,7 +245,7 @@ const Cart = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 mt-5">
+          <div className="mt-5 hidden md:visible md:grid md:grid-cols-2">
             <div>{cartItems.length == 0 ? <></> : <Shipping />}</div>
             <div></div>
           </div>
@@ -292,6 +286,19 @@ const Cart = () => {
           </div>
         </>
       )}
+
+      {/* Mobile filter */}
+      <Drawer isOpen={isOpen} placement="bottom" onClose={onClose} finalFocusRef={btnRef}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerHeader></DrawerHeader>
+
+          <DrawerBody>
+            <div>{cartItems.length == 0 ? <></> : <Shipping />}</div>
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </div>
   );
 };
