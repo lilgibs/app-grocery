@@ -10,6 +10,7 @@ export const locationSlice = createSlice({
       long: 0,
       city: "",
       nearestStore: "",
+      kmToNearestStore: 0,
     },
     isLoaded: false,
   },
@@ -20,12 +21,16 @@ export const locationSlice = createSlice({
     setNearestStore: (state, action) => {
       state.location.nearestStore = action.payload;
     },
+    setKmToNearestStore: (state, action) => {
+      state.location.kmToNearestStore = action.payload;
+    },
     resetLocation: (state) => {
       state.location = {
         lat: 0,
         long: 0,
         city: "",
         nearestStore: "",
+        kmToNearestStore: 0,
       };
     },
     setLoaded: (state, action) => {
@@ -75,6 +80,7 @@ export function getCityStore(latitude, longitude) {
         let nearestStore = storeDistances.indexOf(nearestDistance);
 
         dispatch(setNearestStore(storeArray[nearestStore]));
+        dispatch(setKmToNearestStore(nearestDistance / 1000));
       }
     } catch (error) {
       console.error(error.response);
@@ -84,5 +90,5 @@ export function getCityStore(latitude, longitude) {
   };
 }
 
-export const { setLocation, resetLocation, setNearestStore, setLoaded } = locationSlice.actions;
+export const { setLocation, resetLocation, setNearestStore, setKmToNearestStore, setLoaded } = locationSlice.actions;
 export default locationSlice.reducer;

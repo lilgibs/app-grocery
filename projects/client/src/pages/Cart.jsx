@@ -24,7 +24,7 @@ const Cart = () => {
   const [vouchers, setVouchers] = useState([]);
   const [selectedVoucher, setSelectedVoucher] = useState("");
   const [voucherMin, setVoucherMin] = useState();
-
+  const nearestDistance = useSelector((state) => state.location.location.kmToNearestStore);
   // drawer for  on mobile
   const { isOpen, onOpen, onClose } = useDisclosure();
   const btnRef = React.useRef();
@@ -236,10 +236,17 @@ const Cart = () => {
                   </Stack>
                 </CardBody>
 
-                <CardFooter>
-                  <Button variant="solid" colorScheme="green" minW="100%" isDisabled={cartItems.length == 0 || cartShippingOption == null ? true : false} onClick={handleOrder}>
-                    Order
-                  </Button>
+                <CardFooter className="flex flex-col">
+                  <div className={nearestDistance > 65 ? "hidden" : ""}>
+                    <Button variant="solid" colorScheme="green" minW="100%" isDisabled={cartItems.length == 0 || cartShippingOption == null ? true : false} onClick={handleOrder}>
+                      Order
+                    </Button>
+                  </div>
+
+                  <div className={nearestDistance > 65 ? "pt-3" : "hidden"}>
+                    <Text className="text-sm text-red-500 font-bold">⚠ Nearest branch is too far away</Text>
+                    <Text className="text-sm"> Change your address to make orders</Text>
+                  </div>
                 </CardFooter>
               </Card>
             </div>
