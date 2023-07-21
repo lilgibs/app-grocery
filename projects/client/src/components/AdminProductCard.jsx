@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatRupiah } from '../utils/formatRupiah'
 import axios from 'axios';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import AdminProductNotFound from "../components/AdminProductNotFound";
 
 function AdminProductCard({ products, getProductsData, page, setPage }) {
   const [isModalOpen, setModalOpen] = useState(false);
@@ -44,7 +45,7 @@ function AdminProductCard({ products, getProductsData, page, setPage }) {
   };
 
   if (!products || products.length === 0) {
-    return <p>No products found.</p>;
+    return <AdminProductNotFound />
   }
 
   return (
