@@ -44,6 +44,9 @@ function ProductCard({ product }) {
                   </Box>
                 )
               }
+              {
+                product.promo_info == "BUY 1 GET 1" && <Text className="w-fit text-xs bg-green-100 text-green-600 font-bold p-1 rounded">BUY 1 GET 1</Text>
+              }
             </CardBody>
             <CardFooter py={"1"} px={"2"}>
               {/* <Text className="text-xs font-semibold w-full text-end text-neutral-500">Terjual 0</Text> */}
