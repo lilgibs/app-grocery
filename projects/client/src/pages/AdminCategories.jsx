@@ -11,6 +11,7 @@ import { fetchCategories } from '../api/adminCategoryApi';
 import AdminCategoryCard from '../components/AdminCategoryCard';
 import AdminPagination from '../components/AdminPagination';
 import Pagination from '../components/Pagination';
+import CustomSpinner from '../components/Spinner';
 
 function AdminCategories() {
   const [loading, setLoading] = useState(true);
@@ -28,9 +29,11 @@ function AdminCategories() {
   const navigate = useNavigate()
 
   const getCategories = async (categoryName, page, limit) => {
+    setLoading(true)
     const result = await fetchCategories(categoryName, page, limit);
     setCategories(result.formattedCategories);
     setTotalCategories(result.categoriesTotal[0].total)
+    setLoading(false)
   };
 
   const handleSearchCategory = (e) => {
@@ -44,17 +47,6 @@ function AdminCategories() {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('admin_token');
-
-    if (token) { // check if the admin is logged in
-      dispatch(checkLoginAdmin(token));
-    }
-    else { // set loading to false if no token is found     
-      setLoading(false);
-    }
-  }, [dispatch]);
-
-  useEffect(() => {
     if (role !== null) {
       setLoading(false);
     }
@@ -66,15 +58,11 @@ function AdminCategories() {
     } else {
       getCategories(searchCategory, page, limit);
     }
-  }, [role, navigate, loading, page, limit]);
-
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  }, [role, navigate, page, limit]);
 
   return (
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
+      {loading && <CustomSpinner />}
       <div className="p-4 bg-white border shadow-md rounded">
         <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
           <p className="font-semibold text-pink-500 text-lg">
@@ -108,10 +96,10 @@ function AdminCategories() {
             <FaPlus size={15} className="" />
             <p className='hidden sm:block'>Add Category</p>
           </div>
-          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={getCategories} limit={limit} resetPage={resetPage} />
+          <AdminAddCategoryModal isOpen={isAddOpen} onClose={onAddClose} fetchCategories={getCategories} limit={limit} resetPage={resetPage} setLoading={setLoading}/>
         </div>
         <div className="flex flex-wrap justify-center gap-4">
-          <AdminCategoryCard categories={categories} getCategories={getCategories} limit={limit} resetPage={resetPage} />
+          <AdminCategoryCard categories={categories} getCategories={getCategories} limit={limit} resetPage={resetPage} setLoading={setLoading}/>
         </div>
       </div>
       <div className='my-1'>
