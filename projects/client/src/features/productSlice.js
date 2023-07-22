@@ -25,7 +25,7 @@ export const productSlice = createSlice({
       product_price: null,
       product_images: [],
     },
-    isLoading: true,
+    isLoading: false,
   },
   reducers: {
     setProduct: (state, action) => {
@@ -46,6 +46,7 @@ export default productSlice.reducer;
 export function fetchProduct(productId) {
   return async (dispatch) => {
     try {
+      dispatch(setLoading(true));
       const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}`,
         getConfig()
       );
@@ -87,6 +88,7 @@ export function fetchProductUser(productName, storeId) {
 export function addProduct(product) {
   return async (dispatch) => {
     try {
+      dispatch(setLoading(true));
       let formData = new FormData();
       formData.append("store_id", product.store_id);
       formData.append("product_category_id", product.product_category_id);
@@ -106,15 +108,15 @@ export function addProduct(product) {
         formData,
         getConfig(true)
       );
-      alert(response.data.message);
+      dispatch(setLoading(false));
     } catch (error) {
-      alert(error.response.data);
+      dispatch(setLoading(false));
+      throw error.response
     }
   };
 }
 
 export function updateProduct(productId, product) {
-  console.log(product);
   return async (dispatch) => {
     try {
       dispatch(setLoading(true));
@@ -123,7 +125,7 @@ export function updateProduct(productId, product) {
         getConfig()
       );
       dispatch(setLoading(false));
-      response.status === 200 && dispatch(fetchProduct(productId)) && alert("Product updated");
+      response.status === 200 && dispatch(fetchProduct(productId))
     } catch (error) {
       dispatch(setLoading(false));
       throw error.response
@@ -154,11 +156,11 @@ export function uploadImage(file, productId, imageId) {
         );
       }
       dispatch(setLoading(false));
-      alert(response.data.message);
       dispatch(fetchProduct(productId));
     } catch (error) {
       console.log(error);
       dispatch(setLoading(false));
+      throw error
     }
   };
 }
@@ -171,13 +173,12 @@ export function deleteImage(imageId, productId) {
       const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/admin/products/image/${imageId}/permanently?productId=${productId}`,
         getConfig()
       );
-      alert(response.data.message);
       dispatch(fetchProduct(productId));
     } catch (error) {
       console.log(error);
       dispatch(setLoading(false));
-      alert(error.response.data.message);
-      return null;
+      throw error
+      // return null;
     }
   };
 }

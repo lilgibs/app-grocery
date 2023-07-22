@@ -177,7 +177,7 @@ function AdminProducts() {
           selectedSortOption={selectedSortOption}
         />
         <div className="flex flex-wrap justify-center gap-4">
-          <AdminProductCard products={products} getProductsData={getProductsData} page={page} setPage={setPage} />
+          <AdminProductCard products={products} getProductsData={getProductsData} page={page} setPage={setPage} setIsLoading={setIsLoading}/>
         </div>
       </div>
       <div className='my-1'>

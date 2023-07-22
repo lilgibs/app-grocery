@@ -3,12 +3,14 @@ import { deleteImage, uploadImage } from '../features/productSlice';
 import { FaPen, FaTrash } from 'react-icons/fa';
 import { useDispatch } from 'react-redux';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import { useCustomToast } from '../hooks/useCustomToast';
 
 function AdminImageCard({ images, productId }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [toBeDeleted, setToBeDeleted] = useState(null);
 
   const dispatch = useDispatch();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const handleImageUpload = async (event, index) => {
     const file = event.target.files[0];
@@ -24,7 +26,12 @@ function AdminImageCard({ images, productId }) {
     }
 
     const imageId = images[index]?.product_image_id; // Get the image id, if it exists
-    dispatch(uploadImage(file, productId, imageId)); // dispatch the thunk
+    try {
+      dispatch(uploadImage(file, productId, imageId)); // dispatch the thunk
+      showSuccessToast("Product image successfully updated.");
+    } catch (error) {
+      showErrorToast("Unable to update image.");
+    }
   }
 
   const handleDeleteImage = (imageId) => {
@@ -33,9 +40,15 @@ function AdminImageCard({ images, productId }) {
   };
 
   const confirmDeleteImage = () => {
-    dispatch(deleteImage(toBeDeleted, productId));
-    setModalOpen(false);
-    setToBeDeleted(null);
+    try {
+      dispatch(deleteImage(toBeDeleted, productId));
+      showSuccessToast("Product image successfully deleted.");
+    } catch (error) {
+      showErrorToast("Unable to delete image.");
+    } finally{
+      setModalOpen(false);
+      setToBeDeleted(null);
+    }
   };
 
   return (
