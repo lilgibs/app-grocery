@@ -5,15 +5,17 @@ import { Input, useDisclosure } from '@chakra-ui/react';
 import AdminAddCategoryModal from '../components/AdminAddCategoryModal';
 import AdminEditCategoryModal from '../components/AdminEditCategoryModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
+import { useCustomToast } from '../hooks/useCustomToast';
 
-function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
+function AdminCategoryCard({ categories, getCategories, limit, resetPage, setLoading }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const [toBeDeleted, setToBeDeleted] = useState(null);
 
   const { isOpen: isAddOpen, onOpen: onAddOpen, onClose: onAddClose } = useDisclosure();
   const { isOpen: isEditOpen, onOpen: onEditOpen, onClose: onEditClose } = useDisclosure();
-
+  const { showSuccessToast, showErrorToast } = useCustomToast();
+  
   const handleEditCategory = (category) => {
     setSelectedCategory(category);
     onEditOpen();
@@ -28,6 +30,7 @@ function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
     setModalOpen(false);
     const adminToken = localStorage.getItem('admin_token')
     try {
+      setLoading(true)
       const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/admin/products/categories/${toBeDeleted}`,
         {
           headers: {
@@ -36,12 +39,14 @@ function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
         }
       );
 
-      alert(response.data.message);
       resetPage();
       getCategories("", 1, limit);
+      setLoading(false)
+      showSuccessToast("Category successfully deleted.");
     } catch (error) {
       console.error(error);
-      alert(error.response.data)
+      setLoading(false)
+      showErrorToast("Unable to delete category.");
     }
     setToBeDeleted(null); // Reset the toBeDeleted state
   };
@@ -86,7 +91,7 @@ function AdminCategoryCard({ categories, getCategories, limit, resetPage }) {
           </div>
         </div>
       ))}
-      <AdminEditCategoryModal isOpen={isEditOpen} onClose={onEditClose} fetchCategories={getCategories} selectedCategory={selectedCategory} limit={limit} />
+      <AdminEditCategoryModal isOpen={isEditOpen} onClose={onEditClose} fetchCategories={getCategories} selectedCategory={selectedCategory} limit={limit} resetPage={resetPage} setLoading={setLoading}/>
       <DeleteConfirmationModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} onConfirm={ConfirmDeleteCategory} />
     </>
   );

@@ -3,9 +3,12 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, Modal
 import axios from 'axios';
 import * as Yup from 'yup';
 import { ErrorMessage, Form, Formik, Field } from 'formik';
+import { useCustomToast } from '../hooks/useCustomToast';
 
-function AdminEditCategoryModal({ isOpen, onClose, fetchCategories, selectedCategory, limit }) {
+function AdminEditCategoryModal({ isOpen, onClose, fetchCategories, selectedCategory, limit, resetPage, setLoading }) {
   const [previewImage, setPreviewImage] = useState(null);
+  
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const validationSchema = Yup.object().shape({
     product_category_name: Yup.string().required('Required'),
@@ -32,8 +35,8 @@ function AdminEditCategoryModal({ isOpen, onClose, fetchCategories, selectedCate
     }
 
     try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_BASE_URL}/admin/products/categories/${selectedCategory.value}`,
+      setLoading(true)
+      const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/admin/products/categories/${selectedCategory.value}`,
         formData,
         {
           headers: {
@@ -42,13 +45,16 @@ function AdminEditCategoryModal({ isOpen, onClose, fetchCategories, selectedCate
           }
         }
       );
-      alert(response.data.message);
+      resetPage();
       onClose();
       setPreviewImage(null);
       fetchCategories("", 1, limit);
+      setLoading(false)
+      showSuccessToast("Category successfully updated.");
     } catch (error) {
       console.error(error);
-      alert(error.response.data)
+      setLoading(false)
+      showErrorToast("Unable to update category.");
     }
     resetForm();
     setSubmitting(false);

@@ -3,9 +3,12 @@ import { Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, Modal
 import axios from 'axios';
 import * as Yup from 'yup';
 import { ErrorMessage, Form, Formik, Field, setFieldValue } from 'formik';
+import { useCustomToast } from '../hooks/useCustomToast';
 
-function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage }) {
+function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage, setLoading }) {
   const [previewImage, setPreviewImage] = useState(null);
+
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     const adminToken = localStorage.getItem("admin_token");
@@ -15,6 +18,7 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage }
     formData.append('image', values.image);
 
     try {
+      setLoading(true)
       const response = await axios.post(
         `${process.env.REACT_APP_API_BASE_URL}/admin/products/categories/`,
         formData,
@@ -25,14 +29,16 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage }
           }
         }
       );
-      alert(response.data.message);
       onClose();
       setPreviewImage(null);
       resetPage();
       fetchCategories("", 1, limit);
+      setLoading(false)
+      showSuccessToast("Category successfully added.");
     } catch (error) {
       console.error(error);
-      alert(error.response.data)
+      setLoading(false)
+      showErrorToast("Unable to add category.");
     }
     resetForm();
     setSubmitting(false);
