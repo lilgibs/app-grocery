@@ -42,15 +42,12 @@ const LandingPage = () => {
 
   const [slider, setSlider] = useState(<Slider />);
 
-  // These are the breakpoints which changes the position of the
-  // buttons as the screen size changes
   const top = useBreakpointValue({ base: "90%", md: "50%" });
   const side = useBreakpointValue({ base: "30%", md: "10px" });
 
-  // These are the images used in the slide
   const cards = [`${process.env.REACT_APP_API_UPLOAD_URL}/banner1.png`, `${process.env.REACT_APP_API_UPLOAD_URL}/banner2.png`, `${process.env.REACT_APP_API_UPLOAD_URL}/banner3.png`];
 
-  //---------------------------------------------
+  //carousel end
 
   useEffect(() => {
     const getCategories = async () => {
@@ -173,10 +170,13 @@ const LandingPage = () => {
             </div>
           </div>
 
-          <div className="mt-8 flex gap-3 justify-center">
-            {categories.map((category) => (
-              <Button bg={categories.indexOf(category) % 2 === 0 ? "green.200" : "pink.100"} color="gray.700" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm">
-                {category.label}
+          <div className="mt-8 grid grid-cols-4 gap-3 md:flex">
+            {categories.slice(0, 8).map((category) => (
+              <Button variant="outline" colorScheme="green" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm" onClick={() => navigate(`/products?category=${category.label}`)}>
+                <div className="grid grid-row-2 justify-center">
+                  <img className="h-5 mx-auto mb-1 md:h-7 md:mb-2" src={`${process.env.REACT_APP_API_IMG_URL + category.image}`} alt="" />
+                  <a>{category.label}</a>
+                </div>
               </Button>
             ))}
           </div>
@@ -200,7 +200,6 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-2"> */}
           {products.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-5 h-auto">
               {products.slice(0, 6).map((product) => (
@@ -210,7 +209,6 @@ const LandingPage = () => {
           ) : (
             <ProductNotFound />
           )}
-          {/* </div> */}
         </div>
 
         <br />
