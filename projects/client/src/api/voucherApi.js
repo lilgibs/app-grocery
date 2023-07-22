@@ -11,7 +11,6 @@ export async function addVoucher(data, token) {
         },
       }
     );
-    alert(response.data.message);
     return true;
   } catch (error) {
     console.error(error);

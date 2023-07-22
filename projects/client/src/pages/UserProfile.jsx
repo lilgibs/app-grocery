@@ -11,6 +11,7 @@ function UserProfile() {
   const userGlobal = useSelector((state) => state.user.user);
   const userGlobalIsLoaded = useSelector((state) => state.user.isLoaded);
   const [selectedComponent, setSelectedComponent] = useState("Biodata");
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     let isUserGlobalUpdated = false;
@@ -42,25 +43,42 @@ function UserProfile() {
 
   return (
     <div className="flex">
-      <Sidebar
-        setSelectedComponent={setSelectedComponent}
-        menuItems={["Biodata", "Address", "Settings"]}
-      />
-      {selectedComponent === "Biodata" ? (
-        <div className="flex w-full flex-col items-center">
-          <Biodata />
-        </div>
-      ) : null}
-      {selectedComponent === "Address" ? (
-        <div className="flex w-full flex-col items-center">
-          <Address />
-        </div>
-      ) : null}
-      {selectedComponent === "Settings" ? (
-        <div className="flex w-full flex-col items-center">
-          <Setting />
-        </div>
-      ) : null}
+      {/* Responsive Hamburger Button */}
+      <div className="lg:hidden">
+        <button
+          onClick={() => setSidebarOpen(!isSidebarOpen)}
+          className="bg-gray-200 p-2"
+        >
+          ☰
+        </button>
+      </div>
+
+      {/* Sidebar */}
+      <div className={`${isSidebarOpen ? "block" : "hidden"} lg:flex`}>
+        <Sidebar
+          setSelectedComponent={setSelectedComponent}
+          menuItems={["Biodata", "Address", "Settings"]}
+        />
+      </div>
+
+      {/* Main Content */}
+      <div className="md:w-5/6">
+        {selectedComponent === "Biodata" && (
+          <div className="flex w-full flex-col items-center">
+            <Biodata />
+          </div>
+        )}
+        {selectedComponent === "Address" && (
+          <div className="flex w-full flex-col items-center">
+            <Address />
+          </div>
+        )}
+        {selectedComponent === "Settings" && (
+          <div className="flex w-full flex-col items-center">
+            <Setting />
+          </div>
+        )}
+      </div>
     </div>
   );
 }

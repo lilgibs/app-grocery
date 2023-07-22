@@ -1,6 +1,9 @@
 const { db, query } = require("../../config/db");
 const { validationResult } = require("express-validator");
-const { handleValidationErrors, handleServerError } = require("../../utils/errorHandlers");
+const {
+  handleValidationErrors,
+  handleServerError,
+} = require("../../utils/errorHandlers");
 
 module.exports = {
   getVouchers: async (req, res, next) => {
@@ -8,7 +11,11 @@ module.exports = {
       const today = new Date();
       const currentDate = today.toISOString().slice(0, 10);
       const { store_id } = req.params;
-      const getVouchersQuery = await query(`SELECT * FROM vouchers WHERE store_id=${db.escape(store_id)} AND end_date<=${db.escape(currentDate)} AND is_deleted=false`);
+      const getVouchersQuery = await query(
+        `SELECT * FROM vouchers WHERE store_id=${db.escape(
+          store_id
+        )} AND end_date<=${db.escape(currentDate)} AND is_deleted=false`
+      );
       return res.status(200).send({
         data: getVouchersQuery,
         message: "Vouchers retrieve successfully!",
@@ -21,10 +28,22 @@ module.exports = {
     try {
       const errors = validationResult(req);
       handleValidationErrors(errors);
-      const { voucher_name, minimum_amount, discount_value_type, discount_value, start_date, end_date, store_id } = req.body;
+      const {
+        voucher_name,
+        minimum_amount,
+        discount_value_type,
+        discount_value,
+        start_date,
+        end_date,
+        store_id,
+      } = req.body;
       //   const { store_id } = req.params;
       const addVoucherQuery = await query(
-        `INSERT INTO vouchers VALUES(null, ${db.escape(store_id)}, ${db.escape(voucher_name)}, ${db.escape(minimum_amount)}, ${db.escape(discount_value_type)}, ${db.escape(discount_value)}, ${db.escape(start_date)}, ${db.escape(
+        `INSERT INTO vouchers VALUES(null, ${db.escape(store_id)}, ${db.escape(
+          voucher_name
+        )}, ${db.escape(minimum_amount)}, ${db.escape(
+          discount_value_type
+        )}, ${db.escape(discount_value)}, ${db.escape(start_date)}, ${db.escape(
           end_date
         )}, false)`
       );
@@ -33,14 +52,21 @@ module.exports = {
         message: "Voucher added successfully!",
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   editVoucher: async (req, res, next) => {
     try {
       const errors = validationResult(req);
       handleValidationErrors(errors);
-      const { voucher_name, minimum_amount, voucher_value_type, voucher_value, start_date, end_date } = req.body;
+      const {
+        voucher_name,
+        minimum_amount,
+        voucher_value_type,
+        voucher_value,
+        start_date,
+        end_date,
+      } = req.body;
       const { voucher_id } = req.params;
       const editVoucherQuery = await query(
         `UPDATE vouchers
@@ -59,13 +85,17 @@ module.exports = {
         message: "Voucher edited successfully!",
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   softDeleteVoucher: async (req, res, next) => {
     try {
       const { voucher_id } = req.params;
-      const softDeleteVoucherQuery = await query(`UPDATE vouchers SET is_deleted = true WHERE voucher_id = ${db.escape(voucher_id)}`);
+      const softDeleteVoucherQuery = await query(
+        `UPDATE vouchers SET is_deleted = true WHERE voucher_id = ${db.escape(
+          voucher_id
+        )}`
+      );
       return res.status(200).send({ message: "Voucher deleted!" });
     } catch (error) {
       handleServerError(error, next);

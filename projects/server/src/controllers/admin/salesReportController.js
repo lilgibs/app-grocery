@@ -63,7 +63,6 @@ module.exports = {
       });
     } catch (error) {
       handleServerError(error, next);
-      console.log(error);
     }
   },
   getSalesReportByStoreId: async (req, res, next) => {
@@ -139,7 +138,6 @@ module.exports = {
       });
     } catch (error) {
       handleServerError(error, next);
-      console.log(error);
     }
   },
   getOrderDetailsByOrderId: async (req, res, next) => {
@@ -163,7 +161,6 @@ module.exports = {
       });
     } catch (error) {
       handleServerError(error, next);
-      console.log(error);
     }
   },
 };

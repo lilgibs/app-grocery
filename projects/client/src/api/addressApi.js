@@ -10,7 +10,6 @@ export async function deleteAddress(address_id, token) {
         },
       }
     );
-    alert(response.data.message);
     return true;
   } catch (error) {
     console.error(error);
@@ -28,10 +27,9 @@ export async function addAddress(data, token) {
         },
       }
     );
-    alert(response.data.message);
     return true;
   } catch (error) {
-    console.error(error);
+    return error.response.data;
   }
 }
 
