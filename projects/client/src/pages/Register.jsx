@@ -18,10 +18,7 @@ const Register = () => {
     try {
       setIsLoading(true);
       setIsDisabled(true);
-      let response = await Axios.post(
-        `${process.env.REACT_APP_API_BASE_URL}/auth/register`,
-        data
-      );
+      let response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/register`, data);
       if (response) {
         toast({
           title: "Register Success",
@@ -48,9 +45,7 @@ const Register = () => {
 
   const RegisterSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
-    email: Yup.string()
-      .email("Invalid email format")
-      .required("Please input your email"),
+    email: Yup.string().email("Invalid email format").required("Please input your email"),
     password: Yup.string()
       .min(8, "Password must be 8 characters or longer")
       .required("Please input your password")
@@ -68,22 +63,16 @@ const Register = () => {
     <div className="flex flex-row items-start justify-around m-8">
       {isLoading && <CustomSpinner />}
       <div className="flex-initial w-96 max-md:hidden">
-        <img
-          src={`${process.env.REACT_APP_API_UPLOAD_URL}/login-image.png`}
-          alt=""
-          className=""
-        />
+        <img src={`${process.env.REACT_APP_API_UPLOAD_URL}/login-image.png`} alt="" className="" />
       </div>
       <div className="flex flex-initial w-96 flex-col shadow-xl rounded-lg p-5">
         <div className="">
-          <img
+          {/* <img
             className="mx-auto h-10 w-auto"
             src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
             alt="Your Company"
-          />
-          <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Register New Account
-          </h2>
+          /> */}
+          <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Register New Account</h2>
         </div>
 
         <div className="mt-6">
@@ -98,10 +87,7 @@ const Register = () => {
               return (
                 <Form className="space-y-6">
                   <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
+                    <label htmlFor="name" className="block text-sm font-medium leading-6 text-gray-900">
                       Name
                     </label>
                     <Field
@@ -109,18 +95,11 @@ const Register = () => {
                       name="name"
                       className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <ErrorMessage
-                      component="div"
-                      name="name"
-                      style={{ color: "red" }}
-                    />
+                    <ErrorMessage component="div" name="name" style={{ color: "red" }} />
                     <div className="mt-2"></div>
                   </div>
                   <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
+                    <label htmlFor="email" className="block text-sm font-medium leading-6 text-gray-900">
                       Email address
                     </label>
                     <Field
@@ -128,18 +107,11 @@ const Register = () => {
                       name="email"
                       className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <ErrorMessage
-                      component="div"
-                      name="email"
-                      style={{ color: "red" }}
-                    />
+                    <ErrorMessage component="div" name="email" style={{ color: "red" }} />
                     <div className="mt-2"></div>
                   </div>
                   <div>
-                    <label
-                      htmlFor="password"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
+                    <label htmlFor="password" className="block text-sm font-medium leading-6 text-gray-900">
                       Password
                     </label>
                     <Field
@@ -147,20 +119,13 @@ const Register = () => {
                       name="password"
                       className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                     />
-                    <ErrorMessage
-                      component="div"
-                      name="password"
-                      style={{ color: "red" }}
-                    />
+                    <ErrorMessage component="div" name="password" style={{ color: "red" }} />
                     <div className="mt-2"></div>
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between">
-                      <label
-                        htmlFor="phone"
-                        className="block text-sm font-medium leading-6 text-gray-900"
-                      >
+                      <label htmlFor="phone" className="block text-sm font-medium leading-6 text-gray-900">
                         Phone Number
                       </label>
                     </div>
@@ -170,11 +135,7 @@ const Register = () => {
                         name="phone"
                         className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                       />
-                      <ErrorMessage
-                        component="div"
-                        name="phone"
-                        style={{ color: "red" }}
-                      />
+                      <ErrorMessage component="div" name="phone" style={{ color: "red" }} />
                     </div>
                   </div>
 

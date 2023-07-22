@@ -42,15 +42,12 @@ const LandingPage = () => {
 
   const [slider, setSlider] = useState(<Slider />);
 
-  // These are the breakpoints which changes the position of the
-  // buttons as the screen size changes
   const top = useBreakpointValue({ base: "90%", md: "50%" });
   const side = useBreakpointValue({ base: "30%", md: "10px" });
 
-  // These are the images used in the slide
   const cards = [`${process.env.REACT_APP_API_UPLOAD_URL}/banner1.png`, `${process.env.REACT_APP_API_UPLOAD_URL}/banner2.png`, `${process.env.REACT_APP_API_UPLOAD_URL}/banner3.png`];
 
-  //---------------------------------------------
+  //carousel end
 
   useEffect(() => {
     const getCategories = async () => {
@@ -203,7 +200,6 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {/* <div className="mt-7 grid grid-cols-2 lg:grid-cols-4 gap-2"> */}
           {products.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-5 h-auto">
               {products.slice(0, 6).map((product) => (
@@ -213,7 +209,6 @@ const LandingPage = () => {
           ) : (
             <ProductNotFound />
           )}
-          {/* </div> */}
         </div>
 
         <br />
