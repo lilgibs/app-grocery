@@ -19,6 +19,12 @@ module.exports = {
       storeId = resultDefaultStoreQuery[0].store_id;
     }
 
+    const delExpProductDisc= `DELETE pd FROM product_discounts pd
+    join discounts d on pd.discount_id = d.discount_id
+    where d.store_id = ${db.escape(storeId)} AND d.end_date < CURDATE()`
+
+    const resultDelExpProductDisc = await query(delExpProductDisc)
+
     try {
       let productQuery = `SELECT 
           p.product_id,
