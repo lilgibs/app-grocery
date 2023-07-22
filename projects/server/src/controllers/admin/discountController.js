@@ -29,7 +29,7 @@ module.exports = {
         message: "Discounts retrieve successfully!",
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   addDiscount: async (req, res, next) => {
@@ -118,7 +118,7 @@ module.exports = {
       });
     } catch (error) {
       await query("ROLLBACK");
-      next(error);
+      handleServerError(error, next);
     }
   },
   editDiscount: async (req, res, next) => {
@@ -152,12 +152,14 @@ module.exports = {
         message: "Discount edited successfully!",
       });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
   softDeleteDiscount: async (req, res, next) => {
     try {
       const { discount_id } = req.params;
+
+      await query("START TRANSACTION");
 
       const softDeleteDiscountQuery = await query(
         `UPDATE discounts SET is_deleted = true WHERE discount_id = ${db.escape(
@@ -165,8 +167,17 @@ module.exports = {
         )}`
       );
 
+      const deleteProductDiscountRow = await query(
+        `DELETE FROM product_discounts 
+          WHERE 
+          discount_id = ${db.escape(discount_id)}`
+      );
+
+      await query("COMMIT");
+
       return res.status(200).send({ message: "Discount deleted!" });
     } catch (error) {
+      await query("ROLLBACK");
       handleServerError(error, next);
     }
   },

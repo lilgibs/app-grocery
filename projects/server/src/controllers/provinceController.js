@@ -1,4 +1,5 @@
 const { db, query } = require("../config/db");
+const { handleServerError } = require("../utils/errorHandlers");
 
 module.exports = {
   getProvinces: async (req, res, next) => {
@@ -7,7 +8,7 @@ module.exports = {
 
       return res.status(200).send({ data: getProvincesQuery });
     } catch (error) {
-      next(error);
+      handleServerError(error, next);
     }
   },
 };

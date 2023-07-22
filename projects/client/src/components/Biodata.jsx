@@ -1,7 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import Axios from "axios";
 import { useSelector, useDispatch } from "react-redux";
 import { checkLogin } from "../features/userSlice";
 import {
@@ -14,7 +13,7 @@ import {
   ModalBody,
 } from "@chakra-ui/react";
 import moment from "moment";
-import { editUserProfile, uploadProfilePhoto } from "../api/ProfileApi";
+import { editUserProfile, uploadProfilePhoto } from "../api/profileApi";
 
 function Biodata() {
   const dispatch = useDispatch();

@@ -132,8 +132,7 @@ module.exports = {
 
       return res.status(200).send({ message: "Email verification sent." });
     } catch (error) {
-      next(error);
-      // handleServerError(error, next);
+      handleServerError(error, next);
     }
   },
   login: async (req, res, next) => {
@@ -279,8 +278,7 @@ module.exports = {
         .status(200)
         .send({ message: "Password changed successfully." });
     } catch (error) {
-      next(error);
-      // handleServerError(error, next);
+      handleServerError(error, next);
     }
   },
   changePassword: async (req, res, next) => {
