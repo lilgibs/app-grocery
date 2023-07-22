@@ -2,6 +2,7 @@ const bcrypt = require("bcrypt");
 const { db, query } = require("../../config/db");
 const { validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
+const { handleServerError } = require("../../utils/errorHandlers");
 
 module.exports = {
   adminLogin: async (req, res, next) => {
@@ -115,9 +116,7 @@ module.exports = {
       if (adminRole !== 99) {
         throw {
           status_code: 403,
-          message:
-            "Access denied. You are not authorized to access this route.",
-          errors: errors.array(),
+          message: "Access denied. You are not authorized to access this route.",
         };
       }
 
@@ -126,7 +125,10 @@ module.exports = {
       );
 
       if (isEmailExist.length > 0) {
-        next({ status_code: 409, message: "Email has been used" });
+        throw {
+          status_code: 409,
+          message: "Email has been used"
+        };
       }
 
       const sqlQueryStore = `INSERT INTO stores (store_name, store_location, latitude, longitude)
@@ -164,8 +166,7 @@ module.exports = {
         },
       });
     } catch (error) {
-      console.error(error);
-      next(error);
+      handleServerError(error, next);
     }
   },
 };
