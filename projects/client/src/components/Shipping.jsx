@@ -136,7 +136,7 @@ function Shipping() {
             <div>
               <Menu>
                 <MenuButton as={Button} size="md" variant="outline" colorScheme="green">
-                  {selectedAddress[1] === 0 ? <span> Set up your main adresss </span> : <span> {selectedAddress[0]} </span>}
+                  {selectedAddress[1] === 0 ? <span> Set up main adresss </span> : <span> {selectedAddress[0]} </span>}
                 </MenuButton>
                 <MenuList>
                   <MenuItem

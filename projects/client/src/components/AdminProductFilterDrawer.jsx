@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Box, Text, Divider } from '@chakra-ui/react';
 import Select from 'react-select';
 
-function AdminProductFilterDrawer({ isOpen, onClose, FilterComponent, sortOptions, handleSortChange, selectedSortOption }) {
+function AdminProductFilterDrawer({ isOpen, onClose, categoryOptions, sortOptions, handleCategoryChange,  handleSortChange, selectedCategory, selectedSortOption }) {
   const [isClearable, setIsClearable] = useState(true);
 
   return (
@@ -15,7 +15,15 @@ function AdminProductFilterDrawer({ isOpen, onClose, FilterComponent, sortOption
               <Box>
                 <Text className="font-semibold text-lg">Category</Text>
                 <Divider mb={"2"} />
-                {FilterComponent}
+                <Select
+                  id="product_category_id"
+                  name="product_category_id"
+                  value={selectedCategory}
+                  placeholder="Category"
+                  isClearable={isClearable}
+                  options={categoryOptions}
+                  onChange={handleCategoryChange}
+                />
               </Box>
               <Box>
                 <Text className="font-semibold text-lg">Sorting</Text>

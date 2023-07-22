@@ -129,6 +129,14 @@ function Product() {
             ) : (
               <p className="font-semibold text-2xl md:text-3xl bg-neutral-100 rounded p-3 text-rose-500">{formatRupiah(product.product_price)}</p>
             )}
+            {
+              product.promo_info == "BUY 1 GET 1" ?
+                (
+                  <div className="flex items-center gap-1 text-xs text-neutral-500">
+                    <p className="bg-green-100 text-green-600 font-bold p-1 rounded">BUY 1 GET 1</p>
+                  </div>
+                ) : null
+            }
 
             <div>
               <p className="md:text-lg font-semibold">Description</p>

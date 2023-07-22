@@ -37,19 +37,23 @@ module.exports = {
             WHEN d.discount_value_type = 'PERCENTAGE' THEN p.product_price * ((100-d.discount_value) / 100)
             WHEN d.discount_value_type = 'NOMINAL' THEN p.product_price - d.discount_value
             ELSE NULL
-          END as discounted_price
+          END as discounted_price,
+          CASE
+            WHEN d.discount_type = 'BUY_1_GET_1' THEN 'BUY 1 GET 1'
+            ELSE NULL
+          END as promo_info
         FROM products p          
         JOIN store_inventory si on p.product_id = si.product_id
         JOIN product_categories pc ON p.product_category_id = pc.product_category_id
         LEFT JOIN product_discounts pd ON si.store_inventory_id = pd.store_inventory_id
         LEFT JOIN discounts d ON pd.discount_id = d.discount_id AND CURDATE() BETWEEN d.start_date AND d.end_date
-        WHERE si.store_id = ${db.escape(storeId)}`
+        WHERE si.store_id = ${db.escape(storeId)} AND (si.is_deleted = 0 OR si.is_deleted IS NULL)`
 
       let countQuery = `SELECT COUNT(*) as total
         FROM products p
         JOIN store_inventory si on p.product_id = si.product_id
         JOIN product_categories pc ON p.product_category_id = pc.product_category_id
-        WHERE si.store_id = ${db.escape(storeId)}`
+        WHERE si.store_id = ${db.escape(storeId)} AND (si.is_deleted = 0 OR si.is_deleted IS NULL)`
 
       if (search) {
         productQuery += ` AND product_name LIKE ${db.escape('%' + search + '%')}`
@@ -107,7 +111,11 @@ module.exports = {
             WHEN d.discount_value_type = 'PERCENTAGE' THEN p.product_price * ((100-d.discount_value) / 100)
             WHEN d.discount_value_type = 'NOMINAL' THEN p.product_price - d.discount_value
             ELSE NULL
-          END as discounted_price
+          END as discounted_price,
+          CASE
+            WHEN d.discount_type = 'BUY_1_GET_1' THEN 'BUY 1 GET 1'
+            ELSE NULL
+          END as promo_info
         FROM products p          
         JOIN store_inventory si on p.product_id = si.product_id
         LEFT JOIN product_discounts pd ON si.store_inventory_id = pd.store_inventory_id
@@ -132,7 +140,8 @@ module.exports = {
           product_images: imageResult,
           discount_value: productResult[0].discount_value,
           discount_value_type: productResult[0].discount_value_type,
-          discounted_price: productResult[0].discounted_price
+          discounted_price: productResult[0].discounted_price,
+          promo_info: productResult[0].promo_info,
         };
 
         res.status(200).json({

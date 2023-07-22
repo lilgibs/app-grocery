@@ -1,18 +1,17 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { FaPen, FaPlus, FaSearch, FaTrash, FaFilter } from 'react-icons/fa';
-import { Input, useDisclosure, Drawer, DrawerOverlay, DrawerContent, DrawerHeader, DrawerBody, Button, Box, FormLabel } from '@chakra-ui/react';
 import { useNavigate } from "react-router-dom"
 import { useDispatch, useSelector } from 'react-redux';
-import { checkLoginAdmin } from '../features/adminSlice';
 import { fetchCategories } from '../api/adminCategoryApi';
 import Select from 'react-select';
 import AdminProductCard from '../components/AdminProductCard';
 import AdminProductFilterDrawer from '../components/AdminProductFilterDrawer';
 import { fetchProductsInventory } from '../api/adminProductApi';
 import Pagination from '../components/Pagination';
+import CustomSpinner from '../components/Spinner';
 
 function AdminProducts() {
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [products, setProducts] = useState([]);
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState(8)
@@ -28,7 +27,6 @@ function AdminProducts() {
 
   const adminToken = localStorage.getItem("admin_token");
   const role = useSelector(state => state.admin.admin.role);
-  const dispatch = useDispatch()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -40,10 +38,12 @@ function AdminProducts() {
   }, []);
 
   const getProductsData = async () => {
+    setIsLoading(true)
     const response = await fetchProductsInventory(adminToken, page, limit, searchText, selectedCategory, sortType, sortOrder);
     if (response) {
       setProducts(response.products);
       setTotalProducts(response.total);
+      setIsLoading(false)
     }
   };
 
@@ -53,10 +53,15 @@ function AdminProducts() {
     getProductsData();
   };
 
-
   const handlePageChange = ({ selected }) => {
     setPage(selected + 1);
   }
+  
+  const handleCategoryChange = (selectedOption) => {
+    setSelectedCategory(selectedOption);
+    setPage(1);  // Reset the page to 1 when category changes
+    getProductsData();  // Fetch the products with new category
+  };
 
   const FilterComponent = (
     <Select
@@ -65,11 +70,10 @@ function AdminProducts() {
       placeholder="Category"
       isClearable={isClearable}
       options={categoryOptions}
-      onChange={(selectedOption) => {
-        setSelectedCategory(selectedOption);
-      }}
+      onChange={handleCategoryChange}
     />
   );
+
 
   const sortOptions = [
     { value: 'price_asc', label: 'Lowest price' },
@@ -92,39 +96,25 @@ function AdminProducts() {
       setSortOrder(null);
       setPage(1)
     }
-    // Then fetch the products
-    getProductsData();
   };
 
   useEffect(() => {
-    adminToken ? dispatch(checkLoginAdmin(adminToken)) : setLoading(false);
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (role !== null) {
-      setLoading(false);
-    }
-  }, [role]);
-
-  useEffect(() => {
-    if (!loading && (role !== 99 && role !== 1)) {
+    if (role !== 99 && role !== 1) {
       navigate('/');
     } else {
       // fetchProducts();
       getProductsData()
     }
-  }, [role, navigate, loading]);
+  }, [role, navigate]);
 
   useEffect(() => {
     getProductsData();
   }, [page, selectedCategory, sortType, sortOrder, categoryOptions])
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
+    
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
+      {isLoading && <CustomSpinner/>}
       <div className="p-4 bg-white border shadow-md rounded">
         <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
           <p className="font-semibold text-pink-500 text-lg">Product Management</p>
@@ -179,8 +169,11 @@ function AdminProducts() {
           isOpen={isFilterVisible}
           onClose={() => setFilterVisible(false)}
           FilterComponent={FilterComponent}
+          categoryOptions={categoryOptions}
           sortOptions={sortOptions}
+          handleCategoryChange={handleCategoryChange}
           handleSortChange={handleSortChange}
+          selectedCategory={selectedCategory}
           selectedSortOption={selectedSortOption}
         />
         <div className="flex flex-wrap justify-center gap-4">

@@ -13,6 +13,9 @@ import Slider from "react-slick";
 import Footer from "../components/Footer";
 import ProductCard from "../components/ProductCard";
 import ProductNotFound from "../components/ProductNotFound";
+import { setLocation } from "../features/locationSlice";
+//test alert distance
+import { useDisclosure, AlertDialog, AlertDialogBody, AlertDialogFooter, AlertDialogHeader, AlertDialogContent, AlertDialogOverlay, AlertDialogCloseButton } from "@chakra-ui/react";
 
 const LandingPage = () => {
   const [products, setProducts] = useState([]);
@@ -21,6 +24,7 @@ const LandingPage = () => {
   const { store_id, store_name } = useSelector((state) => state.location.location.nearestStore);
   const dispatch = useDispatch();
   const nearestStore = useSelector((state) => state.location.location.nearestStore.store_name);
+  const nearestDistance = useSelector((state) => state.location.location.kmToNearestStore);
   const navigate = useNavigate();
 
   //carousel
@@ -67,6 +71,15 @@ const LandingPage = () => {
     return productName.replace(/\s+/g, "-").toLowerCase();
   };
 
+  useEffect(() => {
+    if (nearestDistance > 65) {
+      onOpen();
+    }
+  });
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const cancelRef = React.useRef();
+
   return (
     <div className="bg-white">
       <div className="relative isolate lg:px-20">
@@ -76,6 +89,52 @@ const LandingPage = () => {
             <a className="text-green-500"> {nearestStore}</a>
           </h3>
         </div>
+
+        {/* alert distance */}
+
+        <AlertDialog size="lg" isOpen={isOpen} leastDestructiveRef={cancelRef} onClose={onClose}>
+          <AlertDialogOverlay>
+            <AlertDialogContent>
+              <AlertDialogHeader fontSize="lg" fontWeight="bold">
+                ⚠ Nearest branch is too far away
+              </AlertDialogHeader>
+
+              <AlertDialogBody>
+                <Text mb="2">Sorry, we are unnable to service your location at the moment.</Text>
+                <Text>You may browse our products, but you'd need to change your address to make orders.</Text>
+              </AlertDialogBody>
+
+              <AlertDialogFooter>
+                <Button
+                  colorScheme="green"
+                  variant="outline"
+                  onClick={() => {
+                    navigate("/products");
+                  }}
+                  ml={3}
+                >
+                  Browse products
+                </Button>
+                <Button
+                  colorScheme="green"
+                  onClick={
+                    userToken
+                      ? () => {
+                          navigate("/profile");
+                        }
+                      : () => {
+                          navigate("/login");
+                        }
+                  }
+                  ml={3}
+                >
+                  Change address
+                </Button>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogOverlay>
+        </AlertDialog>
+        {/*  */}
 
         <Box position={"relative"} height={"450px"} width={"full"} overflow={"hidden"}>
           <link rel="stylesheet" type="text/css" charSet="UTF-8" href="https://cdnjs.cloudflare.com/ajax/libs/slick-carousel/1.6.0/slick.min.css" />

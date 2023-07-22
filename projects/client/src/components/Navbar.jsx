@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import { resetUser } from "../features/userSlice";
 import { resetCart } from "../features/cartSlice";
 import { resetAddress } from "../features/addressSlice";
+import { resetLocation } from "../features/locationSlice";
 
 const navigation = [
   { name: "Home", href: "/", current: true },
@@ -137,6 +138,7 @@ const Navbar = () => {
                             dispatch(resetUser());
                             dispatch(resetCart());
                             dispatch(resetAddress());
+                            dispatch(resetLocation());
                             nav("/");
                           }}
                         >
@@ -209,6 +211,7 @@ const Navbar = () => {
                           dispatch(resetUser());
                           dispatch(resetCart());
                           dispatch(resetAddress());
+                          dispatch(resetLocation());
                           nav("/");
                         }}
                       >
