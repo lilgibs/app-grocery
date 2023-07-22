@@ -13,10 +13,12 @@ import {
   ModalBody,
 } from "@chakra-ui/react";
 import moment from "moment";
+import { useCustomToast } from "../hooks/useCustomToast";
 import { editUserProfile, uploadProfilePhoto } from "../api/profileApi";
 
 function Biodata() {
   const dispatch = useDispatch();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
   const userGlobal = useSelector((state) => state.user.user);
   const userToken = localStorage.getItem("user_token");
 
@@ -24,17 +26,22 @@ function Biodata() {
     const file = event.target.files[0];
 
     if (!["image/jpeg", "image/png", "image/jpg"].includes(file.type)) {
-      alert("Only JPEG/JPG/PNG files are supported");
+      showErrorToast("Only JPEG/JPG/PNG files are supported");
       return;
     }
 
     if (file.size > 1000000) {
       // size limit 1MB
-      alert("Maximum size is 1MB");
+      showErrorToast("Maximum size is 1MB");
       return;
     }
 
-    await uploadProfilePhoto(file, userGlobal.user_id, userToken);
+    const result = await uploadProfilePhoto(
+      file,
+      userGlobal.user_id,
+      userToken
+    );
+    showSuccessToast(result);
     dispatch(checkLogin(userToken));
   };
 
@@ -74,8 +81,13 @@ function Biodata() {
               }}
               validationSchema={RegisterSchema}
               onSubmit={async (value) => {
-                await editUserProfile(value, userGlobal.user_id, userToken);
+                const result = await editUserProfile(
+                  value,
+                  userGlobal.user_id,
+                  userToken
+                );
                 onEditClose();
+                showSuccessToast(result);
                 dispatch(checkLogin(userToken));
               }}
             >

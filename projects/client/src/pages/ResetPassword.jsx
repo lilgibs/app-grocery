@@ -3,9 +3,11 @@ import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useNavigate, useParams } from "react-router-dom";
 import { resetPassword } from "../api/authApi";
+import { useCustomToast } from "../hooks/useCustomToast";
 
 const ResetPassword = () => {
   let { token } = useParams();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
   const nav = useNavigate();
 
   const ValidationSchema = Yup.object().shape({
@@ -39,9 +41,12 @@ const ResetPassword = () => {
             initialValues={{ newPassword: "", repeatNewPassword: "" }}
             validationSchema={ValidationSchema}
             onSubmit={async (value) => {
-              const result = await resetPassword(value, token);
-              if (result) {
+              try {
+                const result = await resetPassword(value, token);
+                showSuccessToast("Password reseted successfully");
                 nav("/login");
+              } catch (error) {
+                showErrorToast(error);
               }
             }}
           >

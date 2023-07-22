@@ -30,7 +30,7 @@ const Login = () => {
     <div className="flex flex-row items-start justify-around m-8">
       <div className="flex-initial w-96 max-md:hidden">
         <img
-          src="https://freepngimg.com/thumb/ecommerce/1-2-ecommerce-png.png"
+          src={`${process.env.REACT_APP_API_UPLOAD_URL}/login-image.png`}
           alt=""
           className=""
         />

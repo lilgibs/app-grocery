@@ -63,7 +63,7 @@ function AdminDiscount() {
 
       showSuccessToast("Discount deleted.");
     } catch (error) {
-      showErrorToast("");
+      showErrorToast(error);
     } finally {
       setToBeDeleted(null); // Reset the toBeDeleted state
       window.location.reload();
@@ -183,7 +183,6 @@ function AdminDiscount() {
             >
               {({ values, setFieldValue }) => (
                 <>
-                  {console.log(values)}
                   <Form>
                     <FormControl>
                       <FormLabel>Discount Type</FormLabel>

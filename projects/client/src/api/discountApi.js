@@ -64,6 +64,6 @@ export async function deleteDiscount(discount_id, token) {
     );
     return true;
   } catch (error) {
-    console.error(error);
+    return error.response.data;
   }
 }

@@ -27,9 +27,12 @@ import {
   editAddress,
   setMainAddress,
 } from "../api/addressApi";
+import DeleteConfirmationModal from "./DeleteConfirmationModal";
+import { useCustomToast } from "../hooks/useCustomToast";
 
 function Address() {
   const dispatch = useDispatch();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
   const userGlobal = useSelector((state) => state.user.user);
   const userAddress = useSelector((state) => state.address.address);
   const userToken = localStorage.getItem("user_token");
@@ -37,6 +40,8 @@ function Address() {
   const [selectedAddress, setselectedAddress] = useState(null);
   const [cityOptions, setCityOptions] = useState([]);
   const [provinceOptions, setProvinceOptions] = useState([]);
+  const [isModalOpen, setModalOpen] = useState(false);
+  const [toBeDeleted, setToBeDeleted] = useState(null);
 
   const {
     isOpen: isAddOpen,
@@ -54,6 +59,25 @@ function Address() {
   const handleEditAddress = (address) => {
     setselectedAddress(address);
     onEditOpen();
+  };
+
+  const handleDeleteAddress = (id) => {
+    setToBeDeleted(id);
+    setModalOpen(true);
+  };
+
+  const ConfirmDeleteAddress = async () => {
+    setModalOpen(false);
+    try {
+      await deleteAddress(toBeDeleted, userToken);
+      dispatch(getAddress(userGlobal.user_id, userToken));
+
+      showSuccessToast("Address deleted.");
+    } catch (error) {
+      showErrorToast(error);
+    } finally {
+      setToBeDeleted(null); // Reset the toBeDeleted state
+    }
   };
 
   const renderAddresses = () => {
@@ -87,8 +111,7 @@ function Address() {
             <div
               className="px-2 py-1 rounded bg-rose-500 hover:bg-rose-600 font-semibold text-white w-1/2 flex items-center justify-center gap-1 cursor-pointer"
               onClick={async () => {
-                await deleteAddress(address.address_id, userToken);
-                dispatch(getAddress(userGlobal.user_id, userToken));
+                handleDeleteAddress(address.address_id);
               }}
             >
               <FaTrash size={15} />
@@ -125,45 +148,50 @@ function Address() {
     const [selectedProvinceId, setSelectedProvinceId] = useState("");
 
     const handleSubmit = async () => {
-      let isValid = true;
-      if (addressStreet.trim() === "") {
-        setStreetError("Street is required");
-        isValid = false;
-      } else {
-        setStreetError("");
-      }
+      try {
+        let isValid = true;
+        if (addressStreet.trim() === "") {
+          setStreetError("Street is required");
+          isValid = false;
+        } else {
+          setStreetError("");
+        }
 
-      if (addressCity.trim() === "") {
-        setCityError("City is required");
-        isValid = false;
-      } else {
-        setCityError("");
-      }
+        if (addressCity.trim() === "") {
+          setCityError("City is required");
+          isValid = false;
+        } else {
+          setCityError("");
+        }
 
-      if (addressProvince.trim() === "") {
-        setProvinceError("Province is required");
-        isValid = false;
-      } else {
-        setProvinceError("");
-      }
+        if (addressProvince.trim() === "") {
+          setProvinceError("Province is required");
+          isValid = false;
+        } else {
+          setProvinceError("");
+        }
 
-      if (isValid) {
-        const coordinates = await getCoordinates(
-          `${addressStreet}, ${addressCity}, ${addressProvince}`
-        );
+        if (isValid) {
+          const coordinates = await getCoordinates(
+            `${addressStreet}, ${addressCity}, ${addressProvince}`
+          );
 
-        const data = {
-          street: addressStreet,
-          city: addressCity,
-          province: addressProvince,
-          longitude: coordinates.lng,
-          latitude: coordinates.lat,
-          user_id: userGlobal.user_id,
-        };
+          const data = {
+            street: addressStreet,
+            city: addressCity,
+            province: addressProvince,
+            longitude: coordinates.lng,
+            latitude: coordinates.lat,
+            user_id: userGlobal.user_id,
+          };
 
-        await addAddress(data, userToken);
-        onAddClose();
-        dispatch(getAddress(userGlobal.user_id, userToken));
+          await addAddress(data, userToken);
+          onAddClose();
+          showSuccessToast("Address added successfully.");
+          dispatch(getAddress(userGlobal.user_id, userToken));
+        }
+      } catch (error) {
+        showErrorToast(error);
       }
     };
 
@@ -425,6 +453,11 @@ function Address() {
           {renderAddresses()}
           <ModalAddAddress />
           <ModalEditAddress />
+          <DeleteConfirmationModal
+            isOpen={isModalOpen}
+            onClose={() => setModalOpen(false)}
+            onConfirm={() => ConfirmDeleteAddress()}
+          />
         </div>
       </div>
     </div>
