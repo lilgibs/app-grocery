@@ -5,9 +5,11 @@ import * as Yup from 'yup';
 import { ErrorMessage, Form, Formik, Field } from 'formik';
 import { fetchProduct } from '../features/productSlice';
 import { useDispatch } from 'react-redux';
+import { useCustomToast } from '../hooks/useCustomToast';
 
 function AdminDecreaseStockModal({ isOpen, onClose, productId, currStock, storeInventoryId }) {
   const dispatch = useDispatch();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const validationSchema = Yup.object().shape({
     product_stock: Yup.number()
@@ -30,11 +32,11 @@ function AdminDecreaseStockModal({ isOpen, onClose, productId, currStock, storeI
           }
         }
       )
-      alert(response.data.message)
+      showSuccessToast("Product stock has been successfully decreased.");
       onClose();
       dispatch(fetchProduct(productId));
     } catch (error) {
-      console.log(error)
+      showErrorToast("Unable to deacrease product stock.");
     }
     resetForm();
     setSubmitting(false);

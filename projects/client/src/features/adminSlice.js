@@ -75,7 +75,8 @@ export function checkLoginAdmin(token) {
 }
 
 export function createBranchAdmin(data) {
-  return async () => {
+  return async (dispatch) => {
+    dispatch(setLoading(true));
     const adminToken = localStorage.getItem("admin_token");
     try {
       let response = await Axios.post(`${process.env.REACT_APP_API_BASE_URL}/admin/auth`, data, {
@@ -83,11 +84,10 @@ export function createBranchAdmin(data) {
           Authorization: `Bearer ${adminToken}`,
         },
       });
-      if (response) {
-        alert(response.data.message);
-      }
+      dispatch(setLoading(false));
     } catch (error) {
-      alert(`There was an error creating the branch admin: ${error.response.data}`);
+      dispatch(setLoading(false));
+      throw error.response;
     }
   };
 }

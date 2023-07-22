@@ -137,8 +137,6 @@ module.exports = {
 
       const productsSoldResult = await query(productsSoldQuery)
 
-      console.log(productsSoldResult)
-
       let productsSold;
       if (!productsSoldResult || !productsSoldResult.length || !productsSoldResult[0].products_sold) {
         productsSold = 0;

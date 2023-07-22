@@ -3,11 +3,14 @@ import { useNavigate } from "react-router-dom";
 
 function NotFound() {
   const nav = useNavigate();
-  console.log(process.env.REACT_APP_API_UPLOAD_URL + `/404-icon.png`);
 
   return (
     <div className="flex flex-col justify-center items-center m-7 gap-8">
-      <img src={process.env.REACT_APP_API_UPLOAD_URL + `/404-icon.png`} alt="404 Error" className="w-80" />
+      <img
+        src={process.env.REACT_APP_API_UPLOAD_URL + `/404-icon.png`}
+        alt="404 Error"
+        className="w-80"
+      />
       <p className="font-bold text-3xl">PAGE NOT FOUND</p>
       <p className="font-light text-2xl">
         We couldn't find the page you're looking for. Either you

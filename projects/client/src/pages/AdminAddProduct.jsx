@@ -9,6 +9,8 @@ import Select from 'react-select';
 import { useNavigate } from 'react-router-dom';
 import { fetchCategories } from '../api/adminCategoryApi';
 import { fetchProducts } from '../api/adminProductApi';
+import CustomSpinner from '../components/Spinner';
+import { useCustomToast } from '../hooks/useCustomToast';
 
 function AddProduct() {
   const [loading, setLoading] = useState(true);
@@ -21,9 +23,12 @@ function AddProduct() {
 
   const dispatch = useDispatch()
   const navigate = useNavigate()
-  const adminToken = localStorage.getItem('admin_token');
+  const { showSuccessToast, showErrorToast } = useCustomToast();
   const role = useSelector(state => state.admin.admin.role);
   const adminStoreId = useSelector(state => state.admin.admin.store_id);
+  const productIsLoading = useSelector(state => state.product.isLoading);
+
+  const adminToken = localStorage.getItem('admin_token');
 
   const getCategoriesData = async () => {
     const response = await fetchCategories();
@@ -50,6 +55,14 @@ function AddProduct() {
     setFieldValue('product_images', newImages);
   };
 
+  const handleFormSubmit = async (values) => {
+    try {
+      await dispatch(addProduct(values));
+      showSuccessToast("Product successfully added.");
+    } catch (err) {
+      showErrorToast("Unable to add product.");
+    }
+  }
 
   useEffect(() => {
     if (role !== null) {
@@ -124,6 +137,7 @@ function AddProduct() {
 
   return (
     <div className="w-[95%] sm:max-w-md md:max-w-xl flex-col mx-auto mt-5">
+      {productIsLoading && <CustomSpinner />}
       <Formik
         enableReinitialize
         initialValues={{
@@ -137,13 +151,19 @@ function AddProduct() {
           product_images: []
         }}
         validationSchema={getValidationSchema()}
-        onSubmit={(values, { setSubmitting, resetForm }) => {
+        onSubmit={async (values, { setSubmitting, resetForm }) => {
           setSubmitting(true);
-          dispatch(addProduct(values))
-          setImagePreviews([])
-          setSelectedOption(null);
-          resetForm();
-          setSubmitting(false);
+          try {
+            await dispatch(addProduct(values));
+            showSuccessToast("Product successfully added.");
+          } catch (err) {
+            showErrorToast(err.data || "Unable to add product.");
+          } finally {
+            setImagePreviews([])
+            setSelectedOption(null);
+            resetForm();
+            setSubmitting(false);
+          }
         }}
       >
         {({ isSubmitting, values, setFieldValue }) => (

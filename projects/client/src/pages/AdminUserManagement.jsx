@@ -7,6 +7,8 @@ import { checkLoginAdmin, createBranchAdmin } from '../features/adminSlice';
 import { useNavigate } from 'react-router-dom';
 import { fetchCity } from '../api/adminCityApi';
 import AsyncSelect from 'react-select/async';
+import { useCustomToast } from '../hooks/useCustomToast';
+import CustomSpinner from '../components/Spinner';
 
 function UserManagementSettings() {
   const [latLong, setLatLong] = useState({ lat: '', lng: '' })
@@ -17,6 +19,7 @@ function UserManagementSettings() {
   const role = useSelector(state => state.admin.admin.role);
   const navigate = useNavigate()
   const dispatch = useDispatch()
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const loadCityOptions = (inputValue, callback) => {
     if (inputValue.length > 2) {
@@ -96,13 +99,9 @@ function UserManagementSettings() {
     }
   }, [role, navigate, loading]);
 
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <div className="w-full max-w-xs flex-col sm:max-w-xl mx-auto mt-5">
+      {loading && <CustomSpinner />}
       <Formik
         initialValues={{
           name: '',
@@ -115,16 +114,25 @@ function UserManagementSettings() {
           longitude: '',
         }}
         validationSchema={validationSchema}
-        onSubmit={(values, { setSubmitting, resetForm }) => {
+        onSubmit={async (values, { setSubmitting, resetForm }) => {
           setSubmitting(true);
-          dispatch(createBranchAdmin({
-            ...values,
-            latitude: latLong.lat,
-            longitude: latLong.lng
-          }))
-          resetForm();
-          setLatLong({ lat: '', lng: '' })
-          setSubmitting(false);
+          try {
+            setLoading(true)
+            await dispatch(createBranchAdmin({
+              ...values,
+              latitude: latLong.lat,
+              longitude: latLong.lng
+            }))
+            resetForm();
+            setLatLong({ lat: '', lng: '' })
+            showSuccessToast("Branch admin successfully created.");
+          } catch (error) {
+            console.log(error)
+            showErrorToast(error.data ||"Unable to create branch admin.");
+          } finally {
+            setLoading(false)
+            setSubmitting(false);
+          }
         }}
       >
         {({ isSubmitting, setFieldValue, setFieldTouched }) => (

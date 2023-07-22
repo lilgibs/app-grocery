@@ -69,7 +69,7 @@ const Register = () => {
       {isLoading && <CustomSpinner />}
       <div className="flex-initial w-96 max-md:hidden">
         <img
-          src="https://freepngimg.com/thumb/ecommerce/1-2-ecommerce-png.png"
+          src={`${process.env.REACT_APP_API_UPLOAD_URL}/login-image.png`}
           alt=""
           className=""
         />

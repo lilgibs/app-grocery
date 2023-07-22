@@ -3,7 +3,7 @@ const { validationResult } = require("express-validator");
 const { handleValidationErrors, handleServerError } = require("../../utils/errorHandlers");
 const path = require('path');
 const fs = require('fs');
-const { handleProductExistence, insertNewProduct, insertImages, insertInventory, getProductImages, countProducts,getProductById, getStoreInventory } = require("../../utils/adminProductUtils");
+const { handleProductExistence, insertNewProduct, insertImages, insertInventory, getProductImages, countProducts, getProductById, getStoreInventory } = require("../../utils/adminProductUtils");
 const { validateAdminRole } = require("../../utils/adminValidationUtils");
 
 module.exports = {
@@ -33,7 +33,7 @@ module.exports = {
       const adminStoreId = req.admin.adminStoreId;
 
       const [{ total }] = await countProducts(adminStoreId, searchText, productCategoryId);
-      
+
       const sorting = {
         price: `p.product_price ${sortOrder}`,
         stock: `si.quantity_in_stock ${sortOrder}`,
@@ -74,6 +74,20 @@ module.exports = {
     const storeId = req.admin.adminStoreId
 
     try {
+      const checkStoreInventoryQuery = `SELECT * FROM store_inventory
+      WHERE 
+        store_id = ${db.escape(storeId)} AND
+        product_id = ${db.escape(productId)}
+      `
+      const checkStoreInventory = await query(checkStoreInventoryQuery)
+
+      if (checkStoreInventory.length == 0) {
+        throw {
+          status_code: 404,
+          message: "Product not found!",
+        };
+      }
+
       const [productResult, storeInventoryResult, imageResult] = await Promise.all([
         getProductById(productId),
         getStoreInventory(productId, storeId),
@@ -199,10 +213,10 @@ module.exports = {
 
       //Ambil lokasi file gambar
       const resultGetImages = await getProductImages(productId)
-      
+
       const queryDeleteImage = `DELETE FROM product_images WHERE product_id = ${db.escape(productId)}`
       const sqlQueryDeleteProduct = `DELETE FROM products WHERE product_id = ${db.escape(productId)}`;
-      
+
       await query('START TRANSACTION');
       const resultDeleteImages = await query(queryDeleteImage);
       const resultDeleteProduct = await query(sqlQueryDeleteProduct);

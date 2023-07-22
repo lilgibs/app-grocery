@@ -16,6 +16,9 @@ const navigation = [
   { name: "Dashboard", href: "/admin/dashboard", current: true },
   { name: "Products", href: "/admin/products", current: false },
   { name: "Orders", href: "/admin/orders", current: false },
+  { name: "Promo", href: "/admin/discounts", current: false },
+  { name: "Sales Report", href: "/admin/sales-report", current: false },
+  { name: "Stock History", href: "/admin/stock-history", current: false },
 ];
 
 function classNames(...classes) {
@@ -27,15 +30,26 @@ const AdminNavbar = () => {
   const dispatch = useDispatch();
 
   return (
-    <Disclosure as="nav" className="bg-white color-gray sticky top-0 z-50 drop-shadow-md max-w-full">
+    <Disclosure
+      as="nav"
+      className="bg-white color-gray sticky top-0 z-50 drop-shadow-md max-w-full"
+    >
       {({ open }) => (
         <>
-          <div className={open ? "flex md:py-4" : "py-7 flex md:justify-around md:py-4"}>
+          <div
+            className={
+              open ? "flex md:py-4" : "py-7 flex md:justify-around md:py-4"
+            }
+          >
             <div className="absolute inset-y-0 left-0 flex items-top sm:hidden">
               {/* Mobile menu button*/}
               <Disclosure.Button className="inline-flex rounded-md  mt-4 ml-3">
                 <span className="sr-only">Open main menu</span>
-                {open ? <XMarkIcon className="block h-6 w-6" aria-hidden="true" /> : <Bars3Icon className="block h-6 w-6" aria-hidden="true" />}
+                {open ? (
+                  <XMarkIcon className="block h-6 w-6" aria-hidden="true" />
+                ) : (
+                  <Bars3Icon className="block h-6 w-6" aria-hidden="true" />
+                )}
               </Disclosure.Button>
             </div>
 
@@ -47,7 +61,12 @@ const AdminNavbar = () => {
                       <a
                         key={item.name}
                         href={item.href}
-                        className={classNames(window.location.pathname == item.href ? "text-pink-500 hover:text-gray-300" : "hover:text-gray-300", "px-3 py-2 text-sm font-medium")}
+                        className={classNames(
+                          window.location.pathname == item.href
+                            ? "text-pink-500 hover:text-gray-300"
+                            : "hover:text-gray-300",
+                          "px-3 py-2 text-sm font-medium"
+                        )}
                         aria-current={item.current ? "page" : undefined}
                       >
                         {item.name}
@@ -67,7 +86,14 @@ const AdminNavbar = () => {
                 </div> */}
               <div className="self-start">
                 <Menu>
-                  <MenuButton as={Button} size="sm" variant="ghost" colorScheme="pink" rounded="full" border="1px">
+                  <MenuButton
+                    as={Button}
+                    size="sm"
+                    variant="ghost"
+                    colorScheme="pink"
+                    rounded="full"
+                    border="1px"
+                  >
                     <Icon as={GrUser} mr="1" color="white" />
                     <span />
                     {adminGlobal.name}
@@ -118,7 +144,17 @@ const AdminNavbar = () => {
             <div className="space-y-2 px-2 pb-4 pt-2">
               <Disclosure.Button className="my-3"></Disclosure.Button>
               {navigation.map((item) => (
-                <Disclosure.Button key={item.name} as="a" href={item.href} className={classNames(window.location.pathname === item.href ? "text-pink-500" : "text-gray-300 hover:text-green-300", "block px-3 py-2 text-base font-medium")}>
+                <Disclosure.Button
+                  key={item.name}
+                  as="a"
+                  href={item.href}
+                  className={classNames(
+                    window.location.pathname === item.href
+                      ? "text-pink-500"
+                      : "text-gray-300 hover:text-green-300",
+                    "block px-3 py-2 text-base font-medium"
+                  )}
+                >
                   {item.name}
                 </Disclosure.Button>
               ))}

@@ -4,9 +4,11 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { changePassword } from "../api/authApi";
+import { useCustomToast } from "../hooks/useCustomToast";
 
 const ChangePassword = () => {
   const nav = useNavigate();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const userGlobal = useSelector((state) => state.user.user);
   const userToken = localStorage.getItem("user_token");
@@ -51,13 +53,16 @@ const ChangePassword = () => {
             }}
             validationSchema={changePasswordSchema}
             onSubmit={async (value) => {
-              const response = await changePassword(
-                value,
-                userGlobal.user_id,
-                userToken
-              );
-              if (response) {
+              try {
+                const response = await changePassword(
+                  value,
+                  userGlobal.user_id,
+                  userToken
+                );
+                showSuccessToast("Password changed successfully");
                 nav("/profile");
+              } catch (error) {
+                showErrorToast(error);
               }
             }}
           >

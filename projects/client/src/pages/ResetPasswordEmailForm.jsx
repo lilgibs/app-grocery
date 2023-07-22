@@ -2,8 +2,11 @@ import React from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import { resetPasswordEmail } from "../api/authApi";
+import { useCustomToast } from "../hooks/useCustomToast";
 
 const ResetPasswordEmailForm = () => {
+  const { showSuccessToast, showErrorToast } = useCustomToast();
+
   const ValidationSchema = Yup.object().shape({
     email: Yup.string()
       .email("Invalid email format")
@@ -28,8 +31,13 @@ const ResetPasswordEmailForm = () => {
           <Formik
             initialValues={{ email: "" }}
             validationSchema={ValidationSchema}
-            onSubmit={(value) => {
-              resetPasswordEmail(value);
+            onSubmit={async (value) => {
+              try {
+                const result = await resetPasswordEmail(value);
+                showSuccessToast(result);
+              } catch (error) {
+                showErrorToast(error);
+              }
             }}
           >
             {(props) => {

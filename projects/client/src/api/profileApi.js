@@ -17,10 +17,10 @@ export async function uploadProfilePhoto(file, user_id, token) {
     );
 
     if (response) {
-      alert(response.data.message);
+      return response.data.message;
     }
   } catch (error) {
-    alert(error.response.data);
+    return error.response.data;
   }
 }
 
@@ -36,9 +36,9 @@ export async function editUserProfile(data, user_id, token) {
       }
     );
     if (response) {
-      alert(response.data.message);
+      return response.data.message;
     }
   } catch (error) {
-    alert(error.response.data);
+    return error.response.data;
   }
 }

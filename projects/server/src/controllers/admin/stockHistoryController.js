@@ -71,7 +71,6 @@ module.exports = {
       });
     } catch (error) {
       handleServerError(error, next);
-      console.log(error);
     }
   },
 };

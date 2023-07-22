@@ -5,12 +5,14 @@ import { formatRupiah } from '../utils/formatRupiah'
 import axios from 'axios';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import AdminProductNotFound from "../components/AdminProductNotFound";
+import { useCustomToast } from '../hooks/useCustomToast';
 
-function AdminProductCard({ products, getProductsData, page, setPage }) {
+function AdminProductCard({ products, getProductsData, page, setPage, setIsLoading }) {
   const [isModalOpen, setModalOpen] = useState(false);
   const [toBeDeleted, setToBeDeleted] = useState(null);
 
   const navigate = useNavigate();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
 
   const adminToken = localStorage.getItem("admin_token");
 
@@ -22,21 +24,21 @@ function AdminProductCard({ products, getProductsData, page, setPage }) {
   const confirmDeleteProduct = async () => {
     // Close the modal first
     setModalOpen(false);
-
     try {
-      const response = await axios.delete(
-        `${process.env.REACT_APP_API_BASE_URL}/admin/products/${toBeDeleted}`,
+      setIsLoading(true)
+      const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/admin/products/${toBeDeleted}`,
         {
           headers: {
             'Authorization': `Bearer ${adminToken}`
           }
         }
       );
-
-      console.log(response.data);
-      alert(response.data.message);
+      setIsLoading(false)
+      showSuccessToast("Product successfully deleted.");
       getProductsData();
     } catch (error) {
+      setIsLoading(false)
+      showErrorToast("Unable to delete product.");
       console.error(error);
     }
 
@@ -67,8 +69,8 @@ function AdminProductCard({ products, getProductsData, page, setPage }) {
                 <p className="text-sm font-semibold text-gray-400">{formatRupiah(product.product_price)}</p>
                 <p className="text-sm font-medium text-gray-400">{product.product_category_name}</p>
               </div>
-              <div className='w-1/3 h-full hidden sm:block'>
-                <p className="text-lg font-semibold ">Description:</p>
+              <div className='w-1/3 h-full hidden md:block'>
+                <p className="md:text-lg font-semibold ">Description:</p>
                 <p className="text-sm font-medium text-gray-400 line-clamp-2">
                   {product.product_description}
                 </p>

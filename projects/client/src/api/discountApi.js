@@ -1,5 +1,23 @@
 import axios from "axios";
 
+export async function getDiscounts(store_id, token) {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admin/discounts/${store_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response) {
+      return response.data.data;
+    }
+  } catch (error) {
+    console.log(error.response.data);
+  }
+}
+
 export async function addDiscount(data, token) {
   try {
     const response = await axios.post(
@@ -11,10 +29,8 @@ export async function addDiscount(data, token) {
         },
       }
     );
-    alert(response.data.message);
   } catch (error) {
-    alert(error.response.data);
-    console.error(error);
+    return error.response.data;
   }
 }
 
@@ -46,9 +62,8 @@ export async function deleteDiscount(discount_id, token) {
         },
       }
     );
-    alert(response.data.message);
     return true;
   } catch (error) {
-    console.error(error);
+    return error.response.data;
   }
 }
