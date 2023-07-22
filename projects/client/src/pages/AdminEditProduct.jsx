@@ -34,8 +34,9 @@ function AdminEditProduct() {
   const validationSchema = Yup.object().shape({
     product_id: Yup.string().required('Required'),
     product_name: Yup.string().required('Required'),
-    product_description: Yup.string().required('Required'),
-    product_price: Yup.number().required('Required')
+    product_description: Yup.string().required('Required').max(250),
+    product_price: Yup.number().required('Required'),
+    product_weight: Yup.number().required('Required'),
   });
 
   const handleFormSubmit = async (values) => {
@@ -57,12 +58,12 @@ function AdminEditProduct() {
     if (!loading && (role !== 99 && role !== 1)) {
       navigate('/');
     } else {
-      dispatch(fetchProduct(productId)).then((response) => {
-        if (response.status === 404) {
-          navigate('/404')
-        }
-      })
-        .catch((error) => {
+      dispatch(fetchProduct(productId))
+        .then((response) => {
+          if (response.status === 404) {
+            navigate('/404')
+          }
+        }).catch((error) => {
           if (error.response && error.response.status === 404) {
             navigate('/404')
           }
