@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom'
 import { fetchProduct, updateProduct, uploadImage } from '../features/productSlice';
-import { checkLoginAdmin } from '../features/adminSlice';
 import { ErrorMessage, Field, Form, Formik, useFormikContext } from 'formik';
 import * as Yup from 'yup';
 import { fetchCategories } from '../api/adminCategoryApi';
@@ -12,46 +11,41 @@ import AdminIncreaseStockModal from '../components/AdminIncreaseStockModal';
 import AdminDecreaseStockModal from '../components/AdminDecreaseStockModal';
 import { FaSave } from 'react-icons/fa';
 import AdminImageCard from '../components/AdminImageCard';
+import CustomSpinner from '../components/Spinner';
+import { useCustomToast } from '../hooks/useCustomToast';
 
 function AdminEditProduct() {
   const { productId } = useParams();
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState([]);
-  const [selectedStoreId, setSelectedStoreId] = useState(null);
 
   const { isOpen: isIncreaseOpen, onOpen: onIncreaseOpen, onClose: onIncreaseClose } = useDisclosure();
   const { isOpen: isDecreaseOpen, onOpen: onDecreaseOpen, onClose: onDecreaseClose } = useDisclosure();
 
+  const { showSuccessToast, showErrorToast } = useCustomToast();
   const dispatch = useDispatch();
   const navigate = useNavigate()
   const role = useSelector(state => state.admin.admin.role);
   const product = useSelector(state => state.product.product);
-  const productIsLoading = useSelector(state => state.product);
+  const productIsLoading = useSelector(state => state.product.isLoading);
 
   const [images, setImages] = useState(Array(3).fill(null));
 
   const validationSchema = Yup.object().shape({
     product_id: Yup.string().required('Required'),
     product_name: Yup.string().required('Required'),
-    product_description: Yup.string().required('Required'),
-    product_price: Yup.number().required('Required')
+    product_description: Yup.string().required('Required').max(250),
+    product_price: Yup.number().required('Required'),
+    product_weight: Yup.number().required('Required'),
   });
 
-  const handleImageUpload = async (event, index) => {
-    const file = event.target.files[0];
-
-    if (!['image/jpeg', 'image/png', 'image/jpg'].includes(file.type)) {
-      alert('Only JPEG/JPG/PNG files are supported');
-      return;
+  const handleFormSubmit = async (values) => {
+    try {
+      await dispatch(updateProduct(productId, values));
+      showSuccessToast("Product successfully updated.");
+    } catch (err) {
+      showErrorToast("Unable to update product.");
     }
-
-    if (file.size > 1000000) { // size limit 1MB
-      alert('Maximum size is 1MB');
-      return;
-    }
-
-    const imageId = images[index]?.product_image_id; // Get the image id, if it exists
-    dispatch(uploadImage(file, productId, imageId)); // dispatch the thunk
   }
 
   useEffect(() => {
@@ -64,7 +58,16 @@ function AdminEditProduct() {
     if (!loading && (role !== 99 && role !== 1)) {
       navigate('/');
     } else {
-      dispatch(fetchProduct(productId));
+      dispatch(fetchProduct(productId))
+        .then((response) => {
+          if (response.status === 404) {
+            navigate('/404')
+          }
+        }).catch((error) => {
+          if (error.response && error.response.status === 404) {
+            navigate('/404')
+          }
+        });
     }
   }, [role, navigate, loading, productId, dispatch]);
 
@@ -124,11 +127,12 @@ function AdminEditProduct() {
   };
 
   if (!product.product_id && !product.productIsLoading) {
-    return <div>Loading...</div>;
+    return <div>Loading Product...</div>;
   }
 
   return (
     <div className="w-[95%] flex-col sm:max-w-2xl md:max-w-4xl mx-auto mt-5">
+      {productIsLoading && <CustomSpinner />}
       <div className="p-4 bg-white border shadow-md rounded">
         <div className="w-full bg-slate-100 text-center py-6 rounded-md mb-10">
           <h1 className="font-semibold text-pink-500 text-lg">Edit Product</h1>
@@ -141,9 +145,7 @@ function AdminEditProduct() {
               enableReinitialize
               validationSchema={validationSchema}
               initialValues={product}
-              onSubmit={values => {
-                dispatch(updateProduct(productId, values))
-              }}
+              onSubmit={handleFormSubmit}
             >
               {formik => (
                 <Form>
