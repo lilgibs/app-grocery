@@ -46,15 +46,19 @@ export default productSlice.reducer;
 export function fetchProduct(productId) {
   return async (dispatch) => {
     try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}`,
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}`,
         getConfig()
       );
       dispatch(setProduct(response.data.product));
       dispatch(setLoading(false));
     } catch (error) {
-      console.error(error);
+      console.log(error);
       dispatch(setLoading(false));
+      if (error.response) {
+        return { status: error.response.status };
+      } else {
+        return null;
+      }
     }
   };
 }
@@ -113,17 +117,16 @@ export function updateProduct(productId, product) {
   console.log(product);
   return async (dispatch) => {
     try {
+      dispatch(setLoading(true));
       const response = await axios.put(`${process.env.REACT_APP_API_BASE_URL}/admin/products/${productId}`,
         product,
         getConfig()
       );
-      console.log(response);
-      response.status === 200 &&
-        dispatch(fetchProduct(productId)) &&
-        alert("Product updated");
+      dispatch(setLoading(false));
+      response.status === 200 && dispatch(fetchProduct(productId)) && alert("Product updated");
     } catch (error) {
-      console.error(error);
-      alert(error.response.data);
+      dispatch(setLoading(false));
+      throw error.response
     }
   };
 }
@@ -135,6 +138,7 @@ export function uploadImage(file, productId, imageId) {
     formData.append("product_image", file);
 
     try {
+      dispatch(setLoading(true));
       let response;
       if (imageId) {
         // Jika gambar sudah ada, lakukan pembaruan
@@ -149,10 +153,12 @@ export function uploadImage(file, productId, imageId) {
           getConfig(true)
         );
       }
+      dispatch(setLoading(false));
       alert(response.data.message);
       dispatch(fetchProduct(productId));
     } catch (error) {
       console.log(error);
+      dispatch(setLoading(false));
     }
   };
 }
@@ -160,6 +166,7 @@ export function uploadImage(file, productId, imageId) {
 export function deleteImage(imageId, productId) {
   return async (dispatch) => {
     try {
+      dispatch(setLoading(true));
       console.log(imageId);
       const response = await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/admin/products/image/${imageId}/permanently?productId=${productId}`,
         getConfig()
@@ -168,6 +175,7 @@ export function deleteImage(imageId, productId) {
       dispatch(fetchProduct(productId));
     } catch (error) {
       console.log(error);
+      dispatch(setLoading(false));
       alert(error.response.data.message);
       return null;
     }
