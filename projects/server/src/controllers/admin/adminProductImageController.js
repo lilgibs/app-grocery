@@ -122,16 +122,6 @@ const productImageController = {
     const productId = req.query.productId
 
     try {
-      // Check authorisasi
-      const adminRole = req.admin.adminRole;
-      if (adminRole !== 99) {
-        throw {
-          status_code: 403,
-          message: "Access denied. You are not authorized to access this route.",
-          errors: errors.array(),
-        };
-      }
-
       // Check jumlah gambar
       const sqlQueryImageCount = `SELECT COUNT(*) as imageCount FROM product_images WHERE product_id = ${db.escape(productId)}`;
       const resultImageCount = await query(sqlQueryImageCount);
@@ -161,6 +151,7 @@ const productImageController = {
         result
       });
     } catch (error) {
+      console.log(error)
       handleServerError(error, next);
     }
   }
