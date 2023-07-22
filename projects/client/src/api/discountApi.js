@@ -29,10 +29,8 @@ export async function addDiscount(data, token) {
         },
       }
     );
-    alert(response.data.message);
   } catch (error) {
-    alert(error.response.data);
-    console.error(error);
+    return error.response.data;
   }
 }
 
@@ -64,7 +62,6 @@ export async function deleteDiscount(discount_id, token) {
         },
       }
     );
-    alert(response.data.message);
     return true;
   } catch (error) {
     console.error(error);

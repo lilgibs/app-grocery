@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { FaPlus, FaTrash } from "react-icons/fa";
 import {
   Button,
@@ -29,18 +29,17 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
 import { addDiscount, deleteDiscount, getDiscounts } from "../api/discountApi";
-import { getDiscount } from "../features/discountSlice";
 import { fetchProducts } from "../api/userApi";
 import { addVoucher } from "../api/voucherApi";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
+import { useCustomToast } from "../hooks/useCustomToast";
 
 function AdminDiscount() {
-  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showSuccessToast, showErrorToast } = useCustomToast();
   const adminData = useSelector((state) => state.admin.admin);
-  const storeDiscounts = useSelector((state) => state.discount.discount);
   const adminToken = localStorage.getItem("admin_token");
-  const [discounts, setDiscounts] = useState(storeDiscounts);
+  const [discounts, setDiscounts] = useState([]);
   const [products, setProducts] = useState([]);
   const [toBeDeleted, setToBeDeleted] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
@@ -62,10 +61,9 @@ function AdminDiscount() {
     try {
       const response = await deleteDiscount(toBeDeleted, adminToken);
 
-      alert(response.data.message);
+      showSuccessToast("Discount deleted.");
     } catch (error) {
-      console.error(error);
-      alert(error.response.data);
+      showErrorToast("");
     } finally {
       setToBeDeleted(null); // Reset the toBeDeleted state
       window.location.reload();
@@ -74,29 +72,33 @@ function AdminDiscount() {
 
   const ModalAddDiscount = () => {
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
-      const data = {
-        discount_type: values.discount_type,
-        discount_value_type: values.discount_value_type,
-        discount_value: values.discount_value,
-        start_date: values.start_date,
-        end_date: values.end_date,
-        store_id: adminData.store_id,
-        products: values.products,
-        minimum_amount: values.minimum_amount,
-        voucher_name: values.voucher_name,
-      };
+      try {
+        const data = {
+          discount_type: values.discount_type,
+          discount_value_type: values.discount_value_type,
+          discount_value: values.discount_value,
+          start_date: values.start_date,
+          end_date: values.end_date,
+          store_id: adminData.store_id,
+          products: values.products,
+          minimum_amount: values.minimum_amount,
+          voucher_name: values.voucher_name,
+        };
 
-      if (data.discount_type === "VOUCHER") {
-        await addVoucher(data, adminToken);
-      } else {
-        await addDiscount(data, adminToken);
+        if (data.discount_type === "VOUCHER") {
+          await addVoucher(data, adminToken);
+        } else {
+          await addDiscount(data, adminToken);
+        }
+
+        showSuccessToast("Promo added successfully.");
+        onAddClose();
+        resetForm();
+        setSubmitting(false);
+        window.location.reload();
+      } catch (error) {
+        showErrorToast(error);
       }
-
-      onAddClose();
-      dispatch(getDiscount(adminData.store_id, adminToken));
-      resetForm();
-      setSubmitting(false);
-      window.location.reload();
     };
 
     const validationSchema = Yup.object().shape({
