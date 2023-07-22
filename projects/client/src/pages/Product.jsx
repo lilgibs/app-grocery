@@ -86,8 +86,8 @@ function Product() {
     }
   }, [product]);
 
-  if (!isLoading) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return <div>Loadings...</div>;
   }
 
   return (
