@@ -113,8 +113,6 @@ module.exports = {
       SELECT * FROM product_categories 
       WHERE product_category_name = ${db.escape(product_category_name)}`)
 
-      console.log(getCategoryNameResult[0].product_category_id, categoryId)
-
       if (getCategoryNameResult.length > 0 && getCategoryNameResult[0].product_category_id != categoryId) {
         throw {
           status_code: 409,
