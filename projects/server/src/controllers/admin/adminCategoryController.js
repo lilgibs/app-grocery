@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const { handleValidationErrors, handleServerError } = require('../../utils/errorHandlers');
 const path = require('path');
 const fs = require('fs');
+const { validateAdminRole } = require('../../utils/adminValidationUtils');
 
 module.exports = {
   getCategories: async (req, res, next) => {
@@ -42,9 +43,9 @@ module.exports = {
   createCategory: async (req, res, next) => {
     const { product_category_name } = req.body;
     const errors = validationResult(req);
+    const adminRole = req.admin.adminRole;
 
     try {
-      const adminRole = req.admin.adminRole;
       if (adminRole !== 99) {
         throw {
           status_code: 403,
@@ -96,9 +97,9 @@ module.exports = {
     const { product_category_name } = req.body
     const { categoryId } = req.params
     const errors = validationResult(req);
+    const adminRole = req.admin.adminRole;
 
     try {
-      const adminRole = req.admin.adminRole;
       if (adminRole !== 99) {
         throw {
           status_code: 403,
@@ -108,10 +109,9 @@ module.exports = {
 
       handleValidationErrors(errors);
 
-      let getCategoryNameResult = await query(`
+      const getCategoryNameResult = await query(`
       SELECT * FROM product_categories 
-      WHERE product_category_name = ${db.escape(product_category_name)}
-    `)
+      WHERE product_category_name = ${db.escape(product_category_name)}`)
 
       if (getCategoryNameResult.length > 0 && getCategoryNameResult[0].product_category_id != categoryId) {
         throw {
@@ -145,6 +145,8 @@ module.exports = {
       `;
       const result = await query(sqlQuery);
 
+      console.log(req.file, currentImagePath)
+
       if (req.file && currentImagePath) {
         const absolutePath = path.resolve(__dirname, '..', '..', 'uploads', path.basename(currentImagePath))
         if (fs.existsSync(absolutePath)) {
@@ -162,8 +164,11 @@ module.exports = {
   },
   deleteCategory: async (req, res, next) => {
     const { categoryId } = req.params
+    const adminRole = req.admin.adminRole;
 
     try {
+      validateAdminRole(adminRole);
+
       //Hapus data dari database (ubah is_deleted = 1)
       const sqlQueryDeleteCategory = `
         UPDATE product_categories
@@ -185,8 +190,11 @@ module.exports = {
   },
   hardDeleteCategory: async (req, res, next) => {
     const { categoryId } = req.params
+    const adminRole = req.admin.adminRole;
 
     try {
+      validateAdminRole(adminRole);
+
       //Ambil lokasi file gambar
       const sqlQueryGetImage = `
         SELECT product_category_image FROM product_categories 
@@ -216,7 +224,6 @@ module.exports = {
         data: resultDeleteCategory
       });
     } catch (error) {
-      console.log(error)
       handleServerError(error, next);
     }
   }

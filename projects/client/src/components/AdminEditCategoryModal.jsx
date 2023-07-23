@@ -15,7 +15,7 @@ function AdminEditCategoryModal({ isOpen, onClose, fetchCategories, selectedCate
     product_category_image: Yup.mixed()
       .test(
         "fileSize",
-        "File too large",
+        "File too large, maximum 1MB",
         value => !value || value.size <= 1024 * 1024  // file size <= 1MB
       )
       .test(
@@ -54,7 +54,7 @@ function AdminEditCategoryModal({ isOpen, onClose, fetchCategories, selectedCate
     } catch (error) {
       console.error(error);
       setLoading(false)
-      showErrorToast("Unable to update category.");
+      showErrorToast(error.response.data || "Unable to update category.");
     }
     resetForm();
     setSubmitting(false);
