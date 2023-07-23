@@ -36,12 +36,14 @@ function Products() {
       setSortOrder(sortOrder);
       searchParams.set("sort_type", sortType);
       searchParams.set("sort_order", sortOrder);
+      searchParams.set("page", 1);
       setSearchParams(new URLSearchParams(searchParams.toString()));
     } else {
       setSortType(null);
       setSortOrder(null);
       searchParams.delete("sort_type");
       searchParams.delete("sort_order");
+      searchParams.set("page", 1);
       setSearchParams(new URLSearchParams(searchParams.toString()));
     }
   };
@@ -49,6 +51,7 @@ function Products() {
   const handleSetCategory = (category) => {
     setSelectedCategory(category);
     searchParams.set("category", category);
+    searchParams.set("page", 1);
     setSearchParams(new URLSearchParams(searchParams.toString()));
   };
 
