@@ -175,10 +175,8 @@ export function deleteImage(imageId, productId) {
       );
       dispatch(fetchProduct(productId));
     } catch (error) {
-      console.log(error);
       dispatch(setLoading(false));
       throw error
-      // return null;
     }
   };
 }
