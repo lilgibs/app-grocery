@@ -27,11 +27,7 @@ import NotFound from "./pages/NotFound";
 import { checkLogin } from "./features/userSlice";
 import { checkLoginAdmin } from "./features/adminSlice";
 import { fetchCart } from "./features/cartSlice";
-import {
-  fetchOrder,
-  fetchStoreOrder,
-  fetchAllOrder,
-} from "./features/orderSlice";
+import { fetchOrder, fetchStoreOrder, fetchAllOrder } from "./features/orderSlice";
 import { getCityStore } from "./features/locationSlice";
 import { getAddress } from "./features/addressSlice";
 import AdminDiscount from "./pages/AdminDiscount";
@@ -51,9 +47,7 @@ function App() {
   const userGlobal = useSelector((state) => state.user.user);
   const userGlobalIsLoaded = useSelector((state) => state.user.isLoaded);
   const adminGlobal = useSelector((state) => state.admin.admin);
-  const storeId = useSelector(
-    (state) => state.location.location.nearestStore.store_id
-  );
+  const storeId = useSelector((state) => state.location.location.nearestStore.store_id);
   const userMainAddress = useSelector((state) => state.address.mainAddress);
   const userAddressesIsLoaded = useSelector((state) => state.address.isLoaded);
 
@@ -94,12 +88,18 @@ function App() {
 
         dispatch(getCityStore(latitude, longitude));
       } else {
-        navigator.geolocation.getCurrentPosition(function (position) {
-          let latitude = position.coords.latitude;
-          let longitude = position.coords.longitude;
+        navigator.geolocation.getCurrentPosition(
+          function (position) {
+            let latitude = position.coords.latitude;
+            let longitude = position.coords.longitude;
 
-          dispatch(getCityStore(latitude, longitude));
-        });
+            dispatch(getCityStore(latitude, longitude));
+          },
+          function (error) {
+            if (error.code == error.PERMISSION_DENIED) alert("Unnable to access location. Showing products from main branch");
+            dispatch(getCityStore(-6.175247, 106.827049));
+          }
+        );
       }
     }
   }, [userAddressesIsLoaded, userMainAddress]); // ganti store jika alamat diganti
@@ -112,9 +112,7 @@ function App() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await axios.get(
-        `${process.env.REACT_APP_API_BASE_URL}/greetings`
-      );
+      const { data } = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/greetings`);
       setMessage(data?.message || "");
     })();
   }, []);
@@ -150,34 +148,19 @@ function App() {
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             {adminGlobal.role === 99 && (
               <>
-                <Route
-                  path="/admin/user-management"
-                  element={<AdminUserManagement />}
-                />
+                <Route path="/admin/user-management" element={<AdminUserManagement />} />
                 <Route path="/admin/categories" element={<AdminCategories />} />
               </>
             )}
 
             <Route path="/admin/products/" element={<AdminProducts />} />
-            <Route
-              path="/admin/products/add-product"
-              element={<AdminAddProduct />}
-            />
-            <Route
-              path="/admin/products/:productId"
-              element={<AdminEditProduct />}
-            />
+            <Route path="/admin/products/add-product" element={<AdminAddProduct />} />
+            <Route path="/admin/products/:productId" element={<AdminEditProduct />} />
             <Route path="/admin/orders" element={<AdminOrders />} />
             <Route path="/admin/discounts" element={<AdminDiscount />} />
-            <Route
-              path="/admin/stock-history"
-              element={<AdminStockHistory />}
-            />
+            <Route path="/admin/stock-history" element={<AdminStockHistory />} />
             <Route path="/admin/sales-report" element={<AdminSalesReport />} />
-            <Route
-              path="/admin/sales-report/:orderId"
-              element={<AdminSalesReportDetail />}
-            />
+            <Route path="/admin/sales-report/:orderId" element={<AdminSalesReportDetail />} />
           </>
         ) : (
           //when admin is logged out
@@ -194,10 +177,7 @@ function App() {
         ) : (
           //when user is logged out
           <>
-            <Route
-              path="/reset-password"
-              element={<ResetPasswordEmailForm />}
-            />
+            <Route path="/reset-password" element={<ResetPasswordEmailForm />} />
             <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/verification/:token" element={<Verification />} />
             <Route path="/verification/email" element={<EmailVerification />} />
