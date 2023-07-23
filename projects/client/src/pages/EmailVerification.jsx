@@ -47,7 +47,7 @@ const EmailVerification = () => {
         <div className="">
           <img
             className="mx-auto h-10 w-auto"
-            src="https://tailwindui.com/img/logos/mark.svg?color=indigo&shade=600"
+            src={process.env.REACT_APP_API_UPLOAD_URL + "/company-logo.png"}
             alt="Your Company"
           />
           <h2 className="mt-6 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
