@@ -38,7 +38,7 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage, 
     } catch (error) {
       console.error(error);
       setLoading(false)
-      showErrorToast("Unable to add category.");
+      showErrorToast(error.response.data || "Unable to add category.");
     }
     resetForm();
     setSubmitting(false);
@@ -54,7 +54,7 @@ function AddCategoryModal({ isOpen, onClose, fetchCategories, limit, resetPage, 
     image: Yup.mixed().required('Required')
       .test(
         "fileSize",
-        "File too large",
+        "File too large, maximum 1MB",
         value => value && value.size <= 1024 * 1024  // file size <= 1MB
       )
       .test(
