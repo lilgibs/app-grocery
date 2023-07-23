@@ -7,9 +7,6 @@ import {
   Th,
   Td,
   TableContainer,
-} from "@chakra-ui/react";
-import moment from "moment";
-import {
   Box,
   Divider,
   Radio,
@@ -24,6 +21,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
 } from "@chakra-ui/react";
+import moment from "moment";
 import Select from "react-select";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -31,9 +29,11 @@ import ReactPaginate from "react-paginate";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaFilter, FaSearch } from "react-icons/fa";
 import { fetchStockHistory } from "../api/stockHistoryApi";
+import { useCustomToast } from "../hooks/useCustomToast";
 
 function AdminStockHistory() {
   const navigate = useNavigate();
+  const { showErrorToast } = useCustomToast();
   const adminToken = localStorage.getItem("admin_token");
   const adminData = useSelector((state) => state.admin.admin);
   const [stockHistories, setStockHistories] = useState([]);
@@ -57,7 +57,7 @@ function AdminStockHistory() {
   const handleSetDate = (event) => {
     event.preventDefault();
     if (endDate < startDate) {
-      alert("End date can't be lower than start date");
+      showErrorToast("End date can't be lower than start date");
       return;
     }
     searchParams.set("start_date", startDate);

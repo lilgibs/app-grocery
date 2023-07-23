@@ -121,12 +121,17 @@ function Address() {
               <button
                 className="px-2 py-1 rounded bg-blue-500 hover:bg-blue-600 font-semibold text-white w-1/2 flex items-center justify-center"
                 onClick={async () => {
-                  await setMainAddress(
-                    address.address_id,
-                    userGlobal.user_id,
-                    userToken
-                  );
-                  dispatch(getAddress(userGlobal.user_id, userToken));
+                  try {
+                    const result = await setMainAddress(
+                      address.address_id,
+                      userGlobal.user_id,
+                      userToken
+                    );
+                    showSuccessToast(result);
+                    dispatch(getAddress(userGlobal.user_id, userToken));
+                  } catch (error) {
+                    showErrorToast(error);
+                  }
                 }}
               >
                 Set as Main Address
@@ -284,44 +289,53 @@ function Address() {
     const [selectedProvinceId, setSelectedProvinceId] = useState("");
 
     const handleSubmit = async () => {
-      let isValid = true;
-      if (addressStreet.trim() === "") {
-        setStreetError("Street is required");
-        isValid = false;
-      } else {
-        setStreetError("");
-      }
+      try {
+        let isValid = true;
+        if (addressStreet.trim() === "") {
+          setStreetError("Street is required");
+          isValid = false;
+        } else {
+          setStreetError("");
+        }
 
-      if (addressCity.trim() === "") {
-        setCityError("City is required");
-        isValid = false;
-      } else {
-        setCityError("");
-      }
+        if (addressCity.trim() === "") {
+          setCityError("City is required");
+          isValid = false;
+        } else {
+          setCityError("");
+        }
 
-      if (addressProvince.trim() === "") {
-        setProvinceError("Province is required");
-        isValid = false;
-      } else {
-        setProvinceError("");
-      }
+        if (addressProvince.trim() === "") {
+          setProvinceError("Province is required");
+          isValid = false;
+        } else {
+          setProvinceError("");
+        }
 
-      if (isValid) {
-        const coordinates = await getCoordinates(
-          `${addressStreet}, ${addressCity}, ${addressProvince}`
-        );
+        if (isValid) {
+          const coordinates = await getCoordinates(
+            `${addressStreet}, ${addressCity}, ${addressProvince}`
+          );
 
-        const data = {
-          street: addressStreet,
-          city: addressCity,
-          province: addressProvince,
-          longitude: coordinates.lng,
-          latitude: coordinates.lat,
-        };
+          const data = {
+            street: addressStreet,
+            city: addressCity,
+            province: addressProvince,
+            longitude: coordinates.lng,
+            latitude: coordinates.lat,
+          };
 
-        await editAddress(selectedAddress.address_id, data, userToken);
-        onEditClose();
-        dispatch(getAddress(userGlobal.user_id, userToken));
+          const result = await editAddress(
+            selectedAddress.address_id,
+            data,
+            userToken
+          );
+          showSuccessToast(result);
+          onEditClose();
+          dispatch(getAddress(userGlobal.user_id, userToken));
+        }
+      } catch (error) {
+        showErrorToast(error);
       }
     };
 

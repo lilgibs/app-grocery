@@ -7,10 +7,6 @@ import {
   Th,
   Td,
   TableContainer,
-  // Select,
-} from "@chakra-ui/react";
-import moment from "moment";
-import {
   Box,
   Divider,
   Radio,
@@ -25,6 +21,7 @@ import {
   DrawerContent,
   DrawerCloseButton,
 } from "@chakra-ui/react";
+import moment from "moment";
 import Select from "react-select";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -33,9 +30,11 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { FaFilter } from "react-icons/fa";
 import { fetchSalesReportByStoreId } from "../api/salesReportApi";
 import { fetchBranchStores } from "../api/adminDashboardApi";
+import { useCustomToast } from "../hooks/useCustomToast";
 
 function AdminSalesReport() {
   const navigate = useNavigate();
+  const { showErrorToast } = useCustomToast();
   const adminToken = localStorage.getItem("admin_token");
   const adminData = useSelector((state) => state.admin.admin);
   const [branchStores, setBranchStores] = useState([]);
@@ -63,7 +62,7 @@ function AdminSalesReport() {
   const handleSetDate = (event) => {
     event.preventDefault();
     if (endDate < startDate) {
-      alert("End date can't be lower than start date");
+      showErrorToast("End date can't be lower than start date");
       return;
     }
     searchParams.set("start_date", startDate);

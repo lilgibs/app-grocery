@@ -1,5 +1,23 @@
 import axios from "axios";
 
+export async function getVoucher(store_id, token) {
+  try {
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_BASE_URL}/admin/vouchers/${store_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response) {
+      return response.data.data;
+    }
+  } catch (error) {
+    console.log(error.response.data);
+  }
+}
+
 export async function addVoucher(data, token) {
   try {
     const response = await axios.post(
@@ -45,9 +63,8 @@ export async function deleteVoucher(voucher_id, token) {
         },
       }
     );
-    alert(response.data.message);
-    return true;
+    return response.data.message;
   } catch (error) {
-    console.error(error);
+    return error.response.data;
   }
 }

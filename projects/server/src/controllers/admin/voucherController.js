@@ -14,7 +14,7 @@ module.exports = {
       const getVouchersQuery = await query(
         `SELECT * FROM vouchers WHERE store_id=${db.escape(
           store_id
-        )} AND end_date<=${db.escape(currentDate)} AND is_deleted=false`
+        )} AND end_date>=${db.escape(currentDate)} AND is_deleted=false`
       );
       return res.status(200).send({
         data: getVouchersQuery,
