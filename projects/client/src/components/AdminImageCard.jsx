@@ -39,13 +39,13 @@ function AdminImageCard({ images, productId }) {
     setModalOpen(true);
   };
 
-  const confirmDeleteImage = () => {
+  const confirmDeleteImage = async () => {
     try {
-      dispatch(deleteImage(toBeDeleted, productId));
+      await dispatch(deleteImage(toBeDeleted, productId));
       showSuccessToast("Product image successfully deleted.");
     } catch (error) {
-      showErrorToast("Unable to delete image.");
-    } finally{
+      showErrorToast(error.response.data.message || "Unable to delete image.");
+    } finally {
       setModalOpen(false);
       setToBeDeleted(null);
     }
