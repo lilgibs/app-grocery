@@ -54,7 +54,7 @@ function UserProfile() {
       </div>
 
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? "block" : "hidden"} lg:flex`}>
+      <div className={`${isSidebarOpen ? "block" : "hidden"} lg:flex mb-10`}>
         <Sidebar
           setSelectedComponent={setSelectedComponent}
           menuItems={["Biodata", "Address", "Settings"]}

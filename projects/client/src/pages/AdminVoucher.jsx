@@ -28,17 +28,15 @@ import { useNavigate } from "react-router-dom";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import moment from "moment";
-import { addDiscount, deleteDiscount, getDiscounts } from "../api/discountApi";
-import { fetchProducts } from "../api/userApi";
+import { addVoucher, deleteVoucher, getVoucher } from "../api/voucherApi";
 import DeleteConfirmationModal from "../components/DeleteConfirmationModal";
 import { useCustomToast } from "../hooks/useCustomToast";
 
-function AdminDiscount() {
+function AdminVoucher() {
   const { showSuccessToast, showErrorToast } = useCustomToast();
   const adminData = useSelector((state) => state.admin.admin);
   const adminToken = localStorage.getItem("admin_token");
   const [discounts, setDiscounts] = useState([]);
-  const [products, setProducts] = useState([]);
   const [toBeDeleted, setToBeDeleted] = useState(null);
   const [isModalOpen, setModalOpen] = useState(false);
   const {
@@ -49,15 +47,15 @@ function AdminDiscount() {
 
   const initialRef = useRef();
 
-  const handleDeleteDiscount = (id) => {
+  const handleDeleteVoucher = (id) => {
     setToBeDeleted(id);
     setModalOpen(true);
   };
 
-  const ConfirmDeleteDiscount = async () => {
+  const ConfirmDeleteVoucher = async () => {
     setModalOpen(false);
     try {
-      const response = await deleteDiscount(toBeDeleted, adminToken);
+      const response = await deleteVoucher(toBeDeleted, adminToken);
 
       showSuccessToast(response);
     } catch (error) {
@@ -72,16 +70,16 @@ function AdminDiscount() {
     const handleSubmit = async (values, { setSubmitting, resetForm }) => {
       try {
         const data = {
-          discount_type: values.discount_type,
           discount_value_type: values.discount_value_type,
           discount_value: values.discount_value,
           start_date: values.start_date,
           end_date: values.end_date,
           store_id: adminData.store_id,
-          products: values.products,
+          minimum_amount: values.minimum_amount,
+          voucher_name: values.voucher_name,
         };
 
-        await addDiscount(data, adminToken);
+        await addVoucher(data, adminToken);
 
         showSuccessToast("Promo added successfully.");
         onAddClose();
@@ -94,20 +92,12 @@ function AdminDiscount() {
     };
 
     const validationSchema = Yup.object().shape({
-      discount_type: Yup.string().required("Pilih tipe diskon"),
-      discount_value_type: Yup.string().when("discount_type", {
-        is: (val) => val !== "BUY_1_GET_1",
-        then: () => Yup.string().required("Discount Value Type is required"),
-        otherwise: () => Yup.string().nullable(),
-      }),
+      discount_value_type: Yup.string().required(
+        "Discount Value Type is required"
+      ),
       discount_value: Yup.number()
-        .required("Isi nilai diskon")
-        .typeError("Diskon harus berupa angka")
-        .when("discount_type", {
-          is: (val) => val !== "BUY_1_GET_1",
-          then: () => Yup.string().required("Discount Value Type is required"),
-          otherwise: () => Yup.string().nullable(),
-        })
+        .required("Discount Value Type is required")
+        .typeError("It has to be a number")
         .when("discount_value_type", {
           is: (val) => val === "PERCENTAGE",
           then: () =>
@@ -125,11 +115,12 @@ function AdminDiscount() {
           Yup.ref("start_date"),
           "Tanggal akhir harus setelah tanggal mulai"
         ),
-      products: Yup.array().when("discount_type", {
-        is: (val) => val !== "VOUCHER",
-        then: () => Yup.array().min(1, "Discount Value Type is required"),
-        otherwise: () => Yup.array().nullable(),
-      }),
+      voucher_name: Yup.string()
+        .required("Voucher Name is required")
+        .matches(/^\S+$/, "Only one word is allowed"),
+      minimum_amount: Yup.number()
+        .required("Voucher Minimum Amount is required")
+        .typeError("It has to be a number"),
     });
 
     return (
@@ -140,17 +131,17 @@ function AdminDiscount() {
       >
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Add Discount</ModalHeader>
+          <ModalHeader>Add Voucher</ModalHeader>
           <ModalCloseButton />
           <ModalBody pb={6}>
             <Formik
               initialValues={{
-                discount_type: "",
+                minimum_amount: "",
                 discount_value_type: "",
                 discount_value: null,
                 start_date: "",
                 end_date: "",
-                products: [],
+                voucher_name: "",
               }}
               validationSchema={validationSchema}
               onSubmit={handleSubmit}
@@ -159,31 +150,26 @@ function AdminDiscount() {
                 <>
                   <Form>
                     <FormControl>
-                      <FormLabel>Discount Type</FormLabel>
-                      <RadioGroup name="discount_type">
-                        <Field as={Radio} name="discount_type" value="LANGSUNG">
-                          LANGSUNG
-                        </Field>
-                        <Field
-                          as={Radio}
-                          name="discount_type"
-                          value="BUY_1_GET_1"
-                        >
-                          BUY 1 GET 1
-                        </Field>
-                      </RadioGroup>
+                      <FormLabel>Voucher Name</FormLabel>
+                      <Field as={Input} name="voucher_name" />
                       <ErrorMessage
-                        name="discount_type"
+                        name="voucher_name"
                         component="div"
                         className="text-red-500 text-xs italic"
                       />
                     </FormControl>
 
-                    <FormControl
-                      className={
-                        values.discount_type === "BUY_1_GET_1" ? "hidden" : null
-                      }
-                    >
+                    <FormControl>
+                      <FormLabel>Minimum Total Price</FormLabel>
+                      <Field as={Input} name="minimum_amount" />
+                      <ErrorMessage
+                        name="minimum_amount"
+                        component="div"
+                        className="text-red-500 text-xs italic"
+                      />
+                    </FormControl>
+
+                    <FormControl>
                       <FormLabel>Discount Value Type</FormLabel>
                       <RadioGroup name="discount_value_type">
                         <Field
@@ -208,12 +194,8 @@ function AdminDiscount() {
                       />
                     </FormControl>
 
-                    <FormControl
-                      className={
-                        values.discount_type === "BUY_1_GET_1" ? "hidden" : null
-                      }
-                    >
-                      <FormLabel>Discount Value</FormLabel>
+                    <FormControl>
+                      <FormLabel>Voucher Value</FormLabel>
                       <Field as={Input} name="discount_value" />
                       <ErrorMessage
                         name="discount_value"
@@ -241,30 +223,6 @@ function AdminDiscount() {
                         className="text-red-500 text-xs italic"
                       />
                     </FormControl>
-                    <FormControl>
-                      <FormLabel>Products</FormLabel>
-                      <div className="max-h-32 overflow-y-auto">
-                        <div className="grid grid-cols-3 gap-1">
-                          {products.map((product) => (
-                            <div key={product.product_id}>
-                              <label>
-                                <Field
-                                  type="checkbox"
-                                  name="products"
-                                  value={product.product_name}
-                                />
-                                {product.product_name}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <ErrorMessage
-                        name="products"
-                        component="div"
-                        className="text-red-500 text-xs italic"
-                      />
-                    </FormControl>
                     <ModalFooter>
                       <Button colorScheme="green" mr={3} type="submit">
                         Save
@@ -285,28 +243,11 @@ function AdminDiscount() {
 
   useEffect(() => {
     const fetchDiscounts = async () => {
-      const data = await getDiscounts(adminData.store_id, adminToken);
-      const mergedData = Object.values(
-        data.reduce((acc, obj) => {
-          if (!acc[obj.discount_id]) {
-            acc[obj.discount_id] = { ...obj };
-          } else {
-            acc[obj.discount_id].product_name += `, ${obj.product_name}`;
-          }
-          return acc;
-        }, {})
-      );
-      setDiscounts(mergedData);
+      const data = await getVoucher(adminData.store_id, adminToken);
+      console.log(data);
+      setDiscounts(data);
     };
     fetchDiscounts();
-  }, [adminData.store_id]);
-
-  useEffect(() => {
-    const getProducts = async () => {
-      const result = await fetchProducts(adminData.store_id);
-      setProducts(result.products);
-    };
-    getProducts();
   }, [adminData.store_id]);
 
   return (
@@ -316,7 +257,7 @@ function AdminDiscount() {
           onClick={onAddOpen}
           className="bg-pink-500 hover:bg-pink-600 font-semibold text-white py-2 px-4 rounded-md mb-2 flex items-center"
         >
-          <FaPlus size={15} className="mr-2" /> Add Discount
+          <FaPlus size={15} className="mr-2" /> Add Voucher
         </button>
       </div>
       <TableContainer whiteSpace="normal">
@@ -324,9 +265,9 @@ function AdminDiscount() {
           <Thead>
             <Tr>
               <Th>ID</Th>
-              <Th>Product Name</Th>
+              <Th>Voucher Name</Th>
+              <Th>Minimum Amount</Th>
               <Th>Discount Value</Th>
-              <Th>Discount Type</Th>
               <Th>Discount Value Type</Th>
               <Th>Duration</Th>
               <Th>Action</Th>
@@ -335,11 +276,11 @@ function AdminDiscount() {
           <Tbody>
             {discounts.map((discount) => (
               <Tr>
-                <Td w="1px">{discount.discount_id}</Td>
-                <Td w="400px">{discount.product_name}</Td>
-                <Td w="1px">{discount.discount_value}</Td>
-                <Td w="1px">{discount.discount_type}</Td>
-                <Td w="1px">{discount.discount_value_type}</Td>
+                <Td w="1px">{discount.voucher_id}</Td>
+                <Td w="400px">{discount.voucher_name}</Td>
+                <Td w="1px">{discount.minimum_amount}</Td>
+                <Td w="1px">{discount.voucher_value}</Td>
+                <Td w="1px">{discount.voucher_value_type}</Td>
                 <Td w="1px">
                   {moment(discount.start_date).format("MMMM DD YYYY")} -{" "}
                   {moment(discount.end_date).format("MMMM DD YYYY")}
@@ -348,7 +289,7 @@ function AdminDiscount() {
                   <div
                     className="px-7 py-1 rounded bg-rose-500 hover:bg-rose-600 font-semibold text-white w-1/2 flex items-center justify-center gap-1 cursor-pointer"
                     onClick={() => {
-                      handleDeleteDiscount(discount.discount_id);
+                      handleDeleteVoucher(discount.voucher_id);
                     }}
                   >
                     <FaTrash size={15} />
@@ -365,11 +306,11 @@ function AdminDiscount() {
         isOpen={isModalOpen}
         onClose={() => setModalOpen(false)}
         onConfirm={() => {
-          ConfirmDeleteDiscount();
+          ConfirmDeleteVoucher();
         }}
       />
     </div>
   );
 }
 
-export default AdminDiscount;
+export default AdminVoucher;

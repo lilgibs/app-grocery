@@ -45,7 +45,6 @@ export async function resetPassword(data, token) {
       }
     );
     if (response) {
-      alert(response.data.message);
       return true;
     }
   } catch (error) {

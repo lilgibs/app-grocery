@@ -62,7 +62,7 @@ export async function deleteDiscount(discount_id, token) {
         },
       }
     );
-    return true;
+    return response.data.message;
   } catch (error) {
     return error.response.data;
   }

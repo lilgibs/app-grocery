@@ -44,10 +44,9 @@ export async function editAddress(address_id, data, token) {
         },
       }
     );
-    alert(response.data.message);
-    return true;
+    return response.data.message;
   } catch (error) {
-    console.error(error);
+    return error.response.data;
   }
 }
 
@@ -62,8 +61,8 @@ export async function setMainAddress(address_id, user_id, token) {
         },
       }
     );
-    alert(response.data.message);
+    return response.data.message;
   } catch (error) {
-    alert(error.response.data);
+    return error.response.data;
   }
 }

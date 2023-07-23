@@ -42,7 +42,7 @@ const ResetPassword = () => {
             validationSchema={ValidationSchema}
             onSubmit={async (value) => {
               try {
-                const result = await resetPassword(value, token);
+                await resetPassword(value, token);
                 showSuccessToast("Password reseted successfully");
                 nav("/login");
               } catch (error) {

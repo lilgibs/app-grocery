@@ -56,12 +56,10 @@ export function loginUser(data) {
         ).format("YYYY-MM-DD");
         dispatch(setUser(response.data.data));
         localStorage.setItem("user_token", response.data.token);
-        // alert(response.data.message);
       }
       return true;
     } catch (error) {
       return error.response.data;
-      // alert(error.response.data);
     } finally {
       dispatch(setLoaded(true));
     }
@@ -90,7 +88,6 @@ export function checkLogin(token) {
       if (error.response.data === "jwt expired") {
         localStorage.removeItem("user_token");
       }
-      // alert(error.response.data);
       console.log(error.response.data);
     } finally {
       dispatch(setLoaded(true));
