@@ -52,13 +52,12 @@ const LandingPage = () => {
   useEffect(() => {
     const getCategories = async () => {
       const result = await fetchCategories();
-      setCategories(result.formattedCategories);
-      console.log(categories.slice(0, 5));
+      setCategories(result?.formattedCategories);
     };
 
     const getProducts = async () => {
       const result = await fetchProducts(store_id);
-      setProducts(result.products);
+      setProducts(result?.products);
     };
     getProducts();
     getCategories();
@@ -117,11 +116,11 @@ const LandingPage = () => {
                   onClick={
                     userToken
                       ? () => {
-                          navigate("/profile");
-                        }
+                        navigate("/profile");
+                      }
                       : () => {
-                          navigate("/login");
-                        }
+                        navigate("/login");
+                      }
                   }
                   ml={3}
                 >
@@ -171,7 +170,7 @@ const LandingPage = () => {
           </div>
 
           <div className="mt-8 grid grid-cols-4 gap-3 md:flex">
-            {categories.slice(0, 8).map((category) => (
+            {categories?.slice(0, 8).map((category) => (
               <Button variant="outline" colorScheme="green" h={{ base: "80px", md: "120px", lg: "150px" }} w={{ base: "80px", md: "120px", lg: "150px" }} fontSize="sm" onClick={() => navigate(`/products?category=${category.label}`)}>
                 <div className="grid grid-row-2 justify-center">
                   <img className="h-5 mx-auto mb-1 md:h-7 md:mb-2" src={`${process.env.REACT_APP_API_IMG_URL + category.image}`} alt="" />
@@ -200,9 +199,9 @@ const LandingPage = () => {
             </div>
           </div>
 
-          {products.length > 0 ? (
+          {products?.length > 0 ? (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-5 h-auto">
-              {products.slice(0, 6).map((product) => (
+              {products?.slice(0, 6).map((product) => (
                 <ProductCard product={product} key={product.product_id} />
               ))}
             </div>

@@ -65,7 +65,7 @@ function Products() {
   useEffect(() => {
     const getCategories = async () => {
       const result = await fetchCategories();
-      setCategories(result.formattedCategories);
+      setCategories(result?.formattedCategories);
     };
 
     const getProducts = async () => {
@@ -77,8 +77,8 @@ function Products() {
       const pageParam = Number(searchParams.get("page"));
       setPage(pageParam || 1);
       const result = await fetchProducts(store_id, searchParam, categoryParam, pageParam, limit, sortTypeParam, sortOrderParam);
-      setProducts(result.products);
-      setTotalProducts(result.total);
+      setProducts(result?.products);
+      setTotalProducts(result?.total);
     };
     getProducts();
     getCategories();
@@ -104,7 +104,7 @@ function Products() {
               <div className="flex flex-col gap-2 ">
                 <p className="font-semibold text-lg border-b-2 border-neutral-200 pb-2 text-neutral-600">Category</p>
                 <div className="flex flex-col gap-2 overflow-y-auto h-[300px] pr-2">
-                  {categories.map((category) => (
+                  {categories?.map((category) => (
                     <div
                       className={`flex border px-4 py-2 rounded-md gap-5 items-center cursor-pointer hover:translate-x-1 duration-100
                         ${selectedCategory === category.label.toLowerCase() ? "font-semibold border-green-500 text-green-500" : ""}`}
@@ -158,9 +158,9 @@ function Products() {
             {/* Content Header - END */}
 
             {/* Content Body - START */}
-            {products.length > 0 ? (
+            {products?.length > 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-5 h-auto">
-                {products.map((product) => (
+                {products?.map((product) => (
                   <ProductCard product={product} key={product.product_id} />
                 ))}
               </div>

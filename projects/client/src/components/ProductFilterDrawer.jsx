@@ -29,7 +29,7 @@ function ProductFilterDrawer({ isOpen, onClose, handleSortChange, sortType, sort
             <Text className="font-semibold text-lg mt-5">Category</Text>
             <Divider mb={"2"} />
             <div className="flex flex-col gap-2 overflow-y-auto h-[300px] pr-2">
-              {categories.map((category) => (
+              {categories?.map((category) => (
                 <div
                   className={`flex border px-4 py-1 rounded-md gap-5 items-center cursor-pointer hover:translate-x-1 duration-100 ${selectedCategory === category.label.toLowerCase() ? "font-semibold border-green-500 text-green-500" : ""
                     }`}
