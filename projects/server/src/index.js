@@ -27,7 +27,7 @@ const path = require("path");
 require("./config/db.js");
 
 // const PORT = process.env.PORT || 8000;
-const PORT = 8000;
+const PORT = process.env.APP_PORT || 8011;
 const app = express();
 app.use(cors());
 
